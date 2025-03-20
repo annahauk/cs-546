@@ -1,0 +1,39 @@
+{
+  "name": "gitmatches",
+  "contributors": [
+    "Anna Hauk",
+    "Christopher Kalish",
+    "Benicio Hernandez",
+    "Zakariyya Scavotto",
+    "Nelson Bermeo"
+  ],
+  "version": "0.0.0-1",
+  "description": "An awesome service to help you find collaborators",
+  "keywords": [
+    "git",
+    "development",
+    "project",
+    "collaborators"
+  ],
+  "homepage": "https://github.com/annahauk/cs-546#readme",
+  "bugs": {
+    "url": "https://github.com/annahauk/cs-546/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/annahauk/cs-546.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "express": "^4.21.2",
+    "mongodb": "^6.15.0"
+  }
+}
