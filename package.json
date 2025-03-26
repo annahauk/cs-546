@@ -35,5 +35,8 @@
     "axios": "^1.8.4",
     "express": "^4.21.2",
     "mongodb": "^6.15.0"
+  },
+  "devDependencies": {
+    "w3c-html-validator": "^1.8.3"
   }
 }
