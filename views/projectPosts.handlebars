@@ -1,1 +1,14 @@
 {{! Handlebars for the main home page of project posts }}
+{{!-- https://handlebarsjs.com/guide/partials.html#basic-partials --}}
+{{> navbar}}
+{{#if projects}}
+<ol>
+    {{#each projects}}
+        <li class="project">
+            <a href="project">Project</a>
+        </li>
+    {{/each}}
+</ol>
+{{else}}
+	<p class="not-found">We're sorry, but no projects can be found. Please try again later.</p>
+{{/if}}
