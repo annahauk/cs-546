@@ -83,7 +83,7 @@ const tagDocument = (doc) => {
 	return tags;
 };
 
-const main = async () => {
+const testMain = async () => {
 	// Initialize Poppler object and setup compromise plugin
 	const poppler = new Poppler();
 	setupCompromisePlugin();
@@ -99,4 +99,22 @@ const main = async () => {
 	console.log(tags);
 };
 
-main();
+// Use this for actually getting the user's tags
+const processUploadedResume = async (file) => {
+	// Initialize Poppler object and setup compromise plugin
+	const poppler = new Poppler();
+	setupCompromisePlugin();
+	// Get the path
+	const pdfPath = path.resolve(file.path);
+	// Found on documentation that they have pdfToText function: https://github.com/Fdawgs/node-poppler/blob/main/API.md#Poppler+pdfToText
+	// Looking up the text-file options found the debian docs on it, where we can just have it go to stdout instead of forcing us to save a file: https://manpages.debian.org/testing/poppler-utils/pdftotext.1.en.html
+	const pdfText = await poppler.pdfToText(pdfPath, "-");
+	// console.log(pdfText)
+	// Conver the text into compromise doc to be able to do nlp
+	const doc = createAndTagDoc(pdfText);
+	const tags = tagDocument(doc);
+	console.log(tags);
+	return tags;
+};
+
+testMain();
