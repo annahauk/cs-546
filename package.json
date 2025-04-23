@@ -29,6 +29,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "dev": "npx nodemon --signal SIGINT",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -39,6 +40,7 @@
     "node-poppler": "^7.2.4"
   },
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "w3c-html-validator": "^1.8.3"
   }
 }
