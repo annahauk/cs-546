@@ -214,7 +214,7 @@ function validateArray(array, validator) {
 }
 
 function validObjectId(objid) {
-    if(!ObjectId.isValid(ObjectId)) {
+    if(!ObjectId.isValid(objid)) {
         throw new Error(`Invalid ObjectId.`);
     }
     return true;
