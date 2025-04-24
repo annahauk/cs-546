@@ -113,6 +113,21 @@ async function getUserById(id){
     return user;
 };
 
+/**
+ * get user document by username. 
+ * return null if not found
+ * @param {*} username 
+ */
+async function getUserByUsername(username) {
+  const usersc = await users();
+  const user = await usersc.findOne({"user_name": username});
+  if(!user) {
+    return null;
+  } else {
+    return user;
+  }
+}
+
 // maybe don't need yet
 // Done
 async function removeUser(id){
@@ -148,4 +163,4 @@ async function renameUser(id, newName){
     return updatedInfo;
   };
 
-export {createUser, getAllUsers, getUserById, removeUser, renameUser};
+export {createUser, getAllUsers, getUserById, getUserByUsername, removeUser, renameUser};
