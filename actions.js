@@ -1,6 +1,6 @@
 import { users } from "./config/mongoCollections.js";
-import { get_auth_by_id } from "./data/authdata.js";
-import { create_auth, try_auth } from "./src/lib/auth.js";
+import { getUserByUsername } from "./data/users.js";
+import { create_auth, login, try_auth } from "./src/lib/auth.js";
 import { exit } from "./src/util/common.js";
 
 /**
@@ -29,8 +29,7 @@ export async function do_action(action) {
             }
 
             console.log(`Creating auth for ${username}`);
-            const usersc = await users();
-            const user = await usersc.findOne({"user_name": username});
+            const user = await getUserByUsername(username);
             if(!user) {
                 console.log(`No user with username: ${username}.`);
                 exit(1);
@@ -81,7 +80,28 @@ export async function do_action(action) {
          * testing user login
          */
         case "login": {
+            let username = argv[argc-2];
+            let password = argv[argc-1];
+            if(!username || !password) {
+                console.error(`Usage: login <username> <password>`);
+                exit(1);
+            }
 
+            console.log(`Trying login for ${username}`);
+            const user = await getUserByUsername(username);
+            if(!user) {
+                console.log(`No user with username: ${username}.`);
+                exit(1);
+            }
+
+            let token = await login(username, password);
+            if(token) {
+                console.log(`Login success! Added token: ${token}`);
+            } else {
+                console.log(`Login failed (bad credentials).`);
+            }
+
+            exit(0);
         } break;
 
         /**
