@@ -15,8 +15,8 @@ async function Main() {
     
     //get action if applicable
     let action;
-    for(const arg in process.argv) {
-        if(process.argv[arg] === "--action") {
+    for(let arg=0; arg < process.argv.length; arg++) {
+        if(process.argv[arg] === "action") {
             action = process.argv[arg+1];
         }
     }
