@@ -1,3 +1,4 @@
+import { users } from "./config/mongoCollections.js";
 import { create_auth } from "./src/lib/auth.js";
 import { exit } from "./src/util/common.js";
 
@@ -15,6 +16,9 @@ export async function do_action(action) {
     console.warn(`[WARN]: Performing manual action: ${action}!`);
 
     switch(action) {
+        /**
+         * test creating auth document for user
+         */
         case "create_auth": {
             let username = argv[argc-2];
             let password = argv[argc-1];
@@ -35,6 +39,27 @@ export async function do_action(action) {
             console.log(`created auth: ${authid}`);
 
             exit(0);
+        } break;
+
+        /**
+         * testing auth tester
+         */
+        case "try_auth": {
+
+        } break;
+
+        /**
+         * testing user login
+         */
+        case "login": {
+            
+        } break;
+
+        /**
+         * test creating user document
+         */
+        case "create_user": {
+
         } break;
     }
 }
