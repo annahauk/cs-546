@@ -1,8 +1,8 @@
-import { ObjectId } from "mongodb";
+import { compare, genSalt, hash } from "bcryptjs";
 import { auth, users } from "../../config/mongoCollections.js";
 import { authConfig } from "../../config/settings.js";
-import { idVal, stringVal, validObjectId } from "../../helpers.js";
-import { compare, genSalt, hash } from "bcryptjs";
+import { get_auth_by_id } from "../../data/authdata.js";
+import { stringVal, validObjectId } from "../../helpers.js";
 
 // auth functions
 /**
@@ -32,7 +32,7 @@ export async function create_auth(userid, passphrase) {
      * generate the salted hash
      */
     const _salt = await genSalt(authConfig.saltRounds);
-    const _hash = await hash(passphrase, _salt);
+    const _hash = await hash(passphrase + _salt, _salt);
 
     /**
      * insert the newly created auth document
@@ -61,4 +61,23 @@ export async function create_auth(userid, passphrase) {
     }
 
     return upsert.insertedId;
+}
+
+/**
+ * test if authentication is successful, returns boolean
+ * @param {*} authId 
+ * @param {*} passphrase 
+ */
+export async function try_auth(authId, passphrase) {
+    try {
+        validObjectId(authId);
+        stringVal(passphrase);
+    } catch (e) {
+        throw new Error(`try_auth invalid input: ${e}`);
+    }
+
+    const authdoc = await get_auth_by_id(authId);
+
+    // might need le salt
+    return await compare(passphrase + authdoc.salt, authdoc.hash);
 }
