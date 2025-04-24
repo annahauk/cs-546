@@ -3,6 +3,9 @@ import { auth, users } from "../../config/mongoCollections.js";
 import { authConfig } from "../../config/settings.js";
 import { get_auth_by_id } from "../../data/authdata.js";
 import { stringVal, validObjectId } from "../../helpers.js";
+import { getUserByUsername } from "../../data/users.js";
+import { randomBytes } from "crypto";
+import { promisify } from "util";
 
 // auth functions
 /**
@@ -80,4 +83,61 @@ export async function try_auth(authId, passphrase) {
 
     // might need le salt
     return await compare(passphrase + authdoc.salt, authdoc.hash);
+}
+
+/**
+ * perform full user login
+ * adds token to user auth document if successful
+ * returns token if successful, null if failed, throws if error
+ * @param {*} username 
+ * @param {*} password 
+ */
+export async function login(username, password) {
+    stringVal(username);
+    stringVal(password);
+
+    /**
+     * get user
+     */
+    const user = await getUserByUsername(username);
+    if(!user) {
+        throw new Error(`User not found.`);
+    }
+
+    if(!await try_auth(user.Auth, password)) {
+        // login failed
+        return null;
+    }
+
+    // login succeeded
+    /**
+     * generate and insert token
+     */
+    const token = await generate_token(authConfig.tokenLength);
+    const authc = await auth();
+    const update = await authc.updateOne({_id: user.Auth}, {
+        "$push": {"tokens": token}
+    })
+    if(!update.acknowledged) {
+        throw new Error(`Token upsert failed.`);
+    }
+
+    // PLEASE TO HAVE RETURN TOKEN!!??!?
+    return token;
+}
+
+/**
+ * Generates cryptographically secure random token of length
+ * @param length 
+ * @returns 
+ */
+export async function generate_token(length) {
+    let random_bytes = promisify(randomBytes);
+    try {
+        let buffer = await random_bytes(length);
+        let token = buffer.toString('hex');
+        return token;
+    } catch (e) {
+        throw new Error(Errors.ERR_TOKENGEN_FAILED);
+    }
 }
