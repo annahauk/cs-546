@@ -56,7 +56,7 @@ export async function create_auth(userid, passphrase) {
     let update = await usersc.updateOne({_id: userid}, {
         "$set": {"Auth": upsert.insertedId}
     })
-    if(!update.insertedId) {
+    if(!update.acknowledged) {
         throw new Error(`Failed to set user auth id.`);
     }
 
