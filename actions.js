@@ -1,5 +1,6 @@
 import { users } from "./config/mongoCollections.js";
-import { create_auth } from "./src/lib/auth.js";
+import { get_auth_by_id } from "./data/authdata.js";
+import { create_auth, try_auth } from "./src/lib/auth.js";
 import { exit } from "./src/util/common.js";
 
 /**
@@ -45,14 +46,42 @@ export async function do_action(action) {
          * testing auth tester
          */
         case "try_auth": {
+            let username = argv[argc-2];
+            let password = argv[argc-1];
+            if(!username || !password) {
+                console.error(`Usage: try_auth <username> <password>`);
+                exit(1);
+            }
 
+            let authfast = true;
+            setTimeout(() => {
+                if(authfast) {
+                    console.warn(`[WARN]: Auth was too fast <2000 ms! Did bcrypt work?`);
+                }
+            }, 2000);
+
+            console.log(`Trying auth for ${username}`);
+            const usersc = await users();
+            const user = await usersc.findOne({"user_name": username});
+            if(!user) {
+                console.log(`No user with username: ${username}.`);
+                exit(1);
+            }
+
+            if(await try_auth(user.Auth, password)) {
+                console.log(`Auth success!`);
+            } else {
+                console.log(`Auth fail (bad credentials).`);
+            }
+
+            exit(0);
         } break;
 
         /**
          * testing user login
          */
         case "login": {
-            
+
         } break;
 
         /**
