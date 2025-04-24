@@ -3,6 +3,7 @@ import {ObjectId} from 'mongodb';
 
 // helper imports
 import {stringVal, arrayVal} from '../helpers.js'
+import { create_auth } from '../src/lib/auth.js';
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
 
 /*
@@ -24,15 +25,14 @@ schema
 */
 
 // come back
-async function createUser(firstName, lastName, userName, password, email, authId, githubProfile, skillTags, friends, achievements, notifications){
+async function createUser(firstName, lastName, userName, password, email, githubProfile, skillTags, friends, achievements, notifications){
     // INPUT VALIDATION
     // COME BACK TO FIX HELPERS BASED ON THE NEED FOR THE SCHEMA
     firstName = stringVal(firstName);
     lastName = stringVal(lastName);
     userName = stringVal(userName);
-    password = stringVal(password);
     email = stringVal(email);
-    authId = stringVal(authId);
+    authId = undefined; // created in update
     githubProfile = stringVal(githubProfile);
     skillTags = arrayVal(skillTags);
     friends = arrayVal(friends);
@@ -42,14 +42,14 @@ async function createUser(firstName, lastName, userName, password, email, authId
     // COME BACK
     // check if userName and email are unique and not an existing user
 
+
     // create new user
     let newUser = {
         first_name: firstName,
         last_name: lastName,
         user_name: userName,
-        password: password,
         email: email,
-        Auth: authId,
+        Auth: undefined,
         github_profile: githubProfile,
         skill_tags: skillTags,
         friends: friends,
@@ -62,11 +62,26 @@ async function createUser(firstName, lastName, userName, password, email, authId
     if (!insertInfo.acknowledged || !insertInfo.insertedId){
       throw 'Could not add movie';
     }
+
+    /**
+   * create authentication for user via authId
+   * upsert into newly created user
+   */
+    // throws on failure, so valid object id will be returned
+    const authId = await create_auth(insertInfo.insertedId, password);
+
+    // update the user's document
+    const update = await userCollection.updateOne({_id: insertInfo.insertedId}, {
+      "$set": {"Auth": authId}
+    })
+    if(!update.insertedId) {
+      throw new Error(`Failed to insert Auth to user document.`);
+    }
     
     // returns the id of the inserted user
     const newId = insertInfo.insertedId.toString();
     const user = await getUserById(newId);
-    return movie;
+    return user;
 };
 
 // Done
