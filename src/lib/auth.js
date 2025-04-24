@@ -1,11 +1,11 @@
 import { compare, genSalt, hash } from "bcryptjs";
+import { randomBytes } from "crypto";
+import { promisify } from "util";
 import { auth, users } from "../../config/mongoCollections.js";
 import { authConfig } from "../../config/settings.js";
 import { get_auth_by_id } from "../../data/authdata.js";
-import { stringVal, validObjectId } from "../../helpers.js";
 import { getUserByUsername } from "../../data/users.js";
-import { randomBytes } from "crypto";
-import { promisify } from "util";
+import { stringVal, validObjectId } from "../../helpers.js";
 
 // auth functions
 /**
