@@ -6,5 +6,6 @@ export const mongoConfig = {
 };
 
 export const authConfig = {
-  saltRounds: 15
+  saltRounds: 15,
+  tokenLength: 10,
 }
