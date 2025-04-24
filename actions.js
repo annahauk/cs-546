@@ -88,11 +88,6 @@ export async function do_action(action) {
             }
 
             console.log(`Trying login for ${username}`);
-            const user = await getUserByUsername(username);
-            if(!user) {
-                console.log(`No user with username: ${username}.`);
-                exit(1);
-            }
 
             let token = await login(username, password);
             if(token) {
