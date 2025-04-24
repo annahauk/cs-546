@@ -1,6 +1,8 @@
 import express from "express";
 import { constructorMethod } from "./routes/index.js";
 import { settings } from "./src/settings.js";
+import { do_action } from "./actions.js";
+import { exit } from "./src/util/common.js";
 
 const app = express();
 
@@ -10,6 +12,18 @@ async function Main() {
 
     // const db = await dbConnection();
     // await db.dropDatabase();
+    
+    //get action if applicable
+    let action;
+    for(const arg in process.argv) {
+        if(process.argv[arg] === "--action") {
+            action = process.argv[arg+1];
+        }
+    }
+    if(action) {
+        await do_action(action);
+        exit(0);
+    }
 
     constructorMethod(app);
     try {
