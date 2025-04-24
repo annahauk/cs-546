@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
-import { auth, users } from "../../config/mongoCollections";
-import { authConfig } from "../../config/settings";
-import { idVal, stringVal, validObjectId } from "../../helpers";
+import { auth, users } from "../../config/mongoCollections.js";
+import { authConfig } from "../../config/settings.js";
+import { idVal, stringVal, validObjectId } from "../../helpers.js";
 import { compare, genSalt, hash } from "bcryptjs";
 
 // auth functions
