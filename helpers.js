@@ -193,4 +193,31 @@ function validateRuntime(runtime) {
     return runtime;
 };
 
-export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime};
+/**
+ * Returns boolean if every item in array conforms to validator function
+ * throws otherwise
+ * @param {*} array 
+ * @param {*} type 
+ */
+function validateArray(array, validator) {
+    if(!Array.isArray(array)) {
+        throw new Error(`Not an array.`);
+    }
+
+    for(const item of array) {
+        if(!validator(item)) {
+            throw new Error(`Array failed validation.`);
+        }
+    }
+
+    return true;
+}
+
+function validObjectId(objid) {
+    if(!ObjectId.isValid(ObjectId)) {
+        throw new Error(`Invalid ObjectId.`);
+    }
+    return true;
+}
+
+export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime, validObjectId};
