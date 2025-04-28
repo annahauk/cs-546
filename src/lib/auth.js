@@ -6,6 +6,9 @@ import { authConfig } from "../../config/settings.js";
 import { get_auth_by_id } from "../../data/authdata.js";
 import { getUserByUsername } from "../../data/users.js";
 import { stringVal, validObjectId } from "../../helpers.js";
+import { TokenCache } from "./token_cache.js";
+
+const TOKEN_CACHE = new TokenCache();
 
 // auth functions
 /**
@@ -113,7 +116,10 @@ export async function login(username, password) {
     /**
      * generate and insert token
      */
-    const token = await generate_token(authConfig.tokenLength);
+    let token = {
+        content: await generate_token(authConfig.tokenLength),
+        ctime: new Date().getTime()
+    }
     const authc = await auth();
     const update = await authc.updateOne({_id: user.Auth}, {
         "$push": {"tokens": token}

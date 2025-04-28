@@ -42,7 +42,7 @@ router.route("/login")
 
         // success, return token
         // TODO: Enforce secure once on https
-        res.cookie('token', token, {
+        res.cookie('token', token.content, {
             httpOnly: true,     // prevents JavaScript access
             //secure: true,       // send only over HTTPS
             sameSite: 'lax',    // CSRF protection
