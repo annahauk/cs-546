@@ -33,12 +33,12 @@ export async function get_auth_by_username(username) {
         throw new Error(`No user with username: ${username}`);
     }
 
-    let auth = await authc.findOne({_id: user.Auth});
-    if(!auth) {
+    let authdoc = await authc.findOne({_id: user.Auth});
+    if(!authdoc) {
         throw new Error(`No auth document with id: ${user.Auth}`);
     }
 
-    return auth;
+    return authdoc;
 }
 
 /**
