@@ -128,6 +128,9 @@ export async function login(username, password) {
         throw new Error(`Token upsert failed.`);
     }
 
+    // insert token to token cache
+    await TOKEN_CACHE.push_token(username, token, authConfig.tokenCacheLifetime);
+
     // PLEASE TO HAVE RETURN TOKEN!!??!?
     return token;
 }
