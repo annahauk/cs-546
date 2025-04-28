@@ -91,7 +91,7 @@ export async function do_action(action) {
 
             let token = await login(username, password);
             if(token) {
-                console.log(`Login success! Added token: ${token}`);
+                console.log(`Login success! Added token`, token);
             } else {
                 console.log(`Login failed (bad credentials).`);
             }
