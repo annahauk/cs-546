@@ -193,4 +193,20 @@ function validateRuntime(runtime) {
     return runtime;
 };
 
-export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime};
+/**
+ * validLength takes a value like a string ex: Name. The inputted min would be the min chars allowed (at least), the inputted max if any is max chars allowed (at most)
+ * @param {*} value 
+ * @param {*} min 
+ * @param {*} max 
+ */
+function validLength(value, min, max){
+    if (val.length < min){ //At least min
+        throw `Value: ${value}, does not meet minimum length requirement: ${min}`
+    } else if( max == null){ //accounts for no max
+        return
+    } else if (val.length > max){ //At maximum max
+        throw `Value: ${value}, does not meet maximum length requirement: ${max}`
+    }
+}
+
+export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime, validLength};
