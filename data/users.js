@@ -2,7 +2,7 @@ import {users} from '../config/mongoCollections.js' // imported to reference tha
 import {ObjectId} from 'mongodb';
 
 // helper imports
-import {stringVal, arrayVal} from '../helpers.js'
+import { stringVal, arrayVal, idVal } from '../helpers.js'
 import { create_auth } from '../src/lib/auth.js';
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
 
@@ -32,7 +32,6 @@ async function createUser(firstName, lastName, userName, password, email, github
     lastName = stringVal(lastName);
     userName = stringVal(userName);
     email = stringVal(email);
-    authId = undefined; // created in update
     githubProfile = stringVal(githubProfile);
     skillTags = arrayVal(skillTags);
     friends = arrayVal(friends);
@@ -74,7 +73,7 @@ async function createUser(firstName, lastName, userName, password, email, github
     const update = await userCollection.updateOne({_id: insertInfo.insertedId}, {
       "$set": {"Auth": authId}
     })
-    if(!update.insertedId) {
+    if(!update.acknowledged) {
       throw new Error(`Failed to insert Auth to user document.`);
     }
     
