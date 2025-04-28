@@ -3,10 +3,11 @@ import { randomBytes } from "crypto";
 import { promisify } from "util";
 import { auth, users } from "../../config/mongoCollections.js";
 import { authConfig } from "../../config/settings.js";
-import { get_auth_by_id } from "../../data/authdata.js";
+import { find_token, get_auth_by_id, get_auth_by_username, remove_token, token_expired } from "../../data/authdata.js";
 import { getUserByUsername } from "../../data/users.js";
 import { stringVal, validObjectId } from "../../helpers.js";
 import { TokenCache } from "./token_cache.js";
+import { ObjectId } from "mongodb";
 
 const TOKEN_CACHE = new TokenCache();
 
@@ -117,6 +118,7 @@ export async function login(username, password) {
      * generate and insert token
      */
     let token = {
+        _id: new ObjectId(),
         content: await generate_token(authConfig.tokenLength),
         ctime: new Date().getTime()
     }
@@ -149,4 +151,66 @@ export async function generate_token(length) {
     } catch (e) {
         throw new Error(Errors.ERR_TOKENGEN_FAILED);
     }
+}
+
+/**
+ * The auth middleware
+ * Checks token from user cookie against cache
+ * if not in cache, fall through to database
+ * if token expired in database, remove token from database, set req.authorized to false
+ * else set req.authorized to true
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+export async function Auth(req, res, next) {
+    const AUTH_TERM = "authorized";
+    req[AUTH_TERM] = false;
+
+    // not authorized (missing cookie)
+    if(!req.cookies) {
+        return next();
+    }
+
+    // pull username and token from cookie
+    const USER = req.cookies["username"];
+    const USER_TOKEN = req.cookies["token"];
+    try {
+        await stringVal(USER);
+        await stringVal(USER_TOKEN);
+    } catch (e) {
+        return next();
+    }
+
+    // retrieve user token
+    let token = await TOKEN_CACHE.has_token(USER, USER_TOKEN);
+    if(!token) {
+        // pull token from database
+        let auth;
+        try {
+            auth = await get_auth_by_username(USER);
+        } catch (e) {
+            console.error(`Couldnt get auth by username`, e);
+            return next();
+        }
+
+        token = await find_token(auth, USER_TOKEN);
+        if(!token) {
+            // invalid token
+            return next();
+        }
+    }
+
+    // make sure token not expired
+    if(await token_expired(token)) {
+        // drop token from auth collection and return
+        console.log(`token expired!`);
+        let auth = await get_auth_by_username(USER);
+        await remove_token(auth._id, token);
+        return next();
+    }
+
+    // token is valid
+    req[AUTH_TERM] = true;
+    next();
 }
