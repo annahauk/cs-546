@@ -19,6 +19,7 @@ export function constructorMethod(app) {
     app.use("/auth", AuthRoutes);
 
     app.use('*', (req, res) => {
+        console.log(`Authorized: ${req.authorized}`);
         return res.status(404).json({error: 'Not found'});
     });
 }
