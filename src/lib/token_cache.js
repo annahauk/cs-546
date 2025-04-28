@@ -8,9 +8,10 @@ export class TokenCache {
 
     /**
      * push token to cache
-     * @param username 
-     * @param token 
-     * @returns 
+     * @param {string} username 
+     * @param {Token} token 
+     * @param {number} lifetime
+     * @returns void
      */
     async push_token(username, token, lifetime) {
         if(typeof this.lookup[username] === "undefined") {
@@ -29,8 +30,8 @@ export class TokenCache {
 
     /**
      * remove token from thingamajig
-     * @param username 
-     * @param token 
+     * @param {string} username 
+     * @param {string} token_content
      */
     async remove_token(username, token_content) {
         if(typeof this.lookup[username] === "undefined") {
@@ -44,8 +45,8 @@ export class TokenCache {
 
     /**
      * cache has token - returns token from cache
-     * @param username 
-     * @param token 
+     * @param {string} username 
+     * @param {string} token_content 
      */
     async has_token(username, token_content) {
         if(typeof this.lookup[username] === "undefined") {
