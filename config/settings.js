@@ -8,4 +8,6 @@ export const mongoConfig = {
 export const authConfig = {
   saltRounds: 15,
   tokenLength: 10,
+  tokenCacheLifetime: 3.6e+6, // 1 hour
+  tokenMaxAge: 3.6e+6*24, // 24 hours
 }

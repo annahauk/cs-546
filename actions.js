@@ -1,5 +1,5 @@
 import { users } from "./config/mongoCollections.js";
-import { getUserByUsername } from "./data/users.js";
+import { getUserByUsername, createUser } from "./data/users.js";
 import { create_auth, login, try_auth } from "./src/lib/auth.js";
 import { exit } from "./src/util/common.js";
 
@@ -91,7 +91,7 @@ export async function do_action(action) {
 
             let token = await login(username, password);
             if(token) {
-                console.log(`Login success! Added token: ${token}`);
+                console.log(`Login success! Added token`, token);
             } else {
                 console.log(`Login failed (bad credentials).`);
             }
@@ -103,7 +103,27 @@ export async function do_action(action) {
          * test creating user document
          */
         case "create_user": {
+            const firstname =       argv[argc-10];
+            const lastname =        argv[argc-9];
+            const username =        argv[argc-8];
+            const password =        argv[argc-7];
+            const email =           argv[argc-6];
+            const githubProfile =   argv[argc-5];
+            const skillTags =       argv[argc-4].split(',');
+            const friends =         argv[argc-3].split(',');
+            const achievements =    argv[argc-2].split(',');
+            const notifications =   argv[argc-1].split(',');
 
+            let user;
+            try {
+                user = await createUser(firstname, lastname, username, password, email, githubProfile, skillTags, friends, achievements, notifications);
+            } catch (e) {
+                console.error(`Failed to create user`, e);
+                exit(1);
+            }
+
+            console.log(user);
+            exit(0);
         } break;
     }
 }

@@ -32,7 +32,7 @@ router.route("/login")
         try {
             token = await login(username, password);
         } catch (e) {
-            return await res.status(500).json({error: `Error occured while logging in.`});
+            return await res.status(401).json({error: `Incorrect username or password.`});
         }
 
         // if token undefined, login was failed
@@ -42,7 +42,7 @@ router.route("/login")
 
         // success, return token
         // TODO: Enforce secure once on https
-        res.cookie('token', token, {
+        res.cookie('token', token.content, {
             httpOnly: true,     // prevents JavaScript access
             //secure: true,       // send only over HTTPS
             sameSite: 'lax',    // CSRF protection
