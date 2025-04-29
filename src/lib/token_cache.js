@@ -59,7 +59,7 @@ export class TokenCache {
             }
         }
 
-        return null;
+        return false;
     }
 
      async debug_print_cache() {
