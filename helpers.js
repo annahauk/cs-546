@@ -194,19 +194,30 @@ function validateRuntime(runtime) {
 };
 
 /**
- * validLength takes a value like a string ex: Name. The inputted min would be the min chars allowed (at least), the inputted max if any is max chars allowed (at most)
- * @param {*} value 
- * @param {*} min 
- * @param {*} max 
+ * Returns boolean if every item in array conforms to validator function
+ * throws otherwise
+ * @param {*} array 
+ * @param {*} type 
  */
-function validLength(value, min, max){
-    if (val.length < min){ //At least min
-        throw `Value: ${value}, does not meet minimum length requirement: ${min}`
-    } else if( max == null){ //accounts for no max
-        return
-    } else if (val.length > max){ //At maximum max
-        throw `Value: ${value}, does not meet maximum length requirement: ${max}`
+function validateArray(array, validator) {
+    if(!Array.isArray(array)) {
+        throw new Error(`Not an array.`);
     }
+
+    for(const item of array) {
+        if(!validator(item)) {
+            throw new Error(`Array failed validation.`);
+        }
+    }
+
+    return true;
 }
 
-export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime, validLength};
+function validObjectId(objid) {
+    if(!ObjectId.isValid(objid)) {
+        throw new Error(`Invalid ObjectId.`);
+    }
+    return true;
+}
+
+export {exists, stringVal, onlylettersandnumbers, onlyletters, arrayVal, genreVal, nameVal, idVal, spaceChecking, dateVal, validateRuntime, validObjectId};
