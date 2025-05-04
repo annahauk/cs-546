@@ -6,7 +6,9 @@ export const isLoggedIn = async (req, res, next) => {
             if (req.authorized) {
                 next();
             } else {
-                return res.redirect('/auth/login');
+                // If not logged in, any navigation will show the landing page
+                // TODO: pass in whatever the handlebars need
+                return res.render('home', {});
             }
         });
     } catch (error) {

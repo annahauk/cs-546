@@ -16,12 +16,8 @@ export function constructorMethod(app) {
     app.use(cookieParser());
     app.use(Auth);
 
-    app.get("/", (req, res) => {
-        res.render("main", {});
-    });
-
+    app.use("/", ProjectsRoutes);
     app.use("/auth", AuthRoutes);
-    app.use("/home", HomeRoutes);
     app.use("/profile", ProfileRoutes);
     app.use("/projects", ProjectsRoutes);
 
