@@ -26,6 +26,7 @@ router.route('/')
 
 router.route('/:id')
     .get(isLoggedIn, async (req, res) => {
+        // Display a specific project
         try {
             const projectId = req.params.id;
             const post = await getPostById(projectId);
@@ -38,6 +39,7 @@ router.route('/:id')
             res.status(500).render('error', {message: 'Internal server error'});
         }
     }).post(isLoggedIn, async (req, res) => {
+        // Add a comment or join a project
         try {
             const projectId = req.params.id;
             const {action, content} = req.body;
@@ -62,6 +64,7 @@ router.route('/:id')
                 return res.status(200).json({ message: 'Comment added successfully' });
             }
             else if (action === 'join') {
+                // TODO
                 // Implement join functionality
             } else {
                 return res.status(400).render('error', {message: 'Invalid action'});
