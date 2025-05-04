@@ -33,7 +33,7 @@ async function Main() {
                  * Server is running!
                  */
                 // Anna updated: added the link right there in the print
-                console.log(`Server running on port: ${settings.port} http://localhost:3000`);
+                console.log(`Server running on: http://localhost:3000`);
             } else {
                 // error occured starting server :(
                 failwith(`Failed to start server! ${e}`);

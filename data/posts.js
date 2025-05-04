@@ -1,4 +1,4 @@
-import {users} from '../config/mongoCollections.js'; // imported to reference that collection
+import {projectPosts} from '../config/mongoCollections.js'; // imported to reference that collection
 import {ObjectId} from 'mongodb';
 
 // helper imports
