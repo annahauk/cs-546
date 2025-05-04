@@ -3,6 +3,9 @@ import * as express from "express";
 import AuthRoutes from "./authroutes.js"
 import cookieParser from "cookie-parser";
 import { Auth } from "../src/lib/auth.js";
+import HomeRoutes from "./homeroutes.js";
+import ProfileRoutes from "./profileroutes.js";
+import ProjectsRoutes from "./projectsroutes.js";
 
 export function constructorMethod(app) {
     if(typeof app === "undefined") {
@@ -13,13 +16,17 @@ export function constructorMethod(app) {
     app.use(cookieParser());
     app.use(Auth);
 
-    // app.use('/route', somethingRoutes)
+    app.get("/", (req, res) => {
+        res.render("main", {});
+    });
 
-    // auth routes
     app.use("/auth", AuthRoutes);
+    app.use("/home", HomeRoutes);
+    app.use("/profile", ProfileRoutes);
+    app.use("/projects", ProjectsRoutes);
 
     app.use('*', (req, res) => {
         console.log(`Authorized: ${req.authorized}`);
-        return res.status(404).json({error: 'Not found'});
+        return res.status(404).render('error', {message: 'Not found'});
     });
 }
