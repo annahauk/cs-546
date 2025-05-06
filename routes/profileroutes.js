@@ -18,8 +18,10 @@ router.route('/:id')
             console.error(error);
             res.status(500).render('error', {message: 'Internal server error'});
         }
-    }).post(isLoggedIn, async (req, res) => {
-        // Update user profile
+    });
+router.route('/:id/edit')
+    .get(isLoggedIn, async (req, res) => {
+        // Display edit profile page
         try {
             const userId = idVal(req.params.id);
             const user = await getUserById(userId);
@@ -27,15 +29,31 @@ router.route('/:id')
                 return res.status(404).render('error', {message: 'User not found'});
             }
             if (user.user_name !== stringVal(req.body.username)) {
-                return res.status(403).render('error', {message: 'You can only update your own profile.'});
+                return res.status(403).render('error', {message: 'You can only edit your own profile.'});
+            }
+            res.render('editProfile', {user: user});
+        } catch (error) {
+            res.status(500).render('error', {message: 'Internal server error'});
+        }
+    })
+    .post(isLoggedIn, async (req, res) => {
+        // Perform an update
+        try {
+            const userId = idVal(req.params.id);
+            const user = await getUserById(userId);
+            if (!user) {
+                return res.status(404).render('error', {message: 'User not found'});
+            }
+            if (user.user_name !== stringVal(req.body.username)) {
+                return res.status(403).render('error', {message: 'You can only edit your own profile.'});
             }
 
-            // TODO: updating user profile
-            // Depending on data file implementation 
+            // TODO
+            // Implement profile updating features
+            // After done, hitting "save" will redirect back to profile view
 
-            res.status(200).json({message: 'Profile updated successfully.'});
+            res.render('profile', {user: user});
         } catch (error) {
-            console.error(error);
             res.status(500).render('error', {message: 'Internal server error'});
         }
     });
