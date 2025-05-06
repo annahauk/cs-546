@@ -16,10 +16,10 @@ export function constructorMethod(app) {
     app.use(cookieParser());
     app.use(Auth);
 
-    app.use("/", ProjectsRoutes);
+    app.use("/", HomeRoutes);
+    app.use("/projects", ProjectsRoutes);
     app.use("/auth", AuthRoutes);
     app.use("/profile", ProfileRoutes);
-    app.use("/projects", ProjectsRoutes);
 
     app.use('*', (req, res) => {
         console.log(`Authorized: ${req.authorized}`);

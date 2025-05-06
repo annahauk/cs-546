@@ -42,7 +42,8 @@ router.route('/:id')
     }).post(isLoggedIn, async (req, res) => {
         // Add a comment or join a project
         const projectId = req.params.id;
-        const {action, content} = req.body;
+        const action = req.body.action;
+        const content = req.body.content;
         try {
             projectId = idVal(projectId);
             action = stringVal(action);
