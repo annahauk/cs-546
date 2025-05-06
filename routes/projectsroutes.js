@@ -4,12 +4,13 @@ import {getAllPosts, getPostById} from "../data/posts.js";
 import { getUserByUsername } from '../data/users.js';
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
-import { stringVal } from '../helpers.js';
+import { stringVal, idVal } from '../helpers.js';
 
 router.route('/')
     .get(isLoggedIn, async (req, res) => {
         try {
             // Filter by tags, languages, or active/inactive
+            // Can change based on however we store the tags
             let tags = req.query;
             let allPosts = await getAllPosts();
             if (tags) {
@@ -28,7 +29,7 @@ router.route('/:id')
     .get(isLoggedIn, async (req, res) => {
         // Display a specific project
         try {
-            const projectId = req.params.id;
+            const projectId = idVal(req.params.id);
             const post = await getPostById(projectId);
             if (!post) {
                 return res.status(404).render('error', {message: 'Project not found'});
@@ -40,9 +41,10 @@ router.route('/:id')
         }
     }).post(isLoggedIn, async (req, res) => {
         // Add a comment or join a project
+        const projectId = req.params.id;
+        const {action, content} = req.body;
         try {
-            const projectId = req.params.id;
-            const {action, content} = req.body;
+            projectId = idVal(projectId);
             action = stringVal(action);
             content = stringVal(content);
         } catch (error) {
@@ -52,7 +54,7 @@ router.route('/:id')
 
         try {
             const post = await getPostById(projectId);
-            const user = await getUserByUsername(req.body.username);
+            const user = await getUserByUsername(stringVal(req.body.username));
             if (!post) {
                 return res.status(404).render('error', {message: 'Project not found'});
             }
@@ -61,7 +63,7 @@ router.route('/:id')
             }
             if (action === 'comment') {
                 await createComment(content, projectId, user._id);
-                return res.status(200).json({ message: 'Comment added successfully' });
+                return res.status(200).json({message: 'Comment added successfully'});
             }
             else if (action === 'join') {
                 // TODO
