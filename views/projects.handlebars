@@ -1,0 +1,56 @@
+{{! Handlebars for the main home page of project posts }}
+{{!-- https://handlebarsjs.com/guide/partials.html#basic-partials --}}
+{{> navbar}}
+<div class="container">
+    <h1>Projects</h1>
+    <a href="">Create new Project</a>
+    <div class="filterSelection">
+        <form method="GET" action="/projects">
+            <!-- Search by project name -->
+            <input type="text" name="search" placeholder="Search by project name" />
+
+            <!-- Filter by tags TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE (maybe so don't need to hardcode?) -->
+            <label>Tags:</label>
+            <input type="checkbox" name="tags" value="web"> Web
+            <input type="checkbox" name="tags" value="ai"> AI
+            <input type="checkbox" name="tags" value="mobile"> Mobile
+
+            <!-- Filter by language/domain TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE(maybe so don't need to hardcode?)  -->
+            <label for="language">Language:</label>
+            <select name="language" id="language">
+                <option value="">All</option>
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+            </select>
+
+            <!-- Filter by project status -->
+            <label for="status">Status:</label>
+            <select name="status" id="status">
+                <option value="">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+            </select>
+
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+    <div class="projectsArea">
+        {{#if projects}}
+        <ol>
+            {{#each projects}}
+                <li class="project">
+                    <a href="/{{this.id}}">{{this.title}}</a>
+                    <ol>
+                        {{#each {{this.topic_tags}}}}
+                            <li>{{this}}</li>
+                        {{/each}}
+                    </ol>
+                </li>
+            {{/each}}
+        </ol>
+        {{else}}
+            <p class="not-found">We're sorry, but no projects can be found. Please try again later.</p>
+        {{/if}}
+    </div>
+</div>
