@@ -3,20 +3,9 @@ import * as express from "express";
 import AuthRoutes from "./authroutes.js"
 import cookieParser from "cookie-parser";
 import { Auth } from "../src/lib/auth.js";
-
-/*
-you will be making three routes/pages in your application:
-
-http://localhost:3000/  this is the homepage where users can either create an account or login to their existing account
-http://localhost:3000/login  this is the login page where users can enter their credentials to log in
-http://localhost:3000/home when logged in, users will be brought to a homepage where they can see the main interface page
-http://localhost:3000/profile  users can click on one of the buttons at the header to see their profile
-http://localhost:3000/
-
-
-*/
-
-
+import HomeRoutes from "./homeroutes.js";
+import ProfileRoutes from "./profileroutes.js";
+import ProjectsRoutes from "./projectsroutes.js";
 
 export function constructorMethod(app) {
     if(typeof app === "undefined") {
@@ -27,13 +16,13 @@ export function constructorMethod(app) {
     app.use(cookieParser());
     app.use(Auth);
 
-    // app.use('/route', somethingRoutes)
-
-    // auth routes
+    app.use("/", HomeRoutes);
+    app.use("/projects", ProjectsRoutes);
     app.use("/auth", AuthRoutes);
+    app.use("/profile", ProfileRoutes);
 
     app.use('*', (req, res) => {
         console.log(`Authorized: ${req.authorized}`);
-        return res.status(404).json({error: 'Not found'});
+        return res.status(404).render('error', {message: 'Not found'});
     });
 }
