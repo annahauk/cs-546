@@ -1,1 +1,13 @@
 {{! Handlebars for the notifications page }}
+{{> navbar}}
+<div class="container">
+    {{#if user.notifications}}
+        <ol>
+            {{#each user.notifications}}
+                <li class="notif">{{this}}</li>
+            {{/each}}
+        </ol>
+    {{else}}
+        <p>You have no notifications!</p>
+    {{/if}}
+</div>
