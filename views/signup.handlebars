@@ -1,6 +1,11 @@
 {{! Handlebars for the signup page }}
 <h1>GitMatches</h1>
-<form action="/register" method="POST">
+{{#if error}}
+	<p class="error" id="error">{{error}}</p>
+{{else}}
+	<p class="error" id="error"></p>
+{{/if}}
+<form action="/register" method="POST" id="signup-form" name="signup-form">
 	<label for="username">Username:</label>
 	<input type="text" id="username" name="username" />
 	<label for="password">Password:</label>
