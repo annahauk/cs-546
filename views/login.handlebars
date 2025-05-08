@@ -1,6 +1,11 @@
 {{! Handlebars for the login page }}
 <h1>GitMatches</h1>
-<form action="login?" method="POST">
+{{#if error}}
+	<p class="error" id="error">{{error}}</p>
+{{else}}
+	<p class="error" id="error"></p>
+{{/if}}
+<form action="/login" method="POST" id="signin-form" name="signin-form">
 	<label for="username">Username:</label>
 	<input type="text" id="username" name="username" />
 	<label for="password">Password:</label>
