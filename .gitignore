@@ -1,5 +1,7 @@
 .env
+.env.bat
 node_modules/
 .db
 .vscode
 .env.bat
+notes/
