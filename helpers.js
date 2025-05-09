@@ -1,85 +1,82 @@
 //You can add and export any helper functions you want here. If you aren't using any, then you can just leave this file as is.
 
-import moment from "moment";
 import { ObjectId } from "mongodb";
-
-function stringVal(str, name) {
-	if (name === undefined) name = "stringVal";
-	if (!str) throw `${name} is not defined`;
-	if (typeof str !== "string") {
-		throw `${str} is not a string for ${name}`;
+/**
+ * Validates that the input is a non-empty string.
+ * @param {string} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {string} - The trimmed string if valid.
+ */
+function stringVal(val, varName = "value", funcName = "stringVal") {
+	if (typeof val !== "string" || val.trim().length === 0) {
+		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
 	}
-	str = str.trim();
-	if (str.length === 0) {
-		throw `${str} is empty spaces`;
-	}
-	return str;
+	return val.trim();
 }
 
-// to check if just letters a-z, A-Z and numbers
-function onlylettersandnumbers(str, name) {
-	if (name === undefined) name = "onlylettersandnumbers";
-	str = stringVal(str, name);
-	for (let i = 0; i < str.length; i++) {
-		const charCode = str.charCodeAt(i);
-		if (
-			!(charCode >= 48 && charCode <= 57) && // '0' to '9'
-			!(charCode >= 65 && charCode <= 90) && // 'A' to 'Z'
-			!(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
-			!(charCode === 32) // space
-		) {
-			throw "String must contain only letters and numbers for " + name;
+/**
+ * Validates that the input contains only letters and numbers.
+ * @param {string} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {string} - The validated string if valid.
+ */
+function onlylettersandnumbers(val, varName = "value", funcName = "onlylettersandnumbers") {
+	if (!/^[a-zA-Z0-9]+$/.test(val)) {
+		throw `Error in ${funcName}: ${varName} must contain only letters and numbers.`;
+	}
+	return val;
+}
+
+/**
+ * Validates that the input contains only letters.
+ * @param {string} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {string} - The validated string if valid.
+ */
+function onlyletters(val, varName = "value", funcName = "onlyletters") {
+	if (!/^[a-zA-Z]+$/.test(val)) {
+		throw `Error in ${funcName}: ${varName} must contain only letters.`;
+	}
+	return val;
+}
+
+/**
+ * Validates that the input is a non-empty array with string elements.
+ * @param {Array} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {Array} - The validated array if valid.
+ */
+function arrayVal(val, varName = "value", funcName = "arrayVal") {
+	if (!Array.isArray(val) || val.length === 0) {
+		throw `Error in ${funcName}: ${varName} must be a non-empty array.`;
+	}
+	for (const item of val) {
+		if (typeof item !== "string" || item.trim().length === 0) {
+			throw `Error in ${funcName}: ${varName} must contain only non-empty strings.`;
 		}
 	}
-	return str;
+	return val;
 }
 
-// to check if just letters a-z and A-Z
-function onlyletters(str, name) {
-	if (name === undefined) name = "onlyletters";
-	str = stringVal(str, name);
-	for (let i = 0; i < str.length; i++) {
-		const charCode = str.charCodeAt(i);
-		if (
-			!(charCode >= 65 && charCode <= 90) && // 'A' to 'Z'
-			!(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
-			!(charCode === 32) // space
-		) {
-			throw "String must contain only letters and numbers for " + name;
-		}
+/**
+ * Validates that the input is a valid ObjectId string.
+ * @param {string} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {string} - The validated ObjectId string if valid.
+ */
+function idVal(val, varName = "value", funcName = "idVal") {
+	if (typeof val !== "string" || val.trim().length === 0) {
+		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
 	}
-	return str;
-}
-
-// check if arraytype, empty, each elem = string, each elem not empty
-// trims the string element
-function arrayVal(arr, name) {
-	if (name === undefined) name = "arrayVal";
-	if (!arr || !Array.isArray(arr))
-		throw "You must provide an array for " + name;
-	if (arr.length === 0) throw "Array cannot be empty for " + name;
-	for (let i in arr) {
-		if (typeof arr[i] !== "string" || arr[i].trim().length === 0) {
-			throw (
-				"One or more elements is not a string or is an empty string in " + name
-			);
-		}
-		arr[i] = arr[i].trim();
+	if (!ObjectId.isValid(val)) {
+		throw `Error in ${funcName}: ${varName} is not a valid ObjectId.`;
 	}
-	return arr;
-}
-
-function idVal(id, name) {
-	if (name === undefined) name = "idVal";
-	if (!id) throw "You must provide an id to search for in " + name;
-	if (typeof id !== "string") throw "Id must be a string";
-	if (id.trim().length === 0)
-		throw "Id cannot be an empty string or just spaces for " + name;
-	id = id.trim();
-	// have to check if this is a valid id
-	if (!ObjectId.isValid(id)) throw "invalid object ID";
-
-	return id;
+	return val.trim();
 }
 
 /**
@@ -102,12 +99,6 @@ function validateArray(array, validator) {
 	return true;
 }
 
-function validObjectId(objid) {
-	if (!ObjectId.isValid(objid)) {
-		throw new Error(`Invalid ObjectId.`);
-	}
-	return true;
-}
 
 // Zak: Copied over helper functions from labs
 /**
@@ -250,7 +241,7 @@ export {
 	onlyletters,
 	arrayVal,
 	idVal,
-	validObjectId,
+	validatePassword,
 	validateUserID,
-	validatePassword
+	validateArray
 };

@@ -92,9 +92,9 @@ router.route('/:id/resume')
             const tags = await processUploadedResume(req.file);
             // https://www.geeksforgeeks.org/node-js-fs-unlink-method/
             await fs.unlink(req.file.path);
-            // ...user.skill_tags, 
-            const updatedTags = [...new Set([...tags.ProgrammingLanguages, ...tags.Libraries, ...tags.Frameworks, ...tags.Tools, ...tags.CloudPlatforms])];
-            // TODO: Update user (wait for data func)
+            const newTags = [...new Set([...tags.ProgrammingLanguages, ...tags.Libraries, ...tags.Frameworks, ...tags.Tools, ...tags.CloudPlatforms])];
+            await updateUserTags(userId, newTags);
+            res.status(200).json({message: 'Resume uploaded successfully!'});
         } catch (error) {
             res.status(500).render('error', {message: 'Internal server error'});
         }
