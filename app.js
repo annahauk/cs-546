@@ -13,6 +13,15 @@ async function Main() {
 
 	// const db = await dbConnection();
 	// await db.dropDatabase();
+	/**
+     * ensure client secrets are present in environment
+     */
+	let _gh_client_id = process.env["GH_CLIENT_ID"];
+	let _gh_client_secret = process.env["GH_CLIENT_SECRET"];
+	if(!_gh_client_id) {
+		console.error(`ERROR: Missing client secrets:${(_gh_client_id)? "" : " GH_CLIENT_ID"}${(_gh_client_secret)? "" : " GH_CLIENT_SECRET"}`);
+		process.exit(1);
+	}
 
 	//get action if applicable
 	let action;
