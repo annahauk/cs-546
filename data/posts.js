@@ -2,8 +2,8 @@ import {projectPosts} from '../config/mongoCollections.js'; // imported to refer
 import {ObjectId} from 'mongodb';
 
 // helper imports
-import {stringVal, arrayVal} from '../helpers.js';
-import e from 'express';
+import { stringVal, arrayVal, idVal, validatePassword, validateUserID} from '../helpers.js'
+
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
 
 /*
@@ -27,25 +27,23 @@ topic_tags: Array<String>
  * @param {string} content
  * @param {string} repoLink
  * @param {string} ownerId
- * @param {number} likes
  * @param {Array<String>} comments
  * @param {Array<String>} topic_tags
  * @returns {ObjectId} postId
  *
  */ 
-async function createPost(title, ownerId, content, repoLink, comments, likes, topic_tags) {
+async function createPost(title, ownerId, content, repoLink, comments, topic_tags) {
   // INPUT VALIDATION
-  title = stringVal(title);
-  content = stringVal(content);
-  repoLink = stringVal(repoLink);
-  ownerId = stringVal(ownerId);
-  comments = arrayVal(comments);
-  likes = Number(likes);
-  topic_tags = arrayVal(topic_tags);
+  title = stringVal(title, 'title', 'createPost');
+  content = stringVal(content, 'content', 'createPost');
+  repoLink = stringVal(repoLink, 'repoLink', 'createPost');
+  ownerId = stringVal(ownerId, 'ownerId', 'createPost');
+  comments = arrayVal(comments, 'comments', 'createPost');
+  topic_tags = arrayVal(topic_tags, 'topic_tags', 'createPost');
 
   const postCollection = await projectPosts();
-  
   let createdTime = new Date().toLocaleTimeString();
+  let likes = 0;
   // Create new post object
   let newPost = {
     "_id": new ObjectId(),
@@ -70,7 +68,6 @@ async function createPost(title, ownerId, content, repoLink, comments, likes, to
  * @throws {Error} if no posts are found
  * */
 async function getAllPosts() {
-  // TODO: Implement this function
   const postCollection = await projectPosts();
   const posts = await postCollection.find({}).toArray();
   if (!posts) throw `No posts found`;
@@ -84,7 +81,7 @@ async function getAllPosts() {
  * @throws {Error} if post is not found
  * */
 async function getPostById(postId) {
-  postId = stringVal(postId);
+  postId = stringVal(postId, 'postId', 'getPostById');
   const postCollection = await projectPosts();
   const post = await postCollection.findOne({_id: new ObjectId(postId)});
   if (!post) throw `No post with that id: ${postId}`;
@@ -98,7 +95,7 @@ async function getPostById(postId) {
  * @throws {Error} if post is not found
  * */
 async function removePost(postId){
-  postId = stringVal(postId);
+  postId = stringVal(postId, 'postId', 'removePost');
   const postCollection = await projectPosts();
   const deletionInfo = await postCollection.deleteOne({_id: new ObjectId(postId)});
   if (deletionInfo.deletedCount === 0) throw `Could not delete post with id of ${postId}`;
@@ -115,7 +112,7 @@ async function removePost(postId){
 
 // IDK if we wanna do an dict of field:update but yeah???
 async function updatePost(postId, updateData) {
-  postId = stringVal(postId);
+  postId = stringVal(postId, 'postId', 'updatePost');
   const postCollection = await projectPosts();
   const updateInfo = await postCollection.updateOne(
     {_id: new ObjectId(postId)},
@@ -132,7 +129,7 @@ async function updatePost(postId, updateData) {
  * @returns {Array<Post>} posts
  */
 async function grabfilteredPosts(tags){
-  tags = arrayVal(tags);
+  tags = arrayVal(tags, 'tags', 'grabfilteredPosts');
   const postCollection = await projectPosts();
   const posts = await postCollection.find({topic_tags: {$in: tags}}).toArray();
   if (!posts) throw `No posts with that tag`;
@@ -143,5 +140,6 @@ export { createPost,
          getAllPosts, 
          getPostById, 
          removePost, 
-         updatePost
+         updatePost,
+        grabfilteredPosts
         };
