@@ -1,6 +1,7 @@
 // import somethingRoutes from 'somewhere/someroutes.js'
 import * as express from "express";
 import AuthRoutes from "./authroutes.js"
+import OAuthRoutes from "./oauth.js"
 import cookieParser from "cookie-parser";
 import { Auth } from "../src/lib/auth.js";
 import HomeRoutes from "./homeroutes.js";
@@ -20,6 +21,8 @@ export function constructorMethod(app) {
     app.use("/projects", ProjectsRoutes);
     app.use("/auth", AuthRoutes);
     app.use("/profile", ProfileRoutes);
+    app.use("/oauth", OAuthRoutes);
+
 
     app.use('*', (req, res) => {
         console.log(`Authorized: ${req.authorized}`);
