@@ -25,6 +25,23 @@ schema
 */
 
 // come back
+/**
+ * Creates a new user
+ * @param {string} firstName
+ * @param {string} lastName
+ * @param {string} userName
+ * @param {string} password
+ * @param {string} email
+ * @param {string} githubProfile
+ * @param {Array<string>} skillTags
+ * @param {Array<ObjectId>} friends
+ * @param {Array<string>} achievements
+ * @param {Array<ObjectId>} notifications
+ * @returns {ObjectId} userId
+ * @throws Will throw an error if userName or email are not unique
+ * @throws Will throw an error if user creation fails
+ *
+ */ 
 async function createUser(firstName, lastName, userName, password, email, githubProfile, skillTags, friends, achievements, notifications){
     // INPUT VALIDATION
     // COME BACK TO FIX HELPERS BASED ON THE NEED FOR THE SCHEMA
