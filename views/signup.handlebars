@@ -1,11 +1,14 @@
 {{! Handlebars for the signup page }}
+<div class="navbar">
+	<a href="/">Home</a>
+</div>
 <h1>GitMatches</h1>
 {{#if error}}
 	<p class="error" id="error">{{error}}</p>
 {{else}}
 	<p class="error" id="error"></p>
 {{/if}}
-<form action="/register" method="POST" id="signup-form" name="signup-form">
+<form action="/auth/register" method="POST" id="signup-form" name="signup-form">
 	<label for="username">Username:</label>
 	<input type="text" id="username" name="username" />
 	<label for="password">Password:</label>
@@ -14,3 +17,4 @@
 	<input type="text" id="confirmPass" name="confirmPass" />
 	<input type="submit" value="Sign Up" />
 </form>
+<a href="/auth/login">Have an account? Login here!</a>
