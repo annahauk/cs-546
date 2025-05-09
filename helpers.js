@@ -4,80 +4,83 @@ import moment from "moment";
 import { ObjectId } from "mongodb";
 
 function stringVal(str, name) {
-    if (name === undefined) name = 'stringVal';
-    if (!str) throw `${name} is not defined`;
-    if (typeof str !== 'string'){
-        throw `${str} is not a string for ${name}`;
-    }
-    str = str.trim();
-    if (str.length === 0){
-        throw `${str} is empty spaces`;
-    }
-    return str;
-};
+	if (name === undefined) name = "stringVal";
+	if (!str) throw `${name} is not defined`;
+	if (typeof str !== "string") {
+		throw `${str} is not a string for ${name}`;
+	}
+	str = str.trim();
+	if (str.length === 0) {
+		throw `${str} is empty spaces`;
+	}
+	return str;
+}
 
 // to check if just letters a-z, A-Z and numbers
 function onlylettersandnumbers(str, name) {
-    if (name === undefined) name = 'onlylettersandnumbers';
-    str = stringVal(str, name);
-    for (let i = 0; i < str.length; i++) {
-        const charCode = str.charCodeAt(i);
-        if (
-            !(charCode >= 48 && charCode <= 57) &&  // '0' to '9'
-            !(charCode >= 65 && charCode <= 90) &&  // 'A' to 'Z'
-            !(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
-            !(charCode === 32)                      // space
-        ) {
-            throw 'String must contain only letters and numbers for ' + name;
-        }
-    }
-    return str;
+	if (name === undefined) name = "onlylettersandnumbers";
+	str = stringVal(str, name);
+	for (let i = 0; i < str.length; i++) {
+		const charCode = str.charCodeAt(i);
+		if (
+			!(charCode >= 48 && charCode <= 57) && // '0' to '9'
+			!(charCode >= 65 && charCode <= 90) && // 'A' to 'Z'
+			!(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
+			!(charCode === 32) // space
+		) {
+			throw "String must contain only letters and numbers for " + name;
+		}
+	}
+	return str;
 }
 
 // to check if just letters a-z and A-Z
-function onlyletters(str, name){
-    if (name === undefined) name = 'onlyletters';
-    str = stringVal(str, name);
-    for (let i = 0; i < str.length; i++) {
-        const charCode = str.charCodeAt(i);
-        if (
-            !(charCode >= 65 && charCode <= 90) &&  // 'A' to 'Z'
-            !(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
-            !(charCode === 32)                      // space
-        ) {
-            throw 'String must contain only letters and numbers for ' + name;
-        }
-    }
-    return str;
-};
+function onlyletters(str, name) {
+	if (name === undefined) name = "onlyletters";
+	str = stringVal(str, name);
+	for (let i = 0; i < str.length; i++) {
+		const charCode = str.charCodeAt(i);
+		if (
+			!(charCode >= 65 && charCode <= 90) && // 'A' to 'Z'
+			!(charCode >= 97 && charCode <= 122) && // 'a' to 'z'
+			!(charCode === 32) // space
+		) {
+			throw "String must contain only letters and numbers for " + name;
+		}
+	}
+	return str;
+}
 
 // check if arraytype, empty, each elem = string, each elem not empty
 // trims the string element
 function arrayVal(arr, name) {
-    if (name === undefined) name = 'arrayVal';
-    if (!arr || !Array.isArray(arr)) throw 'You must provide an array for ' + name;
-    if (arr.length === 0) throw 'Array cannot be empty for ' + name;
-    for (let i in arr) {
-        if (typeof arr[i] !== 'string' || arr[i].trim().length === 0){
-            throw 'One or more elements is not a string or is an empty string in ' + name;
-        }
-        arr[i] = arr[i].trim();
-    }
-    return arr;
-};
+	if (name === undefined) name = "arrayVal";
+	if (!arr || !Array.isArray(arr))
+		throw "You must provide an array for " + name;
+	if (arr.length === 0) throw "Array cannot be empty for " + name;
+	for (let i in arr) {
+		if (typeof arr[i] !== "string" || arr[i].trim().length === 0) {
+			throw (
+				"One or more elements is not a string or is an empty string in " + name
+			);
+		}
+		arr[i] = arr[i].trim();
+	}
+	return arr;
+}
 
-function idVal(id, name){
-    if (name === undefined) name = 'idVal';
-    if (!id) throw 'You must provide an id to search for in ' + name;
-    if (typeof id !== 'string') throw 'Id must be a string';
-    if (id.trim().length === 0)
-        throw 'Id cannot be an empty string or just spaces for ' + name;
-    id = id.trim();
-    // have to check if this is a valid id
-    if (!ObjectId.isValid(id)) throw 'invalid object ID';
-    
-    return id;
-};
+function idVal(id, name) {
+	if (name === undefined) name = "idVal";
+	if (!id) throw "You must provide an id to search for in " + name;
+	if (typeof id !== "string") throw "Id must be a string";
+	if (id.trim().length === 0)
+		throw "Id cannot be an empty string or just spaces for " + name;
+	id = id.trim();
+	// have to check if this is a valid id
+	if (!ObjectId.isValid(id)) throw "invalid object ID";
+
+	return id;
+}
 
 /**
  * Returns boolean if every item in array conforms to validator function
@@ -242,18 +245,12 @@ const validatePassword = (val, varName, funcName) => {
 };
 
 export {
-	exists,
 	stringVal,
 	onlylettersandnumbers,
 	onlyletters,
 	arrayVal,
-	genreVal,
-	nameVal,
 	idVal,
-	spaceChecking,
-	dateVal,
-	validateRuntime,
 	validObjectId,
-	validateUsername,
+	validateUserID,
 	validatePassword
 };
