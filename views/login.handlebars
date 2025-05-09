@@ -1,15 +1,18 @@
 {{! Handlebars for the login page }}
+<div class="navbar">
+	<a href="/">Home</a>
+</div>
 <h1>GitMatches</h1>
 {{#if error}}
 	<p class="error" id="error">{{error}}</p>
 {{else}}
 	<p class="error" id="error"></p>
 {{/if}}
-<form action="/login" method="POST" id="signin-form" name="signin-form">
+<form action="/auth/login" method="POST" id="signin-form" name="signin-form">
 	<label for="username">Username:</label>
 	<input type="text" id="username" name="username" />
 	<label for="password">Password:</label>
 	<input type="text" id="password" name="password" />
 	<input type="submit" value="Login" />
 </form>
-<a href="/register">Don't have an account? Join here!</a>
+<a href="/auth/register">Don't have an account? Join here!</a>
