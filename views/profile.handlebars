@@ -4,7 +4,11 @@
     <div class="leftSide">
         <img src="" alt="{{user.user_name}}">
         <h1>{{user.user_name}}</h1>
-        <a href="">Resume</a>
+        <form action="/profile/{{user.id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form">
+            <label for="resume">Upload Resume (PDF):</label>
+            <input type="file" id="resume" name="resume" accept="application/pdf" required>
+            <button type="submit">Upload</button>
+        </form>
         <p>Achievements</p>
         <ol>
             {{#each user.achievements}}
@@ -36,3 +40,4 @@
         </ol>
     </div>
 </div>
+<script src="/public/js/resumeUpload.js"></script>
