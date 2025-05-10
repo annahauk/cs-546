@@ -1,6 +1,9 @@
 import axios from "axios";
+import { ObjectId } from "mongodb";
 import { auth, users } from "../config/mongoCollections.js";
 import { validObjectId } from "../helpers.js";
+import { get_auth_by_id } from "./authdata.js";
+import { getUserById } from "./users.js";
 
 /**
  * given github authorization code (from oauth callback), log in and retrieve access token. Store in database.
@@ -14,7 +17,7 @@ export async function github_oauth_login(userid, code) {
     let access_token;
 
     // validate
-    validObjectId(userid);
+    await validObjectId(userid);
 
     if(!gh_client_id || !gh_client_secret) {
         throw new Error("Github credentials not defined.");
@@ -59,4 +62,31 @@ export async function github_oauth_login(userid, code) {
     }
 
     return access_token;
+}
+
+/**
+ * Get user gh_token by user id
+ * @param {ObjectId} userid 
+ * @returns {(string|null)} gh_token
+ */
+export async function get_user_gh_token(userid) {
+    await validObjectId(userid);
+
+    let user = await getUserById(userid);
+    if(!user) {
+        throw new Error(`User not found.`);
+    }
+
+    let auth = await get_auth_by_id(user.Auth);
+    if(!auth) {
+        throw new Error(`Auth not found`);
+    }
+
+    let gh_token = auth.gh_token;
+
+    if(gh_token.length < 1) {
+        return null;
+    } else {
+        return gh_token;
+    }
 }
