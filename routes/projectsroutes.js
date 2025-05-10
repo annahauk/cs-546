@@ -104,8 +104,10 @@ router
 		// Display a specific project
 		try {
 			const projectId = idVal(req.params.id);
-			const post = await getPostById(projectId);
-			if (!post) {
+			let post = null;
+			try {
+				post = await getPostById(projectId);
+			} catch (e) {
 				return res
 					.status(404)
 					.render("error", { message: "Project not found" });
@@ -134,18 +136,19 @@ router
 		}
 
 		try {
-			const post = await getPostById(projectId);
-			const user = await getUserByUsername(stringVal(req.body.username));
-			if (!post) {
+			try {
+				const post = await getPostById(projectId);
+			} catch (e) {
 				return res
 					.status(404)
 					.render("error", { message: "Project not found" });
 			}
+			const user = await getUserByUsername(stringVal(req.cookies["username"]));
 			if (!user) {
 				return res.status(404).render("error", { message: "User not found" });
 			}
 			if (action === "comment") {
-				await createComment(content, projectId, user._id);
+				await createComment(content, projectId, user._id.toString());
 				return res.status(200).json({ message: "Comment added successfully" });
 			} else if (action === "join") {
 				// TODO
