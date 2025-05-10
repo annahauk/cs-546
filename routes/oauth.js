@@ -1,5 +1,4 @@
 import * as express from "express";
-import { stringVal } from "../helpers.js";
 import { ghConfig } from "../config/settings.js";
 
 const router = express.Router();
@@ -36,6 +35,11 @@ router.route("/callback")
  */
 router.route("/login")
     .get(async(req,res) => {
+        if(!req.authorized) {
+            // redirect to standard login
+            return await res.redirect("/login");
+        }
+
         let client_id = process.env["GH_CLIENT_ID"];
         if(!client_id) {
             return await res.status(500).json({error: `Github credentials not defined.`});
