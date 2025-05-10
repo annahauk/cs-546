@@ -140,9 +140,9 @@ if (signupForm) {
 	signupForm.addEventListener("submit", (event) => {
 		console.log("Signup submitted");
 		// Get inputs
-		let userIdInput = document.getElementById("userId");
+		let userIdInput = document.getElementById("username");
 		let passwordInput = document.getElementById("password");
-		let confirmPassInput = document.getElementById("confirmPassword");
+		let confirmPassInput = document.getElementById("confirmPass");
 		let errorElement = document.getElementById("error");
 		try {
 			// Reset error element
@@ -233,7 +233,7 @@ let loginForm = document.getElementById("signin-form");
 if (loginForm) {
 	loginForm.addEventListener("submit", (event) => {
 		// Get inputs
-		let userIdInput = document.getElementById("userId");
+		let userIdInput = document.getElementById("username");
 		let passwordInput = document.getElementById("password");
 		let errorElement = document.getElementById("error");
 		try {
