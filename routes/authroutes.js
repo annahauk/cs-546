@@ -1,6 +1,7 @@
 import * as express from "express";
 import { stringVal, validatePassword, validateUserID } from "../helpers.js";
 import { login } from "../src/lib/auth.js";
+import { createUser } from "../data/users.js";
 
 const router = express.Router();
 
@@ -125,7 +126,7 @@ router
 		}
 		// If there are validation errors, re-render the form with the errors
 		if (errors.length > 0) {
-			return res.status(400).render("register", {
+			return res.status(400).render("signup", {
 				error: errors.join("\n"),
 				themePreference: req.session.user.themePreference
 			});
@@ -136,7 +137,7 @@ router
 			let user = createUser(userId, password);
 			// TODO FOR BENNY: GITHUB REDIRECT AND THINGS
 		} catch (e) {
-			return res.status(500).render("register", {
+			return res.status(500).render("signup", {
 				error: "There was a problem registering. Please try again later."
 			});
 		}
