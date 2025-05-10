@@ -22,7 +22,11 @@ function stringVal(val, varName = "value", funcName = "stringVal") {
  * @param {string} funcName - The function name for error messages.
  * @returns {string} - The validated string if valid.
  */
-function onlylettersandnumbers(val, varName = "value", funcName = "onlylettersandnumbers") {
+function onlylettersandnumbers(
+	val,
+	varName = "value",
+	funcName = "onlylettersandnumbers"
+) {
 	if (!/^[a-zA-Z0-9]+$/.test(val)) {
 		throw `Error in ${funcName}: ${varName} must contain only letters and numbers.`;
 	}
@@ -98,7 +102,6 @@ function validateArray(array, validator) {
 
 	return true;
 }
-
 
 // Zak: Copied over helper functions from labs
 /**
@@ -237,17 +240,22 @@ const validatePassword = (val, varName, funcName) => {
 
 /**
  * throw error if not a valid object id
- * @param {ObjectId} objid 
+ * @param {ObjectId} objid
  */
 async function validObjectId(objid) {
-	if(!ObjectId.isValid(objid)) {
+	if (!ObjectId.isValid(objid)) {
 		throw new Error(`Invalid ObjectId.`);
 	}
 }
 
 export {
 	arrayVal,
-	idVal, onlyletters, onlylettersandnumbers, stringVal, validateArray, validatePassword,
-	validateUserID, validObjectId
+	idVal,
+	onlyletters,
+	onlylettersandnumbers,
+	stringVal,
+	validateArray,
+	validatePassword,
+	validateUserID,
+	validObjectId
 };
-

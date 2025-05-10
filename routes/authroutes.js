@@ -1,7 +1,9 @@
 import * as express from "express";
 import { stringVal, validatePassword, validateUserID } from "../helpers.js";
-import { login } from "../src/lib/auth.js";
-import { createUser } from "../data/users.js";
+import { login, logout } from "../src/lib/auth.js";
+import { createUser, getUserByUsername } from "../data/users.js";
+import { get_user_gh_token } from "../data/oauth.js";
+import { get_auth_by_username } from "../data/authdata.js";
 
 const router = express.Router();
 
@@ -64,7 +66,18 @@ router
 			sameSite: "lax", // CSRF protection
 			maxAge: 86400000 * 28 // 1 month
 		});
-		res.status(200).json({ message: "Logged in." });
+		
+		// if has github token, go to projects else go to oauth login
+		let user = await getUserByUsername(username);
+		if(!user) {
+			return await res.status(404).json({error: `User not found.`});
+		}
+		if(!await get_user_gh_token(user._id)) {
+			// goto oauth
+			return await res.redirect("/oauth/login");
+		} else {
+			return await res.redirect("/projects");
+		}
 	});
 
 router
@@ -143,6 +156,29 @@ router
 				error: "There was a problem registering. Please try again later."
 			});
 		}
+	});
+
+router.route("/logout")
+	.get(async (req,res) => {
+		if(!req.authorized) {
+			// not logged in
+			return await res.redirect("/login");
+		}
+
+		let username = req.cookies["username"];
+		let token_content = req.cookies["token"];
+
+		if(!username || !token_content) {
+			return await res.status(400).json({error: `Missing client username or token`});
+		}
+
+		try {
+			await logout(username, token_content);
+		} catch (e) {
+			return await res.status(500).json({erorr: `Error logging out user: ${e}`});
+		}
+		
+		return await res.redirect("/login");
 	});
 
 export default router;

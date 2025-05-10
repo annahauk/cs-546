@@ -36,13 +36,13 @@
         </form>
     </div>
     <div class="projectsArea">
-        {{#if projects}}
+        {{#if hasPosts}}
         <ol>
-            {{#each projects}}
+            {{#each posts}}
                 <li class="project">
                     <a href="/{{this.id}}">{{this.title}}</a>
                     <ol>
-                        {{#each {{this.topic_tags}}}}
+                        {{#each topic_tags}}
                             <li>{{this}}</li>
                         {{/each}}
                     </ol>
