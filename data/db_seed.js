@@ -32,6 +32,7 @@ async function main() {
         try {
             console.log('Attempting to create a user with a duplicate username (johnDoe)...');
             await createUser('johnDoe', 'AnotherPassword123!');
+            console.log("UH OH! Did not catch duplicate username!");
         } catch (error) {
             console.error('Expected error for duplicate username:', error);
         }
@@ -175,6 +176,7 @@ async function main() {
         try {
             console.log('Attempting to create a user with an invalid username...');
             await createUser('', 'InvalidPassword!');
+            console.log("UH OH! Did not catch invalid username!");
         } catch (error) {
             console.error('Expected error for invalid username:', error);
         }
@@ -182,6 +184,7 @@ async function main() {
         try {
             console.log('Attempting to fetch a user with an invalid ID...');
             await getUserById('invalidObjectId');
+            console.log("UH OH! Did not catch invalid ID!");
         } catch (error) {
             console.error('Expected error for invalid ID:', error);
         }
