@@ -80,6 +80,7 @@ router
 		if (typeof req.body !== "object") {
 			return res.status(400).json({ error: `Request body required.` });
 		}
+
 		// validate username and password(s)
 		let userId = req.body["username"];
 		let password = req.body["password"];
@@ -94,6 +95,7 @@ router
 				error: `The following fields are missing: ${missingFields.join(", ")}`
 			});
 		}
+
 		// check for them being invalid and somehow getting past clientside
 		const errors = [];
 		// Mini helper function to remove "Error in <function name>: " to make the user output much cleaner
@@ -134,8 +136,8 @@ router
 		// Register the user
 		try {
 			// Create the user in the database
-			let user = createUser(userId, password);
-			// TODO FOR BENNY: GITHUB REDIRECT AND THINGS
+			let user = await createUser(userId, password);
+			return await res.redirect("/login");
 		} catch (e) {
 			return res.status(500).render("signup", {
 				error: "There was a problem registering. Please try again later."
