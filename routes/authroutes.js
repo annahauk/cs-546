@@ -1,7 +1,8 @@
 import * as express from "express";
 import { stringVal, validatePassword, validateUserID } from "../helpers.js";
 import { login } from "../src/lib/auth.js";
-import { createUser } from "../data/users.js";
+import { createUser, getUserByUsername } from "../data/users.js";
+import { get_user_gh_token } from "../data/oauth.js";
 
 const router = express.Router();
 
@@ -64,7 +65,18 @@ router
 			sameSite: "lax", // CSRF protection
 			maxAge: 86400000 * 28 // 1 month
 		});
-		res.status(200).json({ message: "Logged in." });
+		
+		// if has github token, go to projects else go to oauth login
+		let user = await getUserByUsername(username);
+		if(!user) {
+			return await res.status(404).json({error: `User not found.`});
+		}
+		if(!await get_user_gh_token(user._id)) {
+			// goto oauth
+			return await res.redirect("/oauth/login");
+		} else {
+			return await res.redirect("/projects");
+		}
 	});
 
 router
