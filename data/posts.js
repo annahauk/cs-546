@@ -89,6 +89,22 @@ async function getPostById(postId) {
 }
 
 /**
+ * This function retrieves all posts created by a specific user
+ * @param {string} ownerId - The ID of the user whose posts are to be retrieved
+ * @returns {Array<Post>} posts - An array of posts created by the user
+ * @throws {Error} if no posts are found for the user
+ */
+async function getPostsByUserId(ownerId) {
+  ownerId = stringVal(ownerId, 'ownerId', 'getPostsByUserId');
+  const postCollection = await projectPosts();
+  const posts = await postCollection.find({ ownerId: new ObjectId(ownerId) }).toArray();
+  if (!posts || posts.length === 0) throw `No posts found for user with id: ${ownerId}`;
+  return posts;
+}
+
+export { getPostsByUserId };
+
+/**
  * This function removes a post by its ID
  * @param {string} postId
  * @returns {ObjectId} postId
@@ -141,5 +157,6 @@ export { createPost,
          getPostById, 
          removePost, 
          updatePost,
-        grabfilteredPosts
+        grabfilteredPosts, 
+        getPostsByUserId
         };

@@ -1,0 +1,172 @@
+body { 
+    height: 100px; 
+    background: linear-gradient(to right, rgba(255, 0, 0, 0.905) 20%, blue); }
+
+h1 {
+    color: white; 
+    text-align: center; 
+    font-size: 50px; 
+    margin-top: 20px; 
+    margin-bottom: 30px;
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+h2 {
+    color: white; 
+    text-align: center; 
+    font-size: 30px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+h3 {
+    color: white; 
+    text-align: center; 
+    font-size: 20px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+h4 {
+    color: white; 
+    text-align: center; 
+    font-size: 15px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+h5 {
+    color: white; 
+    text-align: center; 
+    font-size: 10px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+h6 {
+    color: white; 
+    text-align: center; 
+    font-size: 5px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+p {
+    color: white; 
+    text-align: center; 
+    font-size: 20px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+p:hover {
+    color: #FF0000; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+/* list css */
+ul {
+    color: white; 
+    font-size: 20px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+li {
+    color: white; 
+    font-size: 20px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+a {
+    color: white; 
+    text-align: center; 
+    font-size: 20px; 
+    margin-top: 20px; 
+    font-family: 'Verdana', 'Futura', Courier, monospace; 
+    text-shadow: 2px 2px 4px #000000; 
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: rgba(237, 231, 231, 0.8); /* Semi-transparent black background */
+    padding: 10px 20px;
+    text-align: right;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'Verdana', 'Futura', Courier, monospace;
+    margin-left: 15px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* Header styling */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    color: white;
+    font-size: 60px;
+    margin-top: 20px;
+    text-shadow: 3px 3px 5px #000000;
+}
+
+header h2 {
+    color: white;
+    font-size: 30px;
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+/* Container styling */
+.container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.leftStats, .centerInfo, .rightStats {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Verdana', 'Futura', Courier, monospace;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Left and right stats */
+.leftStats, .rightStats {
+    width: 25%;
+}
+
+.centerInfo {
+    width: 45%;
+    text-align: justify;
+}
+
+/* Footer styling */
+footer {
+    text-align: center;
+    color: white;
+    margin-top: 40px;
+    font-family: 'Verdana', 'Futura', Courier, monospace;
+    font-size: 14px;
+    text-shadow: 1px 1px 3px #000000;
+}
