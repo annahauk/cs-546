@@ -140,8 +140,6 @@ if (signupForm) {
 	signupForm.addEventListener("submit", (event) => {
 		console.log("Signup submitted");
 		// Get inputs
-		let firstNameInput = document.getElementById("firstName");
-		let lastNameInput = document.getElementById("lastName");
 		let userIdInput = document.getElementById("userId");
 		let passwordInput = document.getElementById("password");
 		let confirmPassInput = document.getElementById("confirmPassword");
@@ -153,16 +151,6 @@ if (signupForm) {
 			const missingFields = [];
 			// First, check each input has value
 			// If there is an error, add to error list to then throw to be caught and displayed as error message
-			// Check firstName
-			let firstName = firstNameInput.value;
-			if (!firstName) {
-				missingFields.push("First Name");
-			}
-			// Check lastName
-			let lastName = lastNameInput.value;
-			if (!lastName) {
-				missingFields.push("Last Name");
-			}
 			// Check userId
 			let userId = userIdInput.value;
 			if (!userId) {
@@ -194,18 +182,6 @@ if (signupForm) {
 			const stripErrorPrefix = (errorMessage) => {
 				return errorMessage.replace(/^Error in .*?: /, "");
 			};
-			// Check firstName
-			try {
-				firstName = validateNamePart(firstName, "firstName", functionName);
-			} catch (e) {
-				errors.push(stripErrorPrefix(e));
-			}
-			// Check lastName
-			try {
-				lastName = validateNamePart(lastName, "lastName", functionName);
-			} catch (e) {
-				errors.push(stripErrorPrefix(e));
-			}
 			// Check userId
 			try {
 				userId = validateUserID(userId, "userId", functionName);
