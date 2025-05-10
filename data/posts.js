@@ -26,40 +26,41 @@ topic_tags: Array<String>
  * @param {string} title
  * @param {string} content
  * @param {string} repoLink
- * @param {string} ownerId
- * @param {Array<String>} comments
+ * @param {ObjectId} ownerId
  * @param {Array<String>} topic_tags
- * @returns {ObjectId} postId
+ * @returns {object} post object
  *
  */ 
-async function createPost(title, ownerId, content, repoLink, comments, topic_tags) {
+async function createPost(title, ownerId, content, repoLink, topic_tags) {
   // INPUT VALIDATION
   title = stringVal(title, 'title', 'createPost');
   content = stringVal(content, 'content', 'createPost');
   repoLink = stringVal(repoLink, 'repoLink', 'createPost');
-  ownerId = stringVal(ownerId, 'ownerId', 'createPost');
-  comments = arrayVal(comments, 'comments', 'createPost');
+  ownerId = idVal(ownerId, 'ownerId', 'createPost');
   topic_tags = arrayVal(topic_tags, 'topic_tags', 'createPost');
 
   const postCollection = await projectPosts();
   let createdTime = new Date().toLocaleTimeString();
-  let likes = 0;
+
   // Create new post object
   let newPost = {
     "_id": new ObjectId(),
     "title": title,
-    "ownerId": new ObjectId(ownerId),
+    "ownerId": ownerId,
     "content": content,
     "repoLink": repoLink,
-    "comments": comments,
+    "comments": [""],
     "createdAt": createdTime,
-    "likes": likes,
+    "likes": 0,
     "topic_tags": topic_tags
   }
 
   const insertInfo = await postCollection.insertOne(newPost);
   if (!insertInfo.acknowledged) throw `Could not add post`;
-  return insertInfo.insertedId;
+  // return post object
+  const newId = insertInfo.insertedId;
+  const post = await getPostById(newId);
+  return post;
 }
 
 /**
