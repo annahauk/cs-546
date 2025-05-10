@@ -102,8 +102,6 @@ async function getPostsByUserId(ownerId) {
   return posts;
 }
 
-export { getPostsByUserId };
-
 /**
  * This function removes a post by its ID
  * @param {string} postId
