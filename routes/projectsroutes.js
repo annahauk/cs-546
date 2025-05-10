@@ -1,6 +1,6 @@
 import { Router } from "express";
 const router = Router();
-import { getAllPosts, getPostById } from "../data/posts.js";
+import { getAllPosts, getPostById, createPost } from "../data/posts.js";
 import { getUserByUsername } from "../data/users.js";
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
@@ -30,6 +30,70 @@ router.route("/").get(isLoggedIn, async (req, res) => {
 		res.status(500).render("error", { message: "Internal server error" });
 	}
 });
+
+router
+	.route("/projectcreate")
+	.get(isLoggedIn, async (req, res) => {
+		try {
+			res.render("projectcreate", {});
+		} catch (error) {
+			console.error(error);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	})
+	.post(isLoggedIn, async (req, res) => {
+		let ownerId = "";
+		if (req.authorized) {
+			ownerId = req.cookies["username"];
+		} else {
+			return res.redirect("/login");
+		}
+		try {
+			// Accept JSON data from AJAX
+			const { title, description, repoLink, topic_tags } = req.body;
+			const errors = [];
+
+			// Validate inputs (server-side, always!)
+			if (!title || typeof title !== "string" || title.trim() === "") {
+				errors.push("Title is required.");
+			}
+			if (
+				!description ||
+				typeof description !== "string" ||
+				description.trim() === ""
+			) {
+				errors.push("Description is required.");
+			}
+			if (
+				!repoLink ||
+				typeof repoLink !== "string" ||
+				!/^https?:\/\/.+/.test(repoLink.trim())
+			) {
+				errors.push("A valid repository link is required.");
+			}
+			if (!Array.isArray(topic_tags) || topic_tags.length === 0) {
+				errors.push("Please select at least one tag.");
+			}
+
+			if (errors.length > 0) {
+				return res.status(400).json({ message: errors.join(" ") });
+			}
+
+			// Create the project post
+			const postId = await createPost(
+				title.trim(),
+				ownerId,
+				description.trim(),
+				repoLink.trim(),
+				[], // comments
+				topic_tags.map((tag) => tag.trim())
+			);
+			return res.status(200).json({ message: "Project created", postId });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: "Internal server error" });
+		}
+	});
 
 router
 	.route("/:id")
