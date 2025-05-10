@@ -235,6 +235,16 @@ const validatePassword = (val, varName, funcName) => {
 	return val;
 };
 
+/**
+ * throw error if not a valid object id
+ * @param {ObjectId} objid 
+ */
+async function validObjectId(objid) {
+    if(!ObjectId.isValid(objid)) {
+        throw new Error(`Invalid ObjectId.`);
+    }
+}
+
 export {
 	stringVal,
 	onlylettersandnumbers,
@@ -243,5 +253,5 @@ export {
 	idVal,
 	validatePassword,
 	validateUserID,
-	validateArray
+	validateArray, validObjectId
 };
