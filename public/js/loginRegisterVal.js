@@ -1,4 +1,137 @@
-import { validatePassword, validateUserID } from "../../helpers.js";
+// Zak: Copied over helper functions from labs
+/**
+ * Validates a username string according to the following rules:
+ * - Must be a non-empty string (not just spaces)
+ * - Length must be between 5 and 10 characters (inclusive)
+ * - Can only contain letters (A-Z, a-z) and numbers (0-9)
+ * Throws an error with a descriptive message if validation fails.
+ * @param {string} val - The username to validate
+ * @param {string} varName - The variable name for error messages
+ * @param {string} funcName - The function name for error messages
+ * @returns {string} - The trimmed, validated username
+ */
+const validateUserID = (val, varName, funcName) => {
+	if (!val || typeof val !== "string" || val.trim() === "") {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" does not exist or is all spaces"
+		);
+	}
+	// Trim inputs!
+	val = val.trim();
+	// Check length
+	if (val.length < 5 || val.length > 10) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must be at least 5 characters and no more than 10 characters"
+		);
+	}
+	// Check that it contains only charactesr or positive whole numbers
+	if (!/^[A-Za-z0-9]+$/.test(val)) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must contain only letters or positive whole numbers"
+		);
+	}
+	return val;
+};
+
+/**
+ * Validates a password string according to the following rules:
+ * - Must be a non-empty string (not just spaces)
+ * - Must not contain any spaces
+ * - Must be at least 8 characters long
+ * - Must contain at least one uppercase letter
+ * - Must contain at least one number
+ * - Must contain at least one special character (not a letter, number, or space)
+ * Throws an error with a descriptive message if validation fails.
+ * @param {string} val - The password to validate
+ * @param {string} varName - The variable name for error messages
+ * @param {string} funcName - The function name for error messages
+ * @returns {string} - The validated password
+ */
+const validatePassword = (val, varName, funcName) => {
+	if (!val || typeof val !== "string" || val.trim() === "") {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must be a non-empty string and cannot consist of only spaces"
+		);
+	}
+	// Check there are no spaces in password
+	if (/\s/.test(val)) {
+		throw (
+			"Error in " + funcName + ": " + varName + " must not contain any spaces"
+		);
+	}
+	// Check length
+	if (val.length < 8) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must be at least 8 characters long"
+		);
+	}
+	// Check that there is at least one uppercase letter
+	if (!/[A-Z]/.test(val)) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must contain at least one uppercase letter"
+		);
+	}
+	// Check there is at least one number
+	if (!/[0-9]/.test(val)) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must contain at least one number"
+		);
+	}
+	// Check there are no spaces in password
+	if (/\s/.test(val)) {
+		throw (
+			"Error in " + funcName + ": " + varName + " must not contain any spaces"
+		);
+	}
+	// Check there is at least one special character
+	let hasSpecialCharacter = false;
+	for (let i = 0; i < val.length; i++) {
+		const char = val[i];
+		// Check if the character is not a letter, number, or space
+		if (!/[A-Za-z0-9\s]/.test(char)) {
+			hasSpecialCharacter = true;
+			break;
+		}
+	}
+	if (!hasSpecialCharacter) {
+		throw (
+			"Error in " +
+			funcName +
+			": " +
+			varName +
+			" must contain at least one special character"
+		);
+	}
+	return val;
+};
 
 // Registration form validation:
 let signupForm = document.getElementById("signup-form");
