@@ -4,7 +4,7 @@
     <div class="leftSide">
         <img src="" alt="{{user.user_name}}">
         <h1>{{user.user_name}}</h1>
-        <form action="/profile/{{user.id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form">
+        <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form">
             <label for="resume">Upload Resume (PDF):</label>
             <input type="file" id="resume" name="resume" accept="application/pdf" required>
             <button type="submit">Upload</button>
@@ -42,8 +42,8 @@
             {{/if}}
         </ul>
         <div class="manageLinks">
-            <a href="/{{user.id}}/edit">Edit Profile</a>
-            <a href="/{{user.id}}/projects">Manage Projects</a>
+            <a href="/{{user._id}}/edit">Edit Profile</a>
+            <a href="/{{user._id}}/projects">Manage Projects</a>
         </div>
     </div>
     <div class="rightSide">
