@@ -112,7 +112,7 @@ router
 			}
 			// Get the project creator
 			let creatorUser = await getUserById(post.ownerId);
-			let username = creatorUser.userName;
+			let username = creatorUser.user_name;
 			res.render("project", { project: post, creatorUsername: username });
 		} catch (error) {
 			console.error(error);
