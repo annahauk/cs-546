@@ -10,34 +10,53 @@
             <button type="submit">Upload</button>
         </form>
         <p>Achievements</p>
-        <ol>
-            {{#each user.achievements}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <ul class="achievementsList">
+            {{#if user.achievements.length}}
+                {{#each user.achievements}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>No achievements unlocked yet!</li>
+            {{/if}}
+        </ul>
     </div>
     <div class="centerArea">
-        <ol class="tagsList">
-            {{#each user.skill_tags}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
-        <ol class="projectsList">
-            {{#each user.projects}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <p>Tags</p>
+        <ul class="tagsList">
+            {{#if user.skill_tags.length}}
+                {{#each user.skill_tags}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>No skill tags added yet.</li>
+            {{/if}}
+        </ul>
+        <p>Projects</p>
+        <ul class="projectsList">
+            {{#if user.projects.length}}
+                {{#each user.projects}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>No projects yet.</li>
+            {{/if}}
+        </ul>
         <div class="manageLinks">
             <a href="/{{user.id}}/edit">Edit Profile</a>
             <a href="/{{user.id}}/projects">Manage Projects</a>
         </div>
     </div>
     <div class="rightSide">
-        <ol class="friendsList">
-            {{#each user.friends}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <p>Friends</p>
+        <ul class="friendsList">
+            {{#if user.friends.length}}
+                {{#each user.friends}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>It's a little lonely... no friends</li>
+            {{/if}}
+        </ul>
     </div>
 </div>
 <script src="/public/js/resumeUpload.js"></script>
