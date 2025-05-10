@@ -4,10 +4,16 @@ import { settings } from "./src/settings.js";
 import { do_action } from "./actions.js";
 import { exit } from "./src/util/common.js";
 import exphbs from "express-handlebars";
+import * as dotenv from "dotenv";
 
 const app = express();
 
 async function Main() {
+	// import environment variables
+	dotenv.config({
+		"path": ".env",
+	});
+
 	// guys idk where in the code this should go in relation but
 	// imma just put it here for now:
 
