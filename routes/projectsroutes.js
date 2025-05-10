@@ -32,6 +32,18 @@ router.route("/").get(isLoggedIn, async (req, res) => {
 });
 
 router
+	.route("/projectcreate")
+	.get(isLoggedIn, async (req, res) => {
+		try {
+			res.render("projectcreate", {});
+		} catch (error) {
+			console.error(error);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	})
+	.post(isLoggedIn, async (req, res) => {});
+
+router
 	.route("/:id")
 	.get(isLoggedIn, async (req, res) => {
 		// Display a specific project

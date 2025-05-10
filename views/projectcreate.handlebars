@@ -1,0 +1,25 @@
+{{! Handlebars for the page for users to create a project }}
+{{> navbar}}
+<div class="container">
+    <h1>New Project</h1>
+    <form action="/projects/projectcreate" method="POST" id="projectcreate-form" name="projectcreate-form">
+        <label for="title">Project Title:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        <label for="repoLink">Repository Link:</label>
+        <input type="url" id="repoLink" name="repoLink" required>
+        
+        <label for="topic_tags">Tags:</label>
+        <div id="tags-checkboxes">
+            <input type="checkbox" id="tag-web" name="topic_tags" value="web">
+            <label for="tag-web">Web</label>
+            <input type="checkbox" id="tag-ai" name="topic_tags" value="ai">
+            <label for="tag-ai">AI</label>
+            <input type="checkbox" id="tag-mobile" name="topic_tags" value="mobile">
+            <label for="tag-mobile">Mobile</label>
+            <!-- TODO: GET ALL TAGS IN HERE -->
+        </div>
+        <button type="submit">Create Project</button>
+    </form>
+</div>
