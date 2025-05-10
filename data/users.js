@@ -3,7 +3,7 @@ import {ObjectId} from 'mongodb';
 import bcrypt from 'bcrypt';
 
 // helper imports
-import { stringVal, arrayVal, idVal, validatePassword, validateUserID} from '../helpers.js'
+import { stringVal, arrayVal, idVal, validatePassword, validateUserID, validObjectId} from '../helpers.js'
 import { create_auth } from '../src/lib/auth.js';
 
 
@@ -185,6 +185,23 @@ async function getUserById(id){
 };
 
 /**
+ * 
+ * @param {ObjectId} id 
+ * @returns {(Object|null)} user
+ */
+async function getUserById_ObjectId(id) {
+  await validObjectId(id);
+  const usersc = await users();
+
+  const user = await usersc.findOne({_id: id});
+  if(!user) {
+    return null;
+  } else {
+    return user;
+  }
+}
+
+/**
  * get user document by username. 
  * return null if not found
  * @param {string} username
@@ -348,4 +365,4 @@ async function updateUser(id, updateData){
 }
 
 
-export {createUser, getAllUsers, getUserById, getUserByUsername, removeUser, removeFriend, updateUser, updateUserTags, getUserTags, create_auth, addFriend};
+export {createUser, getAllUsers, getUserById, getUserByUsername, removeUser, removeFriend, updateUser, updateUserTags, getUserTags, create_auth, addFriend, getUserById_ObjectId};

@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { auth, users } from "../config/mongoCollections.js";
 import { validObjectId } from "../helpers.js";
 import { get_auth_by_id } from "./authdata.js";
-import { getUserById } from "./users.js";
+import { getUserById_ObjectId } from "./users.js";
 
 /**
  * given github authorization code (from oauth callback), log in and retrieve access token. Store in database.
@@ -72,7 +72,7 @@ export async function github_oauth_login(userid, code) {
 export async function get_user_gh_token(userid) {
     await validObjectId(userid);
 
-    let user = await getUserById(userid);
+    let user = await getUserById_ObjectId(userid);
     if(!user) {
         throw new Error(`User not found.`);
     }
