@@ -1,5 +1,5 @@
 import * as express from "express";
-import { stringVal, validateUserID, validatePassword } from "../helpers.js";
+import { stringVal, validatePassword, validateUserID } from "../helpers.js";
 import { login } from "../src/lib/auth.js";
 
 const router = express.Router();
@@ -29,6 +29,7 @@ router
 		// validate username and password
 		let username = req.body["username"];
 		let password = req.body["password"];
+
 		try {
 			stringVal(username);
 			stringVal(password);

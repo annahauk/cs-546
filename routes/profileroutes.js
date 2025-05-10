@@ -1,16 +1,16 @@
-import {Router} from 'express';
-const router = Router();
-import {getUserById} from "../data/users.js";
-import {isLoggedIn} from "./middleware.js";
-import { idVal, stringVal } from '../helpers.js';
-import path from 'path';
-import multer from 'multer';
+import { Router } from 'express';
 import fs from 'fs/promises';
+import multer from 'multer';
+import path from 'path';
+import { getUserById } from "../data/users.js";
+import { idVal, stringVal } from '../helpers.js';
+import { isLoggedIn } from "./middleware.js";
+const router = Router();
 
 // https://www.npmjs.com/package/multer
 // Store uploaded resume file temporarily in ../uploads
 const upload = multer({
-    dest: path.join(__dirname, '../uploads'),
+    dest: path.join(process.cwd(), '../uploads'),
     limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB 
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'application/pdf') {
