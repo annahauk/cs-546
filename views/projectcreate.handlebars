@@ -1,5 +1,10 @@
 {{! Handlebars for the page for users to create a project }}
 {{> navbar}}
+{{#if error}}
+	<p class="error" id="error">{{error}}</p>
+{{else}}
+	<p class="error" id="error"></p>
+{{/if}}
 <div class="container">
     <h1>New Project</h1>
     <form action="/projects/projectcreate" method="POST" id="projectcreate-form" name="projectcreate-form">
