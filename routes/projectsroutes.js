@@ -1,10 +1,11 @@
 import { Router } from "express";
 const router = Router();
 import { getAllPosts, getPostById, createPost } from "../data/posts.js";
-import { getUserByUsername } from "../data/users.js";
+import { getUserByUsername, getUserById } from "../data/users.js";
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal } from "../helpers.js";
+import { ObjectId } from "mongodb";
 
 router.route("/").get(isLoggedIn, async (req, res) => {
 	try {
@@ -44,7 +45,9 @@ router
 	.post(isLoggedIn, async (req, res) => {
 		let ownerId = "";
 		if (req.authorized) {
-			ownerId = req.cookies["username"];
+			ownerUsername = req.cookies["username"];
+			let owner = await getUserByUsername(ownerUsername);
+			ownerId = owner._id.toString();
 		} else {
 			return res.redirect("/login");
 		}
@@ -107,7 +110,10 @@ router
 					.status(404)
 					.render("error", { message: "Project not found" });
 			}
-			res.render("projectDetails", { post: post });
+			// Get the project creator
+			let creatorUser = await getUserById(post.ownerId);
+			let username = creatorUser.userName;
+			res.render("project", { project: post, creatorUsername: username });
 		} catch (error) {
 			console.error(error);
 			res.status(500).render("error", { message: "Internal server error" });
