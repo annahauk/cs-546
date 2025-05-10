@@ -1,6 +1,7 @@
 import * as express from "express";
-import { stringVal, validateUserID, validatePassword } from "../helpers.js";
+import { stringVal, validatePassword, validateUserID } from "../helpers.js";
 import { login } from "../src/lib/auth.js";
+import { createUser } from "../data/users.js";
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router
 		// validate username and password
 		let username = req.body["username"];
 		let password = req.body["password"];
+
 		try {
 			stringVal(username);
 			stringVal(password);
@@ -78,6 +80,7 @@ router
 		if (typeof req.body !== "object") {
 			return res.status(400).json({ error: `Request body required.` });
 		}
+
 		// validate username and password(s)
 		let userId = req.body["username"];
 		let password = req.body["password"];
@@ -92,6 +95,7 @@ router
 				error: `The following fields are missing: ${missingFields.join(", ")}`
 			});
 		}
+
 		// check for them being invalid and somehow getting past clientside
 		const errors = [];
 		// Mini helper function to remove "Error in <function name>: " to make the user output much cleaner
@@ -124,7 +128,7 @@ router
 		}
 		// If there are validation errors, re-render the form with the errors
 		if (errors.length > 0) {
-			return res.status(400).render("register", {
+			return res.status(400).render("signup", {
 				error: errors.join("\n"),
 				themePreference: req.session.user.themePreference
 			});
@@ -132,10 +136,10 @@ router
 		// Register the user
 		try {
 			// Create the user in the database
-			let user = createUser(userId, password);
-			// TODO FOR BENNY: GITHUB REDIRECT AND THINGS
+			let user = await createUser(userId, password);
+			return await res.redirect("/login");
 		} catch (e) {
-			return res.status(500).render("register", {
+			return res.status(500).render("signup", {
 				error: "There was a problem registering. Please try again later."
 			});
 		}

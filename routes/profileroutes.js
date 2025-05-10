@@ -1,8 +1,25 @@
-import {Router} from 'express';
+import { Router } from 'express';
+import fs from 'fs/promises';
+import multer from 'multer';
+import path from 'path';
+import { getUserById } from "../data/users.js";
+import { idVal, stringVal } from '../helpers.js';
+import { isLoggedIn } from "./middleware.js";
 const router = Router();
-import {getUserById} from "../data/users.js";
-import {isLoggedIn} from "./middleware.js";
-import { idVal } from '../helpers.js';
+
+// https://www.npmjs.com/package/multer
+// Store uploaded resume file temporarily in ../uploads
+const upload = multer({
+    dest: path.join(process.cwd(), '../uploads'),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB 
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/pdf') {
+            cb(null, true);
+        } else {
+            cb(new Error('Only PDF files are allowed.'));
+        }
+    }
+});
 
 router.route('/:id')
     .get(isLoggedIn, async (req, res) => {
@@ -53,6 +70,31 @@ router.route('/:id/edit')
             // After done, hitting "save" will redirect back to profile view
 
             res.render('profile', {user: user});
+        } catch (error) {
+            res.status(500).render('error', {message: 'Internal server error'});
+        }
+    });
+router.route('/:id/resume')
+    .post(isLoggedIn, upload.single('resume'), async (req, res) => {
+        try {
+            const userId = idVal(req.params.id);
+            const user = await getUserById(userId);
+            if (!user) {
+                return res.status(404).render('error', {message: 'User not found'});
+            }
+            if (user.user_name !== stringVal(req.body.username)) {
+                return res.status(403).render('error', {message: 'You can only edit your own profile.'});
+            }
+            if (!req.file) {
+                return res.status(400).render('error', {message: 'No file uploaded'});
+            }
+
+            const tags = await processUploadedResume(req.file);
+            // https://www.geeksforgeeks.org/node-js-fs-unlink-method/
+            await fs.unlink(req.file.path);
+            const newTags = [...new Set([...tags.ProgrammingLanguages, ...tags.Libraries, ...tags.Frameworks, ...tags.Tools, ...tags.CloudPlatforms])];
+            await updateUserTags(userId, newTags);
+            res.status(200).json({message: 'Resume uploaded successfully!'});
         } catch (error) {
             res.status(500).render('error', {message: 'Internal server error'});
         }

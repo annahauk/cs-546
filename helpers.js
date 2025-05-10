@@ -240,18 +240,15 @@ const validatePassword = (val, varName, funcName) => {
  * @param {ObjectId} objid 
  */
 async function validObjectId(objid) {
-    if(!ObjectId.isValid(objid)) {
-        throw new Error(`Invalid ObjectId.`);
-    }
+	if(!ObjectId.isValid(objid)) {
+		throw new Error(`Invalid ObjectId.`);
+	}
 }
 
 export {
-	stringVal,
-	onlylettersandnumbers,
-	onlyletters,
 	arrayVal,
-	idVal,
-	validatePassword,
-	validateUserID,
-	validateArray, validObjectId
+  data_func,
+	idVal, onlyletters, onlylettersandnumbers, stringVal, validateArray, validatePassword,
+	validateUserID, validObjectId
 };
+

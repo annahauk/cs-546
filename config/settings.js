@@ -11,3 +11,7 @@ export const authConfig = {
   tokenCacheLifetime: 3.6e+6, // 1 hour
   tokenMaxAge: 3.6e+6*24, // 24 hours
 }
+
+export const ghConfig = {
+  permissions: ["repo", "user"],
+}

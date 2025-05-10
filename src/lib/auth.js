@@ -15,8 +15,8 @@ const TOKEN_CACHE = new TokenCache();
 /**
  * create and insert auth document into auth collection
  * returns auth id as ObjectId
- * @param {*} userid - ObjectId of the user
- * @param {*} passphrase - the user's passphrase
+ * @param {ObjectId} userid - ObjectId of the user
+ * @param {string} passphrase - the user's passphrase
  */
 export async function create_auth(userid, passphrase) {
     try {
@@ -49,6 +49,7 @@ export async function create_auth(userid, passphrase) {
         "hash": _hash,
         "salt": _salt,
         "userId": userid,
+        "gh_token": "",
         "tokens": [],
     })
 
@@ -72,8 +73,8 @@ export async function create_auth(userid, passphrase) {
 
 /**
  * test if authentication is successful, returns boolean
- * @param {*} authId 
- * @param {*} passphrase 
+ * @param {ObjectId} authId 
+ * @param {string} passphrase 
  */
 export async function try_auth(authId, passphrase) {
     try {
@@ -93,8 +94,8 @@ export async function try_auth(authId, passphrase) {
  * perform full user login
  * adds token to user auth document if successful
  * returns token if successful, null if failed, throws if error
- * @param {*} username 
- * @param {*} password 
+ * @param {string} username 
+ * @param {string} password 
  */
 export async function login(username, password) {
     stringVal(username);
@@ -139,8 +140,8 @@ export async function login(username, password) {
 
 /**
  * Generates cryptographically secure random token of length
- * @param length 
- * @returns 
+ * @param {number} length 
+ * @returns {string}
  */
 export async function generate_token(length) {
     let random_bytes = promisify(randomBytes);
