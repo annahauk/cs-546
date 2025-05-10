@@ -1,5 +1,7 @@
 import * as express from "express";
 import { ghConfig } from "../config/settings.js";
+import { github_oauth_login } from "../data/oauth.js";
+import { getUserByUsername } from "../data/users.js";
 
 const router = express.Router();
 
@@ -25,7 +27,17 @@ router.route("/callback")
         }
 
         // login with auth code
-        
+        let user = await getUserByUsername(req.cookies["username"]);
+        if(!user) {
+            return await res.status(400).json({error: `User not found.`});
+        }
+
+        try {
+            await github_oauth_login(user._id, code);
+            return await res.redirect("/home");
+        } catch (e) {
+            return await res.status(500).json({error: `Error logging into github: ${e}`});
+        }
     })
 
 /**
