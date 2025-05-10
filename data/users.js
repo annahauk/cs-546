@@ -41,6 +41,7 @@ async function createUser(userName, password){
     // INPUT VALIDATION
 
     userName = validateUserID(userName, 'userName', 'createUser');
+    userName = userName.trim().toLowerCase();
     password = validatePassword(password, 'password', 'createUser');
     let githubProfile = "";
     let skillTags = [];
@@ -54,7 +55,8 @@ async function createUser(userName, password){
         throw `User with username ${userName} already exists`;
     }
 
-    // hash the password
+    // hash the password 
+    // HASHED IN AUTH
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     
@@ -197,16 +199,131 @@ async function getUserByUsername(username) {
   }
 }
 
-// maybe don't need
-async function removeUser(id){
-    id = idVal(id, 'id', 'removeUser');
-    const userCollection = await users();
-    const deletionInfo = await userCollection.findOneAndDelete({_id: new ObjectId(id)});
-    // Deletes but returns the object that was deleted
-    if (!deletionInfo){ // number of documents affected
-      throw `Could not delete user with id of ${id}`;
+/**
+ * This adds friends to a user's friends list 
+ * @param {string} id
+ * @param {string} friendId
+ * @returns {ObjectId} userId
+ */
+async function addFriend(id, friendId){
+  id = idVal(id, 'id', 'addFriend');
+  friendId = idVal(friendId, 'friendId', 'addFriend');
+
+  const userCollection = await users();
+  const user = await userCollection.findOne({_id: new ObjectId(id)});
+  if (user === null){
+    throw 'No user with that id';
+  }
+  // check if the friend is already in the user's friends list
+  if (user.friends.includes(friendId)){
+    throw 'User is already a friend';
+  }
+  // add the friend to the user's friends list
+  const updatedUser = {
+    $push: {friends: new ObjectId(friendId)}
+  };
+  const updateInfo = await userCollection.updateOne(
+    {_id: new ObjectId(id)},
+    updatedUser
+  );
+  if (updateInfo.modifiedCount === 0) throw `Could not add friend with id of ${friendId}`;
+  
+  return await getUserById(id);
+}
+
+/**
+ * This function removes a friend from a user's friends list
+ * @param {string} id
+ * @param {string} friendIdToRemove
+ * @returns {ObjectId} userId
+ */
+async function removeFriend(id, friendIdToRemove){
+  id = idVal(id, 'id', 'removeFriend');
+  friendIdToRemove = idVal(friendIdToRemove, 'friendIdToRemove', 'removeFriend');
+
+  const userCollection = await users();
+  const user = await userCollection.findOne({_id: new ObjectId(id)});
+  if (user === null){
+    throw new Error('No user with that id');
+  }
+  // check if the friend is in the user's friends list
+  let toRemoveInFriends = false;
+  // if (!user.friends.includes(friendIdToRemove)){
+  //   throw 'User is not a friend';
+  // }
+  for (const friend of user.friends){
+    if (friend.toString() === friendIdToRemove.toString()){
+      toRemoveInFriends = true;
+      break;
     }
-    return `${deletionInfo.title} has been successfully deleted!`;
+  }
+  if (!toRemoveInFriends){
+    throw new Error('User is not a friend');
+  }
+  // remove the friend from the user's friends list
+  const updatedUser = {
+    $pull: {friends: new ObjectId(friendIdToRemove)}
+  };
+  const updateInfo = await userCollection.updateOne(
+    {_id: new ObjectId(id)},
+    updatedUser
+  );
+  if (updateInfo.modifiedCount === 0) throw `Could not remove friend with id of ${friendIdToRemove}`;
+  
+  return await getUserById(id);
+}
+/**
+ * This function removes a user by its ID and any friends 
+ * @param {ObjectId} id 
+ * @returns 
+ */
+async function removeUser(removalId){
+    removalId = idVal(removalId, 'id', 'removeUser');
+    let temp = removalId;
+    
+    const userCollection = await users();
+    const user = await userCollection.findOne({_id: new ObjectId(removalId)});
+    if (user === null){
+        throw new Error('No user with that id');
+    }
+
+    // iterate through the user's friends and remove them from their friends list
+    const allUsers = await getAllUsers();
+    for (let i = 0; i < allUsers.length; i++){
+        let currUser = allUsers[i];
+        // console.log("Pre removal:")
+        // console.log(currUser);
+        // call removeFriend for each currUser, passing in the id of the user to be removed
+        try{
+          let toRemoveInFriends = false;
+          for (const friend of currUser.friends){
+            if (friend.toString() === removalId){
+              toRemoveInFriends = true;
+              break;
+            }
+          }
+          if (!toRemoveInFriends){
+            throw new Error('User is not a friend');
+          }
+          // remove the friend from the user's friends list
+          const updatedUser = {
+            $pull: {friends: new ObjectId(removalId)}
+          };
+          const updateInfo = await userCollection.updateOne(
+            {_id: new ObjectId(currUser._id.toString())},
+            updatedUser
+          );
+          if (updateInfo.modifiedCount === 0) throw `Could not remove friend with id of ${removalId}`;
+        }
+        catch (e){
+          console.log(`Error removing friend ${currUser._id}: ${e}`);
+        }
+        // console.log("Post removal:")
+        // console.log(currUser);
+    }
+    // remove the user from the database
+    const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(removalId)});
+    return `user with ${temp} has been successfully deleted!`;
 };
 
 /**
@@ -226,8 +343,9 @@ async function updateUser(id, updateData){
     {$set: updateData}
   );
   if (updateInfo.modifiedCount === 0) throw `Could not update user with id of ${id}`;
-  return id;
+  // return the updated user
+  return await getUserById(id);
 }
 
 
-export {createUser, getAllUsers, getUserById, getUserByUsername, removeUser, updateUser, updateUserTags, getUserTags, create_auth};
+export {createUser, getAllUsers, getUserById, getUserByUsername, removeUser, removeFriend, updateUser, updateUserTags, getUserTags, create_auth, addFriend};

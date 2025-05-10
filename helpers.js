@@ -247,6 +247,7 @@ async function validObjectId(objid) {
 
 export {
 	arrayVal,
+  data_func,
 	idVal, onlyletters, onlylettersandnumbers, stringVal, validateArray, validatePassword,
 	validateUserID, validObjectId
 };
