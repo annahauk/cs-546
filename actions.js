@@ -1,6 +1,8 @@
 import { users } from "./config/mongoCollections.js";
+import { get_user_gh_token } from "./data/oauth.js";
 import { getUserByUsername, createUser } from "./data/users.js";
 import { create_auth, login, try_auth } from "./src/lib/auth.js";
+import { GIT_Get_User_Info } from "./src/lib/git.js";
 import { exit } from "./src/util/common.js";
 
 /**
@@ -117,5 +119,16 @@ export async function do_action(action) {
             console.log(user);
             exit(0);
         } break;
+
+        case "gh_get_user": {
+            const username = argv[argc-1];
+            if(!username) {
+                console.error(`Usage: gh_get_user <username>`);
+                process.exit(1);
+            }
+
+            let gh_token = await get_user_gh_token((await getUserByUsername(username))._id);
+            console.log(await GIT_Get_User_Info(username, gh_token));
+        }
     }
 }
