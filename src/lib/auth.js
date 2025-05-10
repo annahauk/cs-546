@@ -155,6 +155,37 @@ export async function generate_token(length) {
 }
 
 /**
+ * 
+ * @param {string} username 
+ * @param {string} token_content 
+ * @returns {void}
+ */
+export async function logout(username, token_content) {
+    await stringVal(username, "username", "logout");
+    await stringVal(token_content, "token", "logout");
+
+    const authd = await get_auth_by_username(username);
+    if(!authd) {
+        throw new Error(`Auth document not found.`);
+    }
+
+    // remove user token from cache and collecton
+    let token = await TOKEN_CACHE.has_token(username, token_content);
+    // if token found in cache, remove from cache
+    if(token) {
+        // token found in cahce
+        await TOKEN_CACHE.remove_token(username, token_content);
+    } else {
+        // else pull from db
+        token = await find_token(authd, token_content);
+    }
+    
+    // remove token from db
+    await remove_token(authd._id, token);
+    return;
+}
+
+/**
  * The auth middleware
  * Checks token from user cookie against cache
  * if not in cache, fall through to database

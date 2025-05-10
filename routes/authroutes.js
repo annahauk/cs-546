@@ -1,8 +1,9 @@
 import * as express from "express";
 import { stringVal, validatePassword, validateUserID } from "../helpers.js";
-import { login } from "../src/lib/auth.js";
+import { login, logout } from "../src/lib/auth.js";
 import { createUser, getUserByUsername } from "../data/users.js";
 import { get_user_gh_token } from "../data/oauth.js";
+import { get_auth_by_username } from "../data/authdata.js";
 
 const router = express.Router();
 
@@ -155,6 +156,29 @@ router
 				error: "There was a problem registering. Please try again later."
 			});
 		}
+	});
+
+router.route("/logout")
+	.get(async (req,res) => {
+		if(!req.authorized) {
+			// not logged in
+			return await res.redirect("/login");
+		}
+
+		let username = req.cookies["username"];
+		let token_content = req.cookies["token"];
+
+		if(!username || !token_content) {
+			return await res.status(400).json({error: `Missing client username or token`});
+		}
+
+		try {
+			await logout(username, token_content);
+		} catch (e) {
+			return await res.status(500).json({erorr: `Error logging out user: ${e}`});
+		}
+		
+		return await res.redirect("/login");
 	});
 
 export default router;
