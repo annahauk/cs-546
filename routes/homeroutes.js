@@ -10,7 +10,12 @@ router.route("/").get(isLoggedOut, (req, res) => {
 // TEMPORARY - TO allow browser login
 router.route("/login")
 	.get(async(req,res) => {
-		res.render("login");
+		return await res.redirect("/auth/login");
+	})
+
+router.route("/register")
+	.get(async(req,res) => {
+		return await res.redirect("/auth/register");
 	})
 
 export default router;

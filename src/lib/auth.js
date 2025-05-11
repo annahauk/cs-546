@@ -8,6 +8,7 @@ import { getUserByUsername } from "../../data/users.js";
 import { stringVal, validObjectId } from "../../helpers.js";
 import { TokenCache } from "./token_cache.js";
 import { ObjectId } from "mongodb";
+import { destroy_gh_token } from "../../data/oauth.js";
 
 const TOKEN_CACHE = new TokenCache();
 
@@ -162,7 +163,7 @@ export async function generate_token(length) {
  */
 export async function logout(username, token_content) {
     username = stringVal(username, "username", "logout");
-    token_count = stringVal(token_content, "token", "logout");
+    token_content = stringVal(token_content, "token", "logout");
 
     const authd = await get_auth_by_username(username);
     if(!authd) {
@@ -182,6 +183,14 @@ export async function logout(username, token_content) {
     
     // remove token from db
     await remove_token(authd._id, token);
+
+    // remove user github token
+    try {
+        await destroy_gh_token(username);
+    } catch (e) {
+        throw new Error(`Failed to destroy github token (it's too powerful).`);
+    }
+
     return;
 }
 
