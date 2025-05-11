@@ -2,8 +2,8 @@ import axios from "axios";
 import { ObjectId } from "mongodb";
 import { auth, users } from "../config/mongoCollections.js";
 import { validObjectId } from "../helpers.js";
-import { get_auth_by_id } from "./authdata.js";
-import { getUserById_ObjectId } from "./users.js";
+import { get_auth_by_id, get_auth_by_username } from "./authdata.js";
+import { getUserById_ObjectId, getUserByUsername } from "./users.js";
 
 /**
  * given github authorization code (from oauth callback), log in and retrieve access token. Store in database.
@@ -62,6 +62,22 @@ export async function github_oauth_login(userid, code) {
     }
 
     return access_token;
+}
+
+/**
+ * Delete gh_token from user auth document
+ * @param {string} username 
+ * @returns {string} gh_token
+ */
+export async function destroy_gh_token(username) {
+    let authc = await auth();
+    let auth = await get_auth_by_username(username);
+    let res = await authc.updateOne({_id: auth._id}, {$set: {"gh_token": ""}});
+    if(!res.acknowledged) {
+        throw new Error(`Failed to clear user github token`);
+    }
+
+    return auth.gh_token;
 }
 
 /**
