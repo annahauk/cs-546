@@ -71,8 +71,11 @@ export async function github_oauth_login(userid, code) {
  */
 export async function destroy_gh_token(username) {
     let authc = await auth();
-    let auth = await get_auth_by_username(username);
-    let res = await authc.updateOne({_id: auth._id}, {$set: {"gh_token": ""}});
+    let authd = await get_auth_by_username(username);
+    if(!authd) {
+        throw new Error("No user auth");
+    }
+    let res = await authc.updateOne({_id: authd._id}, {$set: {"gh_token": ""}});
     if(!res.acknowledged) {
         throw new Error(`Failed to clear user github token`);
     }
