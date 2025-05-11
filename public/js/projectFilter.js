@@ -5,8 +5,9 @@ $(document).ready(function () {
 	// Function to check if any filters are selected
 	function updateFilterButtonState() {
 		const searchInput = $('input[name="search"]').val().trim();
-		const tagsChecked = $('input[name="tags"]:checked').length > 0;
-		const languagesChecked = $('input[name="languages"]:checked').length > 0;
+		const tagsChecked = $("#tags").val() && $("#tags").val().length > 0;
+		const languagesChecked =
+			$("#languages").val() && $("#languages").val().length > 0;
 		const statusSelected = $("#status").val() !== "";
 
 		// Enable the button if any filter is selected, otherwise disable it
@@ -19,8 +20,8 @@ $(document).ready(function () {
 
 	// Attach event listeners to form inputs to monitor changes
 	$('input[name="search"]').on("input", updateFilterButtonState);
-	$('input[name="tags"]').on("change", updateFilterButtonState);
-	$('input[name="languages"]').on("change", updateFilterButtonState);
+	$("#tags").on("change", updateFilterButtonState);
+	$("#languages").on("change", updateFilterButtonState);
 	$("#status").on("change", updateFilterButtonState);
 
 	// Initialize the button state on page load
@@ -44,16 +45,8 @@ $(document).ready(function () {
 		// Manually construct the data object from form inputs
 		const formData = {
 			search: $('input[name="search"]').val().trim(),
-			tags: $('input[name="tags"]:checked')
-				.map(function () {
-					return this.value;
-				})
-				.get(),
-			languages: $('input[name="languages"]:checked')
-				.map(function () {
-					return this.value;
-				})
-				.get(),
+			tags: $("#tags").val(),
+			languages: $("#languages").val(),
 			status: $("#status").val(),
 			reset: false
 		};
@@ -102,7 +95,8 @@ $(document).ready(function () {
 			headers: {
 				"Content-Type": "application/json"
 			},
-			data: JSON.stringify(formData) // Send an empty object to fetch all projects
+			// Send an empty object to fetch all projects
+			data: JSON.stringify(formData)
 		})
 			.then(function (response) {
 				// Update the projects area with all projects

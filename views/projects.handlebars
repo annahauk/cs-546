@@ -10,17 +10,19 @@
             <input type="text" name="search" placeholder="Search by project name" />
 
             <!-- Filter by tags TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE (maybe so don't need to hardcode?) -->
-            <label>Tags:</label>
-            <input type="checkbox" name="tags" value="Web"> Web
-            <input type="checkbox" name="tags" value="Machine Learning"> Machine Learning
-            <input type="checkbox" name="tags" value="Mobile"> Mobile
-
+            <label for="tags">Tags:</label>
+            <select name="tags" id="tags" multiple>
+                <option value="Web">Web</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Mobile">Mobile</option>
+            </select>
             <!-- Filter by language/domain TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE(maybe so don't need to hardcode?)  -->
-            <label>Languages:</label>
-            <input type="checkbox" name="languages" value="JavaScript"> JavaScript
-            <input type="checkbox" name="languages" value="Python"> Python
-            <input type="checkbox" name="languages" value="Java"> Java
-
+            <label for="languages">Languages:</label>
+            <select name="languages" id="languages" multiple>
+                <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+            </select>
 
             <!-- Filter by project status -->
             <label for="status">Status:</label>
@@ -41,3 +43,22 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/public/js/projectFilter.js"></script>
 <script src="/public/js/createProject.js"></script>
+{{!-- TESTING TAG SEARCH DROPDOWN --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+    // Initialize Choices.js for tags and languages
+    document.addEventListener('DOMContentLoaded', function () {
+        const tagsDropdown = new Choices('#tags', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select tags'
+        });
+
+        const languagesDropdown = new Choices('#languages', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select languages'
+        });
+    });
+</script>
