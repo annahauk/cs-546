@@ -21,7 +21,7 @@ const TOKEN_CACHE = new TokenCache();
 export async function create_auth(userid, passphrase) {
     try {
         validObjectId(userid);
-        stringVal(passphrase);
+        passphrase = stringVal(passphrase, "passphrase", "create_auth");
     } catch (e) {
         throw new Error(`create_auth invalid input: ${e}`);
     }
@@ -79,7 +79,7 @@ export async function create_auth(userid, passphrase) {
 export async function try_auth(authId, passphrase) {
     try {
         validObjectId(authId);
-        stringVal(passphrase);
+        passphrase = stringVal(passphrase, "passphrase", "try_auth");
     } catch (e) {
         throw new Error(`try_auth invalid input: ${e}`);
     }
@@ -98,8 +98,8 @@ export async function try_auth(authId, passphrase) {
  * @param {string} password 
  */
 export async function login(username, password) {
-    stringVal(username);
-    stringVal(password);
+    username = stringVal(username, "username", "login");
+    password = stringVal(password, "password", "login");
 
     /**
      * get user
@@ -161,8 +161,8 @@ export async function generate_token(length) {
  * @returns {void}
  */
 export async function logout(username, token_content) {
-    await stringVal(username, "username", "logout");
-    await stringVal(token_content, "token", "logout");
+    username = stringVal(username, "username", "logout");
+    token_count = stringVal(token_content, "token", "logout");
 
     const authd = await get_auth_by_username(username);
     if(!authd) {
@@ -208,8 +208,9 @@ export async function Auth(req, res, next) {
     const USER = req.cookies["username"];
     const USER_TOKEN = req.cookies["token"];
     try {
-        await stringVal(USER);
-        await stringVal(USER_TOKEN);
+        // Not reassigning here
+        stringVal(USER, "USER", "Auth");
+        stringVal(USER_TOKEN, "USER_TOKEN", "Auth");
     } catch (e) {
         return next();
     }
