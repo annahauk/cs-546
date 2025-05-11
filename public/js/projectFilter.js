@@ -33,7 +33,10 @@ $(document).ready(function () {
 
 		// Validate inputs
 		const searchInput = $('input[name="search"]').val().trim();
-		if (searchInput.length > 0 && !/^[a-zA-Z0-9\s]+$/.test(searchInput)) {
+		if (
+			searchInput.length > 0 &&
+			!/^[a-zA-Z0-9\s\-#@!&()_+.,]+$/.test(searchInput)
+		) {
 			alert("Search input contains invalid characters.");
 			return;
 		}
@@ -70,6 +73,8 @@ $(document).ready(function () {
 				console.log("Response received:", response);
 				// Update the projects area with the filtered content
 				$(".projectsArea").html(response);
+				// Update filter button state
+				updateFilterButtonState();
 			})
 			.catch(function (error) {
 				console.error("Error fetching filtered projects:", error);
@@ -102,6 +107,8 @@ $(document).ready(function () {
 			.then(function (response) {
 				// Update the projects area with all projects
 				$(".projectsArea").html(response);
+				// Update filter button state
+				updateFilterButtonState();
 			})
 			.catch(function (error) {
 				console.error("Error resetting filters:", error);

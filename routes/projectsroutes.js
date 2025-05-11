@@ -45,7 +45,7 @@ router
 			// Get the filtered posts or full posts depending on what's needed
 			let filteredPosts = null;
 			if (!reset) {
-				filteredPosts = await grabfilteredPosts(tags);
+				filteredPosts = await grabfilteredPosts(tags, search);
 			} else {
 				filteredPosts = await getAllPosts();
 			}
