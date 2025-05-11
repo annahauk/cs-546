@@ -6,25 +6,38 @@ import {
 	createPost,
 	grabfilteredPosts
 } from "../data/posts.js";
-import { getUserByUsername, getUserById } from "../data/users.js";
+import { getUserByUsername, getUserById, getUserTags } from "../data/users.js";
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
+import { all } from "axios";
 
 router
 	.route("/")
 	.get(isLoggedIn, async (req, res) => {
 		try {
-			let allPosts = await getAllPosts();
-			console.log("All posts:");
-			console.log(allPosts);
-			res.render("projects", {
-				posts: allPosts,
-				hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
-				termsAndDomains: TERMS_AND_DOMAINS,
-				title: "Projects"
-			});
+			if (req.authorized) {
+				const user = await getUserByUsername(req.cookies["username"]);
+				const userId = user._id.toString();
+				let allPosts = await getAllPosts();
+				let userTags = await getUserTags(userId);
+				allPosts.sort((aPost, bPost) => {
+					const aMatchCount = aPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					const bMatchCount = bPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					return bMatchCount - aMatchCount;
+				});
+				console.log("All posts (sorted):");
+				console.log(allPosts);
+				res.render("projects", {
+					posts: allPosts,
+					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
+					termsAndDomains: TERMS_AND_DOMAINS,
+					title: "Projects"
+				});
+			} else {
+				return res.redirect("/login");
+			}
 		} catch (error) {
 			console.error(error);
 			res
@@ -34,27 +47,39 @@ router
 	})
 	.post(isLoggedIn, async (req, res) => {
 		try {
-			// Extract filters from the request body
-			const { search, tags, languages, status, reset } = req.body;
-			// Get the filtered posts or full posts depending on what's needed
-			let filteredPosts = null;
-			let tagsAndLanguages = [
-				...(Array.isArray(tags) ? tags : [tags]).filter(Boolean),
-				...(Array.isArray(languages) ? languages : [languages]).filter(Boolean)
-			];
-			if (!reset) {
-				filteredPosts = await grabfilteredPosts(tagsAndLanguages, search);
+			if (req.authorized) {
+				const user = await getUserByUsername(req.cookies["username"]);
+				const userId = user._id.toString();
+				// Extract filters from the request body
+				const { search, tags, languages, status, reset } = req.body;
+				// Get the filtered posts or full posts depending on what's needed
+				let filteredPosts = null;
+				let tagsAndLanguages = [
+					...(Array.isArray(tags) ? tags : [tags]).filter(Boolean),
+					...(Array.isArray(languages) ? languages : [languages]).filter(Boolean)
+				];
+				if (!reset) {
+					filteredPosts = await grabfilteredPosts(tagsAndLanguages, search);
+				} else {
+					filteredPosts = await getAllPosts();
+				}
+				let userTags = await getUserTags(userId);
+				filteredPosts.sort((aPost, bPost) => {
+					const aMatchCount = aPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					const bMatchCount = bPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					return bMatchCount - aMatchCount;
+				});
+				// Render the Handlebars partial with the filtered posts
+				res.render("partials/projectList", {
+					// Disable the main layout for partial rendering
+					layout: false,
+					posts: filteredPosts,
+					hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0,
+					title: "Projects"
+				});
 			} else {
-				filteredPosts = await getAllPosts();
+				return res.redirect("/login");
 			}
-			// Render the Handlebars partial with the filtered posts
-			res.render("partials/projectList", {
-				// Disable the main layout for partial rendering
-				layout: false,
-				posts: filteredPosts,
-				hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0,
-				title: "Projects"
-			});
 		} catch (e) {
 			console.error(e);
 			res
