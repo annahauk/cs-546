@@ -194,6 +194,7 @@ router.route("/logout")
 		try {
 			await logout(username, token_content);
 		} catch (e) {
+			console.log(e);
 			return res.status(500).render('error', {message: `Error logging out user: ${e}`});
 		}
 		
