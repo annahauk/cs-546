@@ -163,7 +163,7 @@ export async function generate_token(length) {
  */
 export async function logout(username, token_content) {
     username = stringVal(username, "username", "logout");
-    token_count = stringVal(token_content, "token", "logout");
+    token_content = stringVal(token_content, "token", "logout");
 
     const authd = await get_auth_by_username(username);
     if(!authd) {
