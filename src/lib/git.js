@@ -96,7 +96,7 @@ export async function GIT_Get_User_Langs(username, gh_token, _repos) {
 
     let langs = Array.from(
         new Set(
-            repos.data.map((repo) => {return repo.language})
+            repos.data.map((repo) => {if(repo.language) {return repo.language.toLocaleLowerCase()} else {return null}})
             .filter((tag) => {return tag !== null})
         )
     )
