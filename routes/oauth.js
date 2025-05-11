@@ -2,7 +2,7 @@ import * as express from "express";
 import { ghConfig } from "../config/settings.js";
 import { github_oauth_login } from "../data/oauth.js";
 import { getUserByUsername } from "../data/users.js";
-import { set_user_github_info } from "../src/lib/git.js";
+import { set_user_gh_langs, set_user_github_info } from "../src/lib/git.js";
 
 const router = express.Router();
 
@@ -35,7 +35,8 @@ router.route("/callback").get(async (req, res) => {
 	try {
 		let access_token = await github_oauth_login(user._id, code);
 		//console.log("set the fucking thing");
-		await set_user_github_info(user.user_name, access_token);
+		let gh_info = await set_user_github_info(user.user_name, access_token);
+		let langs = await set_user_gh_langs(user.user_name, access_token);
 		return await res.redirect("/projects");
 	} catch (e) {
 		return await res
