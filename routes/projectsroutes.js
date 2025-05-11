@@ -4,7 +4,13 @@ import {
 	getAllPosts,
 	getPostById,
 	createPost,
-	grabfilteredPosts
+	grabfilteredPosts,
+	post_has_member,
+	get_project_application,
+	remove_project_applicaiton,
+	add_project_member,
+	create_project_application,
+	remove_project_member
 } from "../data/posts.js";
 import { getUserByUsername, getUserById, getUserTags } from "../data/users.js";
 import { createComment } from "../data/comments.js";
@@ -245,6 +251,203 @@ router
 				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
+
+router.route(":id/join/")
+	/**
+	 * request to join a project
+	 * sends notification to project owner with approve/deny links + additional text from user
+	 * join request has individual id
+	 */
+	.post(async(req,res) => {
+		if(!req.authorized) {
+			// redirect to login
+			return await res.redirect("/login");
+		}
+
+		let id;
+		try {
+			id = await idVal(req.params.id);
+		} catch (e) {
+			return await res.status(400).render("error", {"error": `Bad id format.`});
+		}
+
+		// make sure project exists
+		let project;
+		try {
+			project = await getPostById(id);
+		} catch (e) {
+			return await res.status(404).render("error", {error: `No post with id ${id}`});
+		}
+
+		// make sure user is not in project. If so, redirec to project page
+		let user = await getUserByUsername(req.cookies["username"]);
+		if(!user) {
+			return await res.status(500).render("error", {error: "User not found."});
+		}
+		if(await post_has_member(project, user._id)) {
+			// user is member
+			return await res.redirect(`/projects/${project._id.toString()}`);
+		}
+
+		// create application
+		let application;
+		try {
+			await create_project_application(project, user, req.body["text"]);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `Failed to create project application ${e}`});
+		}
+
+		// TODO:: Send notification
+		// XSS
+
+		res.redirect(`/projects/${project._id}`);
+	})
+
+router.route(":id/join/:applicationId/approve")
+	/**
+	 * approve application to join project
+	 * send notification back to user saying application was approved + additional text and linking to project
+	 * add user id to project members
+	 * add project id to user projects
+	 */
+	.post(async(req,res) => {
+		let project;
+
+		if(!req.authorized) {
+			// redirect to login
+			return await res.redirect("/login");
+		}
+
+		let id;
+		let appId;
+		try {
+			id = await idVal(req.params.id);
+			appId = await idVal(req.params.applicationId);
+		} catch (e) {
+			return await res.status(400).render("error", {error: `${e}`});
+		}
+
+		try {
+			project = await getPostById(id);
+		} catch (e) {
+			return await res.status(404).render("error", {error: `${e}`});
+		}
+
+		// make sure application exists
+		let application = await get_project_application(project, appId);
+		if(!application) {
+			return await res.status(404).render("error", {error: `No application with id ${appId}`});
+		}
+
+		// application approved
+		// remove application, add user to project members and notify
+		try {
+			await remove_project_applicaiton(project, application, true, req.body["text"]);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
+		}
+
+		// add member to project
+		try {
+			await add_project_member(project, application.applicant_id);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `Could not add user to post: ${e}`});
+		}
+
+		// redirec to notification page
+		res.redirect("/notifications");
+	})
+
+router.route(":id/join/:applicationId/deny")
+	/**
+	 * deny appliaction to join project
+	 * send user notification that they were denied + additional text
+	 */
+	.post(async(req,res) => {
+		let project;
+
+		if(!req.authorized) {
+			// redirect to login
+			return await res.redirect("/login");
+		}
+
+		let id;
+		let appId;
+		try {
+			id = await idVal(req.params.id);
+			appId = await idVal(req.params.applicationId);
+		} catch (e) {
+			return await res.status(400).render("error", {error: `${e}`});
+		}
+
+		try {
+			project = await getPostById(id);
+		} catch (e) {
+			return await res.status(404).render("error", {error: `${e}`});
+		}
+
+		// make sure application exists
+		let application = await get_project_application(project, appId);
+		if(!application) {
+			return await res.status(404).render("error", {error: `No application with id ${appId}`});
+		}
+
+		// application denied
+		// remove application, add user to project members and notify
+		try {
+			await remove_project_applicaiton(project, application, false, req.body["text"]);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
+		}
+
+		// redirec to notification page
+		res.redirect("/notifications");
+	})
+
+router.route(":id/leave")
+	/**
+	 * leave project
+	 * if user is owner then error
+	 * else remove user id from project members and project id from user projects
+	 */
+	.get(async (req,res) => {
+		if(!req.authorized) {
+			// redirect to login
+			return await res.redirect("/login");
+		}
+
+		await stringVal(req.cookies["username"]);
+		await idVal(req.params.id);
+
+		let id = req.params.id;
+
+		let user = await getUserByUsername(req.cookies["username"]);
+		if(!user) {
+			return await res.status(500).render("error", {error: `No user found.`});
+		}
+
+		let project;
+		try {
+			project = await getPostById(id);
+		} catch (e) {
+			return await res.status(404).render("error", {error: `Could not find project: ${e}`})
+		}
+
+		// make sure user is not project owner
+		if(user._id.toString() === project.ownerId) {
+			return await res.status(401).render("error", {error: `Cannot leave project which you are the owner of!`});
+		}
+
+		// remove member
+		try {
+			await remove_project_member(project, user._id);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `Failed to remove member from project: ${e}`});
+		}
+
+		// redirect to project page
+		res.redirect(`/projects/${project._id.toString()}`);
+	})
 
 router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 	try {
