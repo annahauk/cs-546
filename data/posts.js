@@ -7,7 +7,8 @@ import {
 	arrayVal,
 	idVal,
 	validatePassword,
-	validateUserID
+	validateUserID,
+	TERMS_AND_DOMAINS
 } from "../helpers.js";
 
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
@@ -161,15 +162,39 @@ async function updatePost(postId, updateData) {
 /**
  * This queries the database for the filtered posts by tags when a user selects from the menu in the frontend
  * @param {Array<String>} tags
+ * @param {String} name
  * @returns {Array<Post>} posts
  */
-async function grabfilteredPosts(tags) {
-	tags = arrayVal(tags, "tags", "grabfilteredPosts");
+async function grabfilteredPosts(tags, name) {
+	// Validate tags array, allowing for empty tag array if user is only filtering by name
+	if (!Array.isArray(tags)) {
+		throw `Error in grabfilteredPosts: tags must be an array.`;
+	}
+	for (const item of tags) {
+		if (typeof item !== "string" || item.trim().length === 0) {
+			throw `Error in grabfilteredPosts: tags must contain only non-empty strings.`;
+		}
+	}
+	// validate the name specifically just the type, since it can be empty if user doesn't care about project name
+	if (typeof name !== "string") {
+		throw `Error in grabfilteredPosts: name must be a string.`;
+	}
 	const postCollection = await projectPosts();
-	let posts = await postCollection
-		.find({ topic_tags: { $in: tags } })
-		.toArray();
-	if (!posts) throw `No posts with that tag`;
+	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
+	const regexTags = tags.map((tag) => new RegExp(`^${tag}$`, "i"));
+	// Create case-insensitive regex for the name, partial matching
+	const regexName = new RegExp(name, "i");
+	// Filter the project posts based on the topic tags
+	let posts = null;
+	if (tags.length !== 0) {
+		posts = await postCollection
+			.find({ topic_tags: { $in: regexTags }, title: regexName })
+			.toArray();
+	} else {
+		posts = await postCollection.find({ title: regexName }).toArray();
+	}
+	// Found no posts, that's a problem
+	if (!posts || posts.length === 0) throw `No posts with that tag`;
 	posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;

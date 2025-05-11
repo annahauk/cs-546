@@ -11,7 +11,7 @@ const app = express();
 async function Main() {
 	// import environment variables
 	dotenv.config({
-		"path": ".env",
+		path: ".env"
 	});
 
 	// guys idk where in the code this should go in relation but
@@ -20,12 +20,16 @@ async function Main() {
 	// const db = await dbConnection();
 	// await db.dropDatabase();
 	/**
-     * ensure client secrets are present in environment
-     */
+	 * ensure client secrets are present in environment
+	 */
 	let _gh_client_id = process.env["GH_CLIENT_ID"];
 	let _gh_client_secret = process.env["GH_CLIENT_SECRET"];
-	if(!_gh_client_id) {
-		console.error(`ERROR: Missing client secrets:${(_gh_client_id)? "" : " GH_CLIENT_ID"}${(_gh_client_secret)? "" : " GH_CLIENT_SECRET"}`);
+	if (!_gh_client_id) {
+		console.error(
+			`ERROR: Missing client secrets:${_gh_client_id ? "" : " GH_CLIENT_ID"}${
+				_gh_client_secret ? "" : " GH_CLIENT_SECRET"
+			}`
+		);
 		process.exit(1);
 	}
 
@@ -40,8 +44,30 @@ async function Main() {
 		await do_action(action);
 		exit(0);
 	}
-	app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
+	// Use a Set to track seen domain values
+	const seenValues = new Set();
+	app.engine(
+		"handlebars",
+		exphbs.engine({
+			defaultLayout: "main",
+			helpers: {
+				eq: (a, b) => a === b,
+				isDuplicate: (value) => {
+					if (seenValues.has(value)) {
+						return true;
+					}
+					seenValues.add(value);
+					return false;
+				}
+			}
+		})
+	);
 	app.set("view engine", "handlebars");
+	// Clear the Set for each new request
+	app.use((req, res, next) => {
+		seenValues.clear();
+		next();
+	});
 	constructorMethod(app);
 	try {
 		app.listen(settings.port, (e) => {

@@ -5,23 +5,33 @@
     <h1>Projects</h1>
     <a href="/projects/projectcreate">Create new Project</a>
     <div class="filterSelection">
-        <form method="GET" action="/projects">
+        <form method="GET" action="/projects" name="filterSelection-form" id="filterSelection-form">
             <!-- Search by project name -->
             <input type="text" name="search" placeholder="Search by project name" />
 
             <!-- Filter by tags TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE (maybe so don't need to hardcode?) -->
-            <label>Tags:</label>
-            <input type="checkbox" name="tags" value="web"> Web
-            <input type="checkbox" name="tags" value="ai"> AI
-            <input type="checkbox" name="tags" value="mobile"> Mobile
-
+            <label for="tags">Domains:</label>
+            <select name="tags" id="tags" multiple>
+                {{!-- <option value="Web">Web</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Mobile">Mobile</option> --}}
+                {{#each termsAndDomains}}
+                    {{#unless (isDuplicate this.domain)}}
+                        <option value="{{this.domain}}">{{this.domain}}</option>
+                    {{/unless}}
+                {{/each}}
+            </select>
             <!-- Filter by language/domain TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE(maybe so don't need to hardcode?)  -->
-            <label for="language">Language:</label>
-            <select name="language" id="language">
-                <option value="">All</option>
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
+            <label for="languages">Languages:</label>
+            <select name="languages" id="languages" multiple>
+                {{!-- <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option> --}}
+                {{#each termsAndDomains}}
+                    {{#if (eq this.tag "ProgrammingLanguage")}}
+                        <option value="{{@key}}">{{@key}}</option>
+                    {{/if}}
+                {{/each}}
             </select>
 
             <!-- Filter by project status -->
@@ -33,25 +43,32 @@
             </select>
 
             <button type="submit">Filter</button>
+            <button type="button" id="resetFilters">Reset Filters</button>
         </form>
     </div>
     <div class="projectsArea">
-        {{#if hasPosts}}
-        <ol>
-            {{#each posts}}
-                <li class="project">
-                    <a href="/projects/{{this._id}}">{{this.title}}</a>
-                    <ol>
-                        {{#each topic_tags}}
-                            <li>{{this}}</li>
-                        {{/each}}
-                    </ol>
-                </li>
-            {{/each}}
-        </ol>
-        {{else}}
-            <p class="not-found">We're sorry, but no projects can be found. Please try again later.</p>
-        {{/if}}
+        {{> projectList}}
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/public/js/projectFilter.js"></script>
 <script src="/public/js/createProject.js"></script>
+{{!-- TESTING TAG SEARCH DROPDOWN --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+    // Initialize Choices.js for tags and languages
+    document.addEventListener('DOMContentLoaded', function () {
+        const tagsDropdown = new Choices('#tags', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select tags'
+        });
+
+        const languagesDropdown = new Choices('#languages', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select languages'
+        });
+    });
+</script>

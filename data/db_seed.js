@@ -155,14 +155,14 @@ async function main() {
 			user4._id,
 			"LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!",
 			"https://github.com/ZakariyyaScavotto/miniStockDash",
-			["Machine Learning", "Deep Learning"]
+			["MachineLearning", "python"]
 		);
 		const post2 = await createPost(
 			"Web Programming Final Project",
 			user5._id,
 			"Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.",
 			"https://github.com/annahauk/cs-546",
-			["JavaScript", "MongoDB"]
+			["javascript", "web"]
 		);
 
 		console.log("Created posts:");

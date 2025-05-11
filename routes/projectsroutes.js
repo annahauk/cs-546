@@ -1,36 +1,61 @@
 import { Router } from "express";
 const router = Router();
-import { getAllPosts, getPostById, createPost } from "../data/posts.js";
+import {
+	getAllPosts,
+	getPostById,
+	createPost,
+	grabfilteredPosts
+} from "../data/posts.js";
 import { getUserByUsername, getUserById } from "../data/users.js";
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
-import { stringVal, idVal } from "../helpers.js";
+import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
 
-router.route("/").get(isLoggedIn, async (req, res) => {
-	try {
-		// Filter by tags, languages, or active/inactive
-		// Can change based on however we store the tags
-		// let tags = req.query;
-		let allPosts = await getAllPosts();
-		/* Removing for now since we need to figure out how to filter exactly
-            if (tags) {
-                // trim and lowercase may be redundant but we can simplify later
-                tags = tags.split(',').map(tag => tag.trim().toLowerCase());
-                allPosts = allPosts.filter(post => post.topic_tags.some(tag => tags.includes(tag.toLowerCase())));
-            }
-        */
-		console.log("All posts:");
-		console.log(allPosts);
-		res.render("projects", {
-			posts: allPosts,
-			hasPosts: Array.isArray(allPosts) && allPosts.length > 0
-		});
-	} catch (error) {
-		console.error(error);
-		res.status(500).render("error", { message: "Internal server error" });
-	}
-});
+router
+	.route("/")
+	.get(isLoggedIn, async (req, res) => {
+		try {
+			let allPosts = await getAllPosts();
+			console.log("All posts:");
+			console.log(allPosts);
+			res.render("projects", {
+				posts: allPosts,
+				hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
+				termsAndDomains: TERMS_AND_DOMAINS
+			});
+		} catch (error) {
+			console.error(error);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	})
+	.post(isLoggedIn, async (req, res) => {
+		try {
+			// Extract filters from the request body
+			const { search, tags, languages, status, reset } = req.body;
+			// Get the filtered posts or full posts depending on what's needed
+			let filteredPosts = null;
+			let tagsAndLanguages = [
+				...(Array.isArray(tags) ? tags : [tags]).filter(Boolean),
+				...(Array.isArray(languages) ? languages : [languages]).filter(Boolean)
+			];
+			if (!reset) {
+				filteredPosts = await grabfilteredPosts(tagsAndLanguages, search);
+			} else {
+				filteredPosts = await getAllPosts();
+			}
+			// Render the Handlebars partial with the filtered posts
+			res.render("partials/projectList", {
+				// Disable the main layout for partial rendering
+				layout: false,
+				posts: filteredPosts,
+				hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0
+			});
+		} catch (e) {
+			console.error(e);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	});
 
 router
 	.route("/projectcreate")

@@ -5,6 +5,7 @@ import path from "path";
 import { getUserById, getUserByUsername } from "../data/users.js";
 import { idVal, stringVal } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
+import { processUploadedResume } from "../src/lib/resume-parse.js";
 const router = Router();
 
 // https://www.npmjs.com/package/multer
