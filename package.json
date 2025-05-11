@@ -49,6 +49,7 @@
     "util": "^0.12.5"
   },
   "devDependencies": {
+    "@octokit/types": "^14.0.0",
     "nodemon": "^3.1.10",
     "w3c-html-validator": "^1.8.3"
   }
