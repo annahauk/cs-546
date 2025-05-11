@@ -2,7 +2,11 @@ import { Router } from "express";
 import fs from "fs/promises";
 import multer from "multer";
 import path from "path";
-import { getUserById, getUserByUsername } from "../data/users.js";
+import {
+	getUserById,
+	getUserByUsername,
+	updateUserTags
+} from "../data/users.js";
 import { idVal, stringVal } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
 import { processUploadedResume } from "../src/lib/resume-parse.js";
@@ -98,7 +102,7 @@ router
 			if (!user) {
 				return res.status(404).render("error", { message: "User not found" });
 			}
-			if (user.user_name !== stringVal(req.body.username)) {
+			if (user.user_name !== stringVal(req.cookies["username"])) {
 				return res
 					.status(403)
 					.render("error", { message: "You can only edit your own profile." });
@@ -108,6 +112,12 @@ router
 			}
 
 			const tags = await processUploadedResume(req.file);
+			// Remove commas from all strings in the tags object
+			for (const key in tags) {
+				if (Array.isArray(tags[key])) {
+					tags[key] = tags[key].map((tag) => tag.replace(/,/g, ""));
+				}
+			}
 			// https://www.geeksforgeeks.org/node-js-fs-unlink-method/
 			await fs.unlink(req.file.path);
 			const newTags = [
@@ -120,7 +130,7 @@ router
 				])
 			];
 			await updateUserTags(userId, newTags);
-			res.status(200).json({ message: "Resume uploaded successfully!" });
+			res.render("profile", { user: user });
 		} catch (error) {
 			res.status(500).render("error", { message: "Internal server error" });
 		}
