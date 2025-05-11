@@ -207,4 +207,44 @@ router
 		}
 	});
 
+router.route(":id/join/")
+	/**
+	 * request to join a project
+	 * sends notification to project owner with approve/deny links + additional text from user
+	 * join request has individual id
+	 */
+	.post(async(req,res) => {
+
+	})
+
+router.route(":id/join/:applicationId/approve")
+	/**
+	 * approve application to join project
+	 * send notification back to user saying application was approved + additional text and linking to project
+	 * add user id to project members
+	 * add project id to user projects
+	 */
+	.post(async(req,res) => {
+
+	})
+
+router.route(":id/join/:applicationId/deny")
+	/**
+	 * deny appliaction to join project
+	 * send user notification that they were denied + additional text
+	 */
+	.post(async(req,res) => {
+
+	})
+
+router.route(":id/leave")
+	/**
+	 * leave project
+	 * if user is owner then error
+	 * else remove user id from project members and project id from user projects
+	 */
+	.get(async (req,res) => {
+
+	})
+
 export default router;
