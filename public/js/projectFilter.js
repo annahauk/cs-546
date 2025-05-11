@@ -1,4 +1,31 @@
 $(document).ready(function () {
+	// Realized that the buttons were finnicky, so now making it so that the filter button can't be clicked if no filters are activated
+	const filterButton = $("#filterSelection-form button[type='submit']");
+
+	// Function to check if any filters are selected
+	function updateFilterButtonState() {
+		const searchInput = $('input[name="search"]').val().trim();
+		const tagsChecked = $('input[name="tags"]:checked').length > 0;
+		const languagesChecked = $('input[name="languages"]:checked').length > 0;
+		const statusSelected = $("#status").val() !== "";
+
+		// Enable the button if any filter is selected, otherwise disable it
+		if (searchInput || tagsChecked || languagesChecked || statusSelected) {
+			filterButton.prop("disabled", false);
+		} else {
+			filterButton.prop("disabled", true);
+		}
+	}
+
+	// Attach event listeners to form inputs to monitor changes
+	$('input[name="search"]').on("input", updateFilterButtonState);
+	$('input[name="tags"]').on("change", updateFilterButtonState);
+	$('input[name="languages"]').on("change", updateFilterButtonState);
+	$("#status").on("change", updateFilterButtonState);
+
+	// Initialize the button state on page load
+	updateFilterButtonState();
+
 	// Attach a submit event listener to the form
 	$("#filterSelection-form").on("submit", function (event) {
 		// Prevent the default form submission
@@ -19,7 +46,11 @@ $(document).ready(function () {
 					return this.value;
 				})
 				.get(),
-			language: $("#language").val(),
+			languages: $('input[name="languages"]:checked')
+				.map(function () {
+					return this.value;
+				})
+				.get(),
 			status: $("#status").val(),
 			reset: false
 		};
@@ -55,7 +86,7 @@ $(document).ready(function () {
 		const formData = {
 			search: "",
 			tags: [],
-			language: [],
+			languages: [],
 			status: "",
 			reset: true
 		};
