@@ -18,25 +18,29 @@ router
 	.route("/login")
 	.get(async (req, res) => {
 		try {
-			if(!req.authorized) {
-				return await res.render("login");
+			if (!req.authorized) {
+				return await res.render("login", { title: "Login" });
 			} else {
 				// user logged in, redirect to /projects
 				return await res.redirect("/projects");
 			}
 		} catch (e) {
-			return res.status(500).render('error', { message: `Internal Server Error.` });
+			return res
+				.status(500)
+				.render("error", { message: `Internal Server Error.`, title: "Error" });
 		}
 	})
 	.post(async (req, res) => {
 		// reditect to projects if logged in
-		if(req.authorized) {
+		if (req.authorized) {
 			return await res.redirect("/projects");
 		}
 
 		let token = "";
 		if (typeof req.body !== "object") {
-			return res.status(400).render('login', { error: `Request body required.` });
+			return res
+				.status(400)
+				.render("login", { error: `Request body required.`, title: "Login" });
 		}
 
 		// validate username and password
@@ -47,19 +51,34 @@ router
 			stringVal(username);
 			stringVal(password);
 		} catch (e) {
-			return res.status(400).render('login', { error: `Invalid username or password.` });
+			return res
+				.status(400)
+				.render("login", {
+					error: `Invalid username or password.`,
+					title: "Login"
+				});
 		}
 
 		// attempt login
 		try {
 			token = await login(username, password);
 		} catch (e) {
-			return res.status(401).render('login', { error: `Incorrect username or password.` });
+			return res
+				.status(401)
+				.render("login", {
+					error: `Incorrect username or password.`,
+					title: "Login"
+				});
 		}
 
 		// if token undefined, login was failed
 		if (!token) {
-			return res.status(401).render('login', { error: `Incorrect username or password.` });
+			return res
+				.status(401)
+				.render("login", {
+					error: `Incorrect username or password.`,
+					title: "Login"
+				});
 		}
 
 		// success, return token
@@ -76,13 +95,15 @@ router
 			sameSite: "lax", // CSRF protection
 			maxAge: 86400000 * 28 // 1 month
 		});
-		
+
 		// if has github token, go to projects else go to oauth login
 		let user = await getUserByUsername(username);
-		if(!user) {
-			return await res.status(404).render('login', {error: `User not found.`});
+		if (!user) {
+			return await res
+				.status(404)
+				.render("login", { error: `User not found.`, title: "Login" });
 		}
-		if(!await get_user_gh_token(user._id)) {
+		if (!(await get_user_gh_token(user._id))) {
 			// goto oauth
 			return await res.redirect("/oauth/login");
 		} else {
@@ -94,23 +115,27 @@ router
 	.route("/register")
 	.get(async (req, res) => {
 		try {
-			if(!req.authorized) {
-				return await res.render("signup");
+			if (!req.authorized) {
+				return await res.render("signup", { title: "Signup" });
 			} else {
 				return await res.redirect("/projects");
 			}
 		} catch (e) {
-			return res.status(500).render('error', { message: `Internal Server Error.` });
+			return res
+				.status(500)
+				.render("error", { message: `Internal Server Error.`, title: "Error" });
 		}
 	})
 	.post(async (req, res) => {
 		// reditect to projects if logged in
-		if(req.authorized) {
+		if (req.authorized) {
 			return await res.redirect("/projects");
 		}
 
 		if (typeof req.body !== "object") {
-			return res.status(400).render('signup', { error: `Request body required.` });
+			return res
+				.status(400)
+				.render("signup", { error: `Request body required.`, title: "Signup" });
 		}
 
 		// validate username and password(s)
@@ -124,7 +149,8 @@ router
 		if (!confirmPassword) missingFields.push("Confirm Password");
 		if (missingFields.length > 0) {
 			return res.status(400).render("signup", {
-				error: `The following fields are missing: ${missingFields.join(", ")}`
+				error: `The following fields are missing: ${missingFields.join(", ")}`,
+				title: "Signup"
 			});
 		}
 
@@ -162,7 +188,7 @@ router
 		if (errors.length > 0) {
 			return res.status(400).render("signup", {
 				error: errors.join("\n"),
-				themePreference: req.session.user.themePreference
+				title: "Signup"
 			});
 		}
 		// Register the user
@@ -172,33 +198,43 @@ router
 			return res.redirect("/login");
 		} catch (e) {
 			return res.status(500).render("signup", {
-				error: "There was a problem registering. Please try again later."
+				error: "There was a problem registering. Please try again later.",
+				title: "Signup"
 			});
 		}
 	});
 
-router.route("/logout")
-	.get(async (req,res) => {
-		if(!req.authorized) {
-			// not logged in
-			return res.redirect("/login");
-		}
-
-		let username = req.cookies["username"];
-		let token_content = req.cookies["token"];
-
-		if(!username || !token_content) {
-			return res.status(400).render('error', {message: `Missing client username or token`});
-		}
-
-		try {
-			await logout(username, token_content);
-		} catch (e) {
-			console.log(e);
-			return res.status(500).render('error', {message: `Error logging out user: ${e}`});
-		}
-		
+router.route("/logout").get(async (req, res) => {
+	if (!req.authorized) {
+		// not logged in
 		return res.redirect("/login");
-	});
+	}
+
+	let username = req.cookies["username"];
+	let token_content = req.cookies["token"];
+
+	if (!username || !token_content) {
+		return res
+			.status(400)
+			.render("error", {
+				message: `Missing client username or token`,
+				title: "Error"
+			});
+	}
+
+	try {
+		await logout(username, token_content);
+	} catch (e) {
+		console.log(e);
+		return res
+			.status(500)
+			.render("error", {
+				message: `Error logging out user: ${e}`,
+				title: "Error"
+			});
+	}
+
+	return res.redirect("/login");
+});
 
 export default router;
