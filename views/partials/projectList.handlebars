@@ -1,0 +1,18 @@
+{{! Handlebars partial for the project posts, needed to help with the AJAX request }}
+{{#if hasPosts}}
+	<ol>
+		{{#each posts}}
+			<li class="project">
+				<a href="/projects/{{this._id}}">{{this.title}}</a>
+				<ol>
+					{{#each topic_tags}}
+						<li>{{this}}</li>
+					{{/each}}
+				</ol>
+			</li>
+		{{/each}}
+	</ol>
+{{else}}
+	<p class="not-found">We're sorry, but no projects can be found. Please try
+		again later.</p>
+{{/if}}

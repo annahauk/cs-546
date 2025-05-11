@@ -7,30 +7,33 @@ import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal } from "../helpers.js";
 import { ObjectId } from "mongodb";
 
-router.route("/").get(isLoggedIn, async (req, res) => {
-	try {
-		// Filter by tags, languages, or active/inactive
-		// Can change based on however we store the tags
-		// let tags = req.query;
-		let allPosts = await getAllPosts();
-		/* Removing for now since we need to figure out how to filter exactly
+router
+	.route("/")
+	.get(isLoggedIn, async (req, res) => {
+		try {
+			// Filter by tags, languages, or active/inactive
+			// Can change based on however we store the tags
+			// let tags = req.query;
+			let allPosts = await getAllPosts();
+			/* Removing for now since we need to figure out how to filter exactly
             if (tags) {
                 // trim and lowercase may be redundant but we can simplify later
                 tags = tags.split(',').map(tag => tag.trim().toLowerCase());
                 allPosts = allPosts.filter(post => post.topic_tags.some(tag => tags.includes(tag.toLowerCase())));
             }
         */
-		console.log("All posts:");
-		console.log(allPosts);
-		res.render("projects", {
-			posts: allPosts,
-			hasPosts: Array.isArray(allPosts) && allPosts.length > 0
-		});
-	} catch (error) {
-		console.error(error);
-		res.status(500).render("error", { message: "Internal server error" });
-	}
-});
+			console.log("All posts:");
+			console.log(allPosts);
+			res.render("projects", {
+				posts: allPosts,
+				hasPosts: Array.isArray(allPosts) && allPosts.length > 0
+			});
+		} catch (error) {
+			console.error(error);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	})
+	.post(isLoggedIn, async (req, res) => {});
 
 router
 	.route("/projectcreate")

@@ -5,7 +5,7 @@
     <h1>Projects</h1>
     <a href="/projects/projectcreate">Create new Project</a>
     <div class="filterSelection">
-        <form method="GET" action="/projects">
+        <form method="GET" action="/projects" name="filterSelection-form" id="filterSelection-form">
             <!-- Search by project name -->
             <input type="text" name="search" placeholder="Search by project name" />
 
@@ -36,22 +36,9 @@
         </form>
     </div>
     <div class="projectsArea">
-        {{#if hasPosts}}
-        <ol>
-            {{#each posts}}
-                <li class="project">
-                    <a href="/projects/{{this._id}}">{{this.title}}</a>
-                    <ol>
-                        {{#each topic_tags}}
-                            <li>{{this}}</li>
-                        {{/each}}
-                    </ol>
-                </li>
-            {{/each}}
-        </ol>
-        {{else}}
-            <p class="not-found">We're sorry, but no projects can be found. Please try again later.</p>
-        {{/if}}
+        {{> projectList}}
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/public/js/projectFilter.js"></script>
 <script src="/public/js/createProject.js"></script>
