@@ -25,7 +25,7 @@ export async function GIT_Get_User_Info(username, ghtoken) {
  * 
  * @param {string} username 
  * @param {string} ghtoken 
- * @returns 
+ * @returns {Promise<import("@octokit/types").OctokitResponse<GitHubUser>>}
  */
 export async function set_user_github_info(username, ghtoken) {
     let user = await getUserByUsername(username);
@@ -45,7 +45,7 @@ export async function set_user_github_info(username, ghtoken) {
         throw new Error(`Upsert failed.`);
     }
 
-    return;
+    return gh_info;
 }
 
 /**
@@ -80,7 +80,7 @@ export async function GIT_Get_User_Repos(username, gh_token) {
  * @param {string} username 
  * @param {string} gh_token 
  * @param {(undefined|Array<GitMinimalRepository>)} _repos 
- * @returns 
+ * @returns {Array<string>}
  */
 export async function GIT_Get_User_Langs(username, gh_token, _repos) {
     let repos;
@@ -103,6 +103,31 @@ export async function GIT_Get_User_Langs(username, gh_token, _repos) {
 
     if(langs.length < 1) {
         throw new Error(`No languages detected.`);
+    }
+
+    return langs;
+}
+
+/**
+ * 
+ * @param {string} username 
+ * @param {string} gh_token 
+ * @param {*} _repos 
+ * @returns {(undefined|Array<GitMinimalRepository>)}
+ */
+export async function set_user_gh_langs(username, gh_token, _repos) {
+    let usersc = await users();
+    let user = await getUserByUsername(username);
+
+    if(!user) {
+        throw new Error(`No user found.`);
+    }
+
+    let langs = await GIT_Get_User_Langs(username, gh_token, _repos);
+
+    let res = await usersc.updateOne({_id: user._id}, {$set: {"skill_tags": langs}});
+    if(!res.acknowledged) {
+        throw new Error(`Failed to insert user langs to database.`);
     }
 
     return langs;
