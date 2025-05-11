@@ -1,0 +1,12 @@
+{{#if comments}}
+	<ul>
+		{{#each comments}}
+			<li>
+				{{this.author}}:
+				{{this.content}}
+			</li>
+		{{/each}}
+	</ul>
+{{else}}
+	<p>No comments yet.</p>
+{{/if}}

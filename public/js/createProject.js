@@ -7,19 +7,31 @@ document.addEventListener("DOMContentLoaded", () => {
 			errorElement.innerHTML = "";
 			const errors = [];
 
+			// Retrieve form values
 			const title = form.title.value.trim();
 			const description = form.description.value.trim();
 			const repoLink = form.repoLink.value.trim();
-			const tags = Array.from(
-				document.querySelectorAll('input[name="topic_tags"]:checked')
-			).map((cb) => cb.value);
 
+			// Retrieve selected tags and languages
+			const tags = Array.from(form.tags.options)
+				.filter((option) => option.selected)
+				.map((option) => option.value);
+
+			const languages = Array.from(form.languages.options)
+				.filter((option) => option.selected)
+				.map((option) => option.value);
+
+			const combinedTags = [...tags, ...languages];
+
+			// Validate inputs
 			if (!title) errors.push("Title is required.");
 			if (!description) errors.push("Description is required.");
 			if (!repoLink || !/^https?:\/\/.+/.test(repoLink))
 				errors.push("A valid repository link is required.");
-			if (tags.length === 0) errors.push("Please select at least one tag.");
+			if (combinedTags.length === 0)
+				errors.push("Please select at least one tag or language.");
 
+			// Display errors if any
 			if (errors.length > 0) {
 				e.preventDefault();
 				errorElement.hidden = false;
@@ -27,13 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
 				return;
 			}
 
+			// Construct the data object
 			const data = {
 				title,
 				description,
 				repoLink,
-				topic_tags: tags
+				combinedTags
 			};
 
+			// Submit the form via AJAX
 			try {
 				const response = await fetch("/projects/projectcreate", {
 					method: "POST",
