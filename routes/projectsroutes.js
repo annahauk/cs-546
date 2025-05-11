@@ -67,16 +67,21 @@ router
 	.route("/projectcreate")
 	.get(isLoggedIn, async (req, res) => {
 		try {
-			res.render("projectcreate", { title: "New Project" });
+			res.render("projectcreate", {
+				title: "New Project",
+				termsAndDomains: TERMS_AND_DOMAINS
+			});
 		} catch (error) {
 			console.error(error);
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
+			res.status(500).render("error", {
+				message: "Internal server error",
+				title: "Error"
+			});
 		}
 	})
 	.post(isLoggedIn, async (req, res) => {
 		let ownerId = "";
+		let ownerUsername = "";
 		if (req.authorized) {
 			ownerUsername = req.cookies["username"];
 			let owner = await getUserByUsername(ownerUsername);
@@ -86,7 +91,7 @@ router
 		}
 		try {
 			// Accept JSON data from AJAX
-			const { title, description, repoLink, topic_tags } = req.body;
+			const { title, description, repoLink, combinedTags } = req.body;
 			const errors = [];
 
 			// Validate inputs (server-side, always!)
@@ -107,7 +112,7 @@ router
 			) {
 				errors.push("A valid repository link is required.");
 			}
-			if (!Array.isArray(topic_tags) || topic_tags.length === 0) {
+			if (!Array.isArray(combinedTags) || combinedTags.length === 0) {
 				errors.push("Please select at least one tag.");
 			}
 
@@ -121,8 +126,7 @@ router
 				ownerId,
 				description.trim(),
 				repoLink.trim(),
-				[], // comments
-				topic_tags.map((tag) => tag.trim())
+				combinedTags.map((tag) => tag.trim())
 			);
 			return res.status(200).json({ message: "Project created", postId });
 		} catch (error) {
