@@ -6,8 +6,9 @@ import {
 	createPost,
 	grabfilteredPosts
 } from "../data/posts.js";
-import { getUserByUsername, getUserById, getUserTags } from "../data/users.js";
-import { createComment } from "../data/comments.js";
+import { getUserByUsername, getUserById, getUserTags, addAchievement } from "../data/users.js";
+import { createComment, getAllCommentIdsByUserId } from "../data/comments.js";
+import { getPostsByUserId } from "../data/posts.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
@@ -146,13 +147,16 @@ router
 			}
 
 			// Create the project post
-			const postId = await createPost(
+			const post = await createPost(
 				title.trim(),
 				ownerId,
 				description.trim(),
 				repoLink.trim(),
 				combinedTags.map((tag) => tag.trim())
 			);
+			const postId = post._id.toString();
+			const numPosts = await getPostsByUserId(ownerId).length;
+			addAchievement(ownerId, "post", numPosts);
 			return res.status(200).json({ message: "Project created", postId });
 		} catch (error) {
 			console.error(error);
@@ -191,6 +195,15 @@ router
 	})
 	.post(isLoggedIn, async (req, res) => {
 		// Add a comment or join a project
+		let userId = "";
+		let userUsername = "";
+		if (req.authorized) {
+			userUsername = req.cookies["username"];
+			let user = await getUserByUsername(userUsername);
+			userId = user._id.toString();
+		} else {
+			return res.redirect("/login");
+		}
 		const projectId = req.params.id;
 		const action = req.body.action;
 		const content = req.body.content;
@@ -211,14 +224,10 @@ router
 					.status(404)
 					.render("error", { message: "Project not found", title: "Error" });
 			}
-			const user = await getUserByUsername(stringVal(req.cookies["username"]));
-			if (!user) {
-				return res
-					.status(404)
-					.render("error", { message: "User not found", title: "Error" });
-			}
 			if (action === "comment") {
-				await createComment(content, projectId, user._id.toString());
+				await createComment(content, projectId, userId);
+				const numComments = await getAllCommentIdsByUserId(userId).length;
+				addAchievement(userId, "post", numComments);
 				return res.status(200).json({ message: "Comment added successfully" });
 			} else if (action === "join") {
 				// TODO

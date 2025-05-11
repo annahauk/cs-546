@@ -201,38 +201,38 @@ const TERMS_AND_DOMAINS = {
 
 const ACHIEVEMENTS = {
 	created: [
-		{name: "GitInit", description: "Linked a GitHub account with your profile" }
+		{name: "GitInit", description: "Linked a GitHub account with your profile", value: 1 },
 	],
 	post: [
-		{name: "Coder", description: "Created your first post" },
-		{name: "Hard at Work", description: "Created 10 posts" },
-		{name: "Elite Developer", description: "Created 50 posts" },
-		{name: "Git Master", description: "Created 100 posts" }
+		{name: "Coder", description: "Created your first post", value: 1 },
+		{name: "Hard at Work", description: "Created 10 posts", value: 10 },
+		{name: "Elite Developer", description: "Created 50 posts", value: 50 },
+		{name: "Git Master", description: "Created 100 posts", value: 100 }
 	],
 	comment: [
-		{name: "Hello World!", description: "Left your first commented on another user's post" },
-		{name: "Chatterbox", description: "Left 10 comments on other users' posts" },
-		{name: "Master of Yap", description: "Left 50 comments on other users' posts" },
-		{name: "It's me, Gossip Girl", description: "Left 100 comments on other users' posts" }
+		{name: "Hello World!", description: "Left your first commented on another user's post", value: 1 },
+		{name: "Chatterbox", description: "Left 10 comments on other users' posts", value: 10 },
+		{name: "Master of Yap", description: "Left 50 comments on other users' posts", value: 50 },
+		{name: "It's me, Gossip Girl", description: "Left 100 comments on other users' posts", value: 100 }
 	],
 	join: [
-		{name: "Checkout", description: "Joined your first project as a contributor" },
-		{name: "The Ol' Reliable", description: "Joined 10 projects as a contributor" },
-		{name: "Git MVP", description: "Joined 50 projects as a contributor" }
+		{name: "Checkout", description: "Joined your first project as a contributor", value: 1 },
+		{name: "The Ol' Reliable", description: "Joined 10 projects as a contributor", value: 10 },
+		{name: "Git MVP", description: "Joined 50 projects as a contributor", value: 50 }
 	],
 	othersJoined: [
-		{name: "Project Leader", description: "Have another user join one of your projects for the first time" },
-		{name: "Head of Ops", description: "Have another user join one of your projects 10 times" },
-		{name: "CEO", description: "Have another user join one of your projects 50 times" }
+		{name: "Project Leader", description: "Have another user join one of your projects for the first time", value: 1 },
+		{name: "Head of Ops", description: "Have another user join one of your projects 10 times", value: 10 },
+		{name: "CEO", description: "Have another user join one of your projects 50 times", value: 50 }
 	],
 	friends: [
-		{name: "Best Buds", description: "Added your first friend" },
-		{name: "We should start a podcast!", description: "Added 10 friends" },
-		{name: "Squad Goals", description: "Added 50 friends" },
-		{name: "Popular", description: "Added 100 friends" },
-		{name: "Class President", description: "Added 200 friends" },
-		{name: "Infleuncer", description: "Added 500 friends" },
-		{name: "Celebrity", description: "Added 1000 friends" }
+		{name: "Best Buds", description: "Added your first friend", value: 1 },
+		{name: "We should start a podcast!", description: "Added 10 friends", value: 10 },
+		{name: "Squad Goals", description: "Added 50 friends", value: 50 },
+		{name: "Popular", description: "Added 100 friends", value: 100 },
+		{name: "Class President", description: "Added 200 friends", value: 200 },
+		{name: "Infleuncer", description: "Added 500 friends", value: 500 },
+		{name: "Celebrity", description: "Added 1000 friends", value: 1000 }
 	]
 }
 
@@ -483,6 +483,35 @@ async function validObjectId(objid) {
 	}
 }
 
+/**
+ * Validates that the input is a number.
+ * @param {number} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {number} - The number if valid.
+ */
+function numberVal(val, varName = "value", funcName = "stringVal") {
+	if (typeof val !== "number") {
+		throw `Error in ${funcName}: ${varName} must be a number`;
+	}
+	return val;
+}
+
+/**
+ * Gets an achievement object given its name
+ * @param {string} name Achievement name
+ * @returns Achievement object
+ * @throws {Error} if achievement not found
+ */
+function getAchievementByName(name) {
+	name = stringVal(name, "name", "getAchievementByName");
+	const achievement = ACHIEVEMENTS.find((ach) => ach.name === name);
+	if (!achievement) {
+		throw new Error(`Achievement with name ${name} not found`);
+	}
+	return achievement;
+}
+
 export {
 	arrayVal,
 	idVal,
@@ -493,6 +522,8 @@ export {
 	validatePassword,
 	validateUserID,
 	validObjectId,
+	numberVal,
+	getAchievementByName,
 	TERMS_AND_DOMAINS,
 	ACHIEVEMENTS
 };
