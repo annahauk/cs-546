@@ -20,13 +20,13 @@ router
 		try {
 			return res.render("login");
 		} catch (e) {
-			return res.status(500).json({ error: `Internal Server Error.` });
+			return res.status(500).render('error', { message: `Internal Server Error.` });
 		}
 	})
 	.post(async (req, res) => {
 		let token = "";
 		if (typeof req.body !== "object") {
-			return res.status(400).json({ error: `Request body required.` });
+			return res.status(400).render('login', { error: `Request body required.` });
 		}
 
 		// validate username and password
@@ -37,19 +37,19 @@ router
 			stringVal(username);
 			stringVal(password);
 		} catch (e) {
-			return res.status(400).json({ error: `Invalid username or password.` });
+			return res.status(400).render('login', { error: `Invalid username or password.` });
 		}
 
 		// attempt login
 		try {
 			token = await login(username, password);
 		} catch (e) {
-			return res.status(401).json({ error: `Incorrect username or password.` });
+			return res.status(401).render('login', { error: `Incorrect username or password.` });
 		}
 
 		// if token undefined, login was failed
 		if (!token) {
-			return res.status(401).json({ error: `Incorrect username or password.` });
+			return res.status(401).render('login', { error: `Incorrect username or password.` });
 		}
 
 		// success, return token
@@ -70,7 +70,7 @@ router
 		// if has github token, go to projects else go to oauth login
 		let user = await getUserByUsername(username);
 		if(!user) {
-			return await res.status(404).json({error: `User not found.`});
+			return await res.status(404).render('login', {error: `User not found.`});
 		}
 		if(!await get_user_gh_token(user._id)) {
 			// goto oauth
@@ -86,12 +86,12 @@ router
 		try {
 			return res.render("signup");
 		} catch (e) {
-			return res.status(500).json({ error: `Internal Server Error.` });
+			return res.status(500).render('error', { message: `Internal Server Error.` });
 		}
 	})
 	.post(async (req, res) => {
 		if (typeof req.body !== "object") {
-			return res.status(400).json({ error: `Request body required.` });
+			return res.status(400).render('signup', { error: `Request body required.` });
 		}
 
 		// validate username and password(s)
@@ -150,7 +150,7 @@ router
 		try {
 			// Create the user in the database
 			let user = await createUser(userId, password);
-			return await res.redirect("/login");
+			return res.redirect("/login");
 		} catch (e) {
 			return res.status(500).render("signup", {
 				error: "There was a problem registering. Please try again later."
@@ -162,23 +162,23 @@ router.route("/logout")
 	.get(async (req,res) => {
 		if(!req.authorized) {
 			// not logged in
-			return await res.redirect("/login");
+			return res.redirect("/login");
 		}
 
 		let username = req.cookies["username"];
 		let token_content = req.cookies["token"];
 
 		if(!username || !token_content) {
-			return await res.status(400).json({error: `Missing client username or token`});
+			return res.status(400).render('error', {message: `Missing client username or token`});
 		}
 
 		try {
 			await logout(username, token_content);
 		} catch (e) {
-			return await res.status(500).json({erorr: `Error logging out user: ${e}`});
+			return res.status(500).render('error', {message: `Error logging out user: ${e}`});
 		}
 		
-		return await res.redirect("/login");
+		return res.redirect("/login");
 	});
 
 export default router;
