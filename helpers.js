@@ -199,6 +199,43 @@ const TERMS_AND_DOMAINS = {
 	kanban: { tag: "Concept", domain: "GeneralPurpose" }
 };
 
+const ACHIEVEMENTS = {
+	created: [
+		{name: "GitInit", description: "Linked a GitHub account with your profile" }
+	],
+	post: [
+		{name: "Coder", description: "Created your first post" },
+		{name: "Hard at Work", description: "Created 10 posts" },
+		{name: "Elite Developer", description: "Created 50 posts" },
+		{name: "Git Master", description: "Created 100 posts" }
+	],
+	comment: [
+		{name: "Hello World!", description: "Left your first commented on another user's post" },
+		{name: "Chatterbox", description: "Left 10 comments on other users' posts" },
+		{name: "Master of Yap", description: "Left 50 comments on other users' posts" },
+		{name: "It's me, Gossip Girl", description: "Left 100 comments on other users' posts" }
+	],
+	join: [
+		{name: "Checkout", description: "Joined your first project as a contributor" },
+		{name: "The Ol' Reliable", description: "Joined 10 projects as a contributor" },
+		{name: "Git MVP", description: "Joined 50 projects as a contributor" }
+	],
+	othersJoined: [
+		{name: "Project Leader", description: "Have another user join one of your projects for the first time" },
+		{name: "Head of Ops", description: "Have another user join one of your projects 10 times" },
+		{name: "CEO", description: "Have another user join one of your projects 50 times" }
+	],
+	friends: [
+		{name: "Best Buds", description: "Added your first friend" },
+		{name: "We should start a podcast!", description: "Added 10 friends" },
+		{name: "Squad Goals", description: "Added 50 friends" },
+		{name: "Popular", description: "Added 100 friends" },
+		{name: "Class President", description: "Added 200 friends" },
+		{name: "Infleuncer", description: "Added 500 friends" },
+		{name: "Celebrity", description: "Added 1000 friends" }
+	]
+}
+
 /**
  * Validates that the input is a non-empty string.
  * @param {string} val - The value to validate.
@@ -456,5 +493,6 @@ export {
 	validatePassword,
 	validateUserID,
 	validObjectId,
-	TERMS_AND_DOMAINS
+	TERMS_AND_DOMAINS,
+	ACHIEVEMENTS
 };
