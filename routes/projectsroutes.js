@@ -23,8 +23,12 @@ router
 				let allPosts = await getAllPosts();
 				let userTags = await getUserTags(userId);
 				allPosts.sort((aPost, bPost) => {
-					const aMatchCount = aPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
-					const bMatchCount = bPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					const aMatchCount = aPost.topic_tags.filter((tag) =>
+						userTags.includes(tag)
+					).length;
+					const bMatchCount = bPost.topic_tags.filter((tag) =>
+						userTags.includes(tag)
+					).length;
 					return bMatchCount - aMatchCount;
 				});
 				console.log("All posts (sorted):");
@@ -56,7 +60,9 @@ router
 				let filteredPosts = null;
 				let tagsAndLanguages = [
 					...(Array.isArray(tags) ? tags : [tags]).filter(Boolean),
-					...(Array.isArray(languages) ? languages : [languages]).filter(Boolean)
+					...(Array.isArray(languages) ? languages : [languages]).filter(
+						Boolean
+					)
 				];
 				if (!reset) {
 					filteredPosts = await grabfilteredPosts(tagsAndLanguages, search);
@@ -65,8 +71,12 @@ router
 				}
 				let userTags = await getUserTags(userId);
 				filteredPosts.sort((aPost, bPost) => {
-					const aMatchCount = aPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
-					const bMatchCount = bPost.topic_tags.filter((tag) => userTags.includes(tag)).length;
+					const aMatchCount = aPost.topic_tags.filter((tag) =>
+						userTags.includes(tag)
+					).length;
+					const bMatchCount = bPost.topic_tags.filter((tag) =>
+						userTags.includes(tag)
+					).length;
 					return bMatchCount - aMatchCount;
 				});
 				// Render the Handlebars partial with the filtered posts
@@ -235,5 +245,36 @@ router
 				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
+
+router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
+	try {
+		const projectId = req.params.id;
+		const { comment } = req.body;
+
+		if (!comment || typeof comment !== "string" || comment.trim() === "") {
+			return res.status(400).json({ message: "Invalid comment." });
+		}
+		let ownerId = await getUserByUsername(req.cookies["username"]);
+		ownerId = ownerId._id.toString();
+		// Add the comment to the database
+		await createComment(comment, projectId, ownerId);
+
+		// Fetch the updated project and its comments
+		const updatedProject = await getPostById(projectId);
+		const comments = updatedProject.comments.map((comment) => ({
+			...comment,
+			_id: comment._id.toString(),
+			ownerId: comment.ownerId.toString(),
+			postId: comment.postId.toString()
+		}));
+		res.render("partials/commentsList", {
+			comments,
+			layout: false
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Internal server error." });
+	}
+});
 
 export default router;
