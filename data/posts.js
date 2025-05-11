@@ -225,32 +225,45 @@ async function post_has_member(post, member_id) {
  */
 async function create_project_application(post, user, _additional_text) {
 	let postsc = await projectPosts();
-	let applicaiton = {
+	let application = {
 		"_id": new ObjectId(),
 		"applicant": user.user_name,
 		"applicant_id": user._id,
 		"message": (_additional_text)? _additional_text : "No additional message."
 	}
 
-	let res = await postsc.updateOne({_id: post._id}, {$push: {"applications": applicaiton}});
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"applications": application}});
 	if(!res.acknowledged) {
 		throw new Error(`Failed to create post application`);
 	}
 
-	return applicaiton;
+	console.log(`[NOTIF]: You have successfully applied to ${post.title} ==> ${application.applicant_id.toString()}`);
+	console.log(`[NOTIF]: ${application.applicant} has requested to join ${post.title}: ${application.message}
+		[Approve this application](/projects/${post._id}/join/${application._id.toString()}/approve)
+		[Deny this application](/projects/${post._id}/join/${application._id.toString()}/deny)`);
+
+	return application;
 }
 
 /**
  * Remove application from project applications
  * @param {Post} post 
  * @param {Application} application 
+ * @param {boolean} approved
+ * @param {string?} _text
  * @returns {Promise<Application}
  */
-async function remove_project_applicaiton(post, application) {
+async function remove_project_applicaiton(project, application, approved, _text) {
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: post._id}, {$pull: {"applications": {_id: application._id}}});
+	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
 	if(!res.acknowledged) {
 		throw new Error(`Failed to remove application`);
+	}
+
+	if(approved) {
+		console.log(`[NOTIF]: Your application to ${project.title} has been approved! ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);	
+	} else {
+		console.log(`[NOTIF]: Your application to ${project.title} has been denied. ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);
 	}
 
 	return application;
@@ -284,15 +297,17 @@ async function add_project_member(post, member_id) {
 	await validObjectId(member_id);
 
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: post._id}, {$push: {"members": member_id}});
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"members": member_id}});
 	if(!res.acknowledged) {
 		throw new Error(`Failed to add member to project`);
 	}
 	
-	let newpost = await postsc.fineOne({_id: post._id});
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
 	if(!newpost) {
 		throw new Error(`Could not retrieve modified post`);
 	}
+
+	console.log(`[NOTIF]: Your application to ${post.title} has been accepted! ==> ${member_id.toString()}`);
 
 	return newpost;
 }
@@ -307,12 +322,12 @@ async function remove_project_member(post, member_id) {
 	await validObjectId(member_id);
 
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: post._id}, {$pull: {"members": member_id}});
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$pull: {"members": member_id}});
 	if(!res.acknowledged) {
 		throw new Error(`Failed to remove member from project`);
 	}
 	
-	let newpost = await postsc.fineOne({_id: post._id});
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
 	if(!newpost) {
 		throw new Error(`Could not retrieve modified post`);
 	}

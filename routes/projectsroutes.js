@@ -260,10 +260,6 @@ router.route(":id/join/")
 
 		// TODO:: Send notification
 		// XSS
-		console.log(`[NOTIF]: You have successfully applied to ${project.title} ==> ${application.applicant_id.toString()}`);
-		console.log(`[NOTIF]: ${application.applicant} has requested to join ${project.title}: ${application.message}
-			[Approve this application](/projects/${project._id.toString()}/join/${application._id.toString()}/approve)
-			[Deny this application](/projects/${project._id.toString()}/join/${application._id.toString()}/deny)`);
 
 		res.redirect(`/projects/${project._id}`);
 	})
@@ -307,7 +303,7 @@ router.route(":id/join/:applicationId/approve")
 		// application approved
 		// remove application, add user to project members and notify
 		try {
-			await remove_project_applicaiton(project, application);
+			await remove_project_applicaiton(project, application, true, req.body["text"]);
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
 		}
@@ -318,8 +314,6 @@ router.route(":id/join/:applicationId/approve")
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Could not add user to post: ${e}`});
 		}
-
-		console.log(`[NOTIF]: Your application to ${project.title} has been accepted! ==> ${application.applicant_id.toString()}`);
 
 		// redirec to notification page
 		res.redirect("/notifications");
@@ -359,15 +353,13 @@ router.route(":id/join/:applicationId/deny")
 			return await res.status(404).render("error", {error: `No application with id ${appId}`});
 		}
 
-		// application approved
+		// application denied
 		// remove application, add user to project members and notify
 		try {
-			await remove_project_applicaiton(project, application);
+			await remove_project_applicaiton(project, application, false, req.body["text"]);
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
 		}
-
-		console.log(`[NOTIF]: Your application to ${project.title} has been denied. ==> ${application.applicant_id.toString()}`);
 
 		// redirec to notification page
 		res.redirect("/notifications");
