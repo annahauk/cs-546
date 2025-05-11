@@ -41,7 +41,7 @@ router
 	.post(isLoggedIn, async (req, res) => {
 		try {
 			// Extract filters from the request body
-			const { search, tags, language, status, reset } = req.body;
+			const { search, tags, languages, status, reset } = req.body;
 			// Get the filtered posts or full posts depending on what's needed
 			let filteredPosts = null;
 			if (!reset) {
