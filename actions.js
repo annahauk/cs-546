@@ -2,7 +2,7 @@ import { users } from "./config/mongoCollections.js";
 import { get_user_gh_token } from "./data/oauth.js";
 import { getUserByUsername, createUser } from "./data/users.js";
 import { create_auth, login, try_auth } from "./src/lib/auth.js";
-import { GIT_Get_User_Info, GIT_Get_User_Langs, GIT_Get_User_Repos, set_user_github_info } from "./src/lib/git.js";
+import { GIT_Get_User_Info, GIT_Get_User_Langs, GIT_Get_User_Repos, set_user_gh_langs, set_user_github_info } from "./src/lib/git.js";
 import { exit } from "./src/util/common.js";
 import { writeFileSync } from "fs";
 
@@ -213,6 +213,33 @@ export async function do_action(action) {
             try {
                 await set_user_github_info(username, gh_token);
                 console.log("Success!");
+            } catch (e) {
+                console.error(e);
+            }
+        } break;
+
+        case "gh_set_user_langs": {
+            const username = argv[argc-1];
+            if(!username) {
+                console.error(`Usage: set_user_gh_info <username>`);
+                process.exit(1);
+            }
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                console.error(`No user found.`);
+                process.exit(1);
+            }
+
+            let gh_token = await get_user_gh_token(user._id);
+            if(!gh_token) {
+                console.error(`User has no gh_token`);
+                process.exit(1);
+            }
+
+            try {
+                let res = await set_user_gh_langs(username, gh_token);
+                console.log(res);
             } catch (e) {
                 console.error(e);
             }
