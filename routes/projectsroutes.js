@@ -1,6 +1,11 @@
 import { Router } from "express";
 const router = Router();
-import { getAllPosts, getPostById, createPost } from "../data/posts.js";
+import {
+	getAllPosts,
+	getPostById,
+	createPost,
+	grabfilteredPosts
+} from "../data/posts.js";
 import { getUserByUsername, getUserById } from "../data/users.js";
 import { createComment } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
@@ -33,7 +38,29 @@ router
 			res.status(500).render("error", { message: "Internal server error" });
 		}
 	})
-	.post(isLoggedIn, async (req, res) => {});
+	.post(isLoggedIn, async (req, res) => {
+		try {
+			// Extract filters from the request body
+			const { search, tags, language, status, reset } = req.body;
+			// Get the filtered posts or full posts depending on what's needed
+			let filteredPosts = null;
+			if (!reset) {
+				filteredPosts = await grabfilteredPosts(tags);
+			} else {
+				filteredPosts = await getAllPosts();
+			}
+			// Render the Handlebars partial with the filtered posts
+			res.render("partials/projectList", {
+				// Disable the main layout for partial rendering
+				layout: false,
+				posts: filteredPosts,
+				hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0
+			});
+		} catch (e) {
+			console.error(e);
+			res.status(500).render("error", { message: "Internal server error" });
+		}
+	});
 
 router
 	.route("/projectcreate")
