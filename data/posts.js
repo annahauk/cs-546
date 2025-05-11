@@ -164,12 +164,17 @@ async function updatePost(postId, updateData) {
  * @returns {Array<Post>} posts
  */
 async function grabfilteredPosts(tags) {
+	// Validate tags array, then get the posts collection
 	tags = arrayVal(tags, "tags", "grabfilteredPosts");
 	const postCollection = await projectPosts();
+	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
+	const regexTags = tags.map((tag) => new RegExp(`^${tag}$`, "i"));
+	// Filter the project posts based on the topic tags
 	let posts = await postCollection
-		.find({ topic_tags: { $in: tags } })
+		.find({ topic_tags: { $in: regexTags } })
 		.toArray();
-	if (!posts) throw `No posts with that tag`;
+	// Found no posts, that's a problem
+	if (!posts || posts.length === 0) throw `No posts with that tag`;
 	posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;

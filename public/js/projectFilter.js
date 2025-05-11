@@ -20,7 +20,8 @@ $(document).ready(function () {
 				})
 				.get(),
 			language: $("#language").val(),
-			status: $("#status").val()
+			status: $("#status").val(),
+			reset: false
 		};
 
 		// Send the AJAX request using POST
@@ -43,6 +44,38 @@ $(document).ready(function () {
 				console.error("Error fetching filtered projects:", error);
 				alert(
 					"An error occurred while fetching the filtered projects. Please try again."
+				);
+			});
+	});
+
+	// Reset Filters Button Functionality
+	$("#resetFilters").on("click", function () {
+		// Reset the form fields
+		$("#filterSelection-form")[0].reset();
+		const formData = {
+			search: "",
+			tags: [],
+			language: [],
+			status: "",
+			reset: true
+		};
+		// Fetch all projects by sending an empty filter request
+		$.ajax({
+			url: "/projects",
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			data: JSON.stringify(formData) // Send an empty object to fetch all projects
+		})
+			.then(function (response) {
+				// Update the projects area with all projects
+				$(".projectsArea").html(response);
+			})
+			.catch(function (error) {
+				console.error("Error resetting filters:", error);
+				alert(
+					"An error occurred while resetting the filters. Please try again."
 				);
 			});
 	});
