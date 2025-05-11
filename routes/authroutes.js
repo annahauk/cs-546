@@ -18,12 +18,22 @@ router
 	.route("/login")
 	.get(async (req, res) => {
 		try {
-			return res.render("login");
+			if(!req.authorized) {
+				return await res.render("login");
+			} else {
+				// user logged in, redirect to /projects
+				return await res.redirect("/projects");
+			}
 		} catch (e) {
 			return res.status(500).render('error', { message: `Internal Server Error.` });
 		}
 	})
 	.post(async (req, res) => {
+		// reditect to projects if logged in
+		if(req.authorized) {
+			return await res.redirect("/projects");
+		}
+
 		let token = "";
 		if (typeof req.body !== "object") {
 			return res.status(400).render('login', { error: `Request body required.` });
@@ -84,12 +94,21 @@ router
 	.route("/register")
 	.get(async (req, res) => {
 		try {
-			return res.render("signup");
+			if(!req.authorized) {
+				return await res.render("signup");
+			} else {
+				return await res.redirect("/projects");
+			}
 		} catch (e) {
 			return res.status(500).render('error', { message: `Internal Server Error.` });
 		}
 	})
 	.post(async (req, res) => {
+		// reditect to projects if logged in
+		if(req.authorized) {
+			return await res.redirect("/projects");
+		}
+
 		if (typeof req.body !== "object") {
 			return res.status(400).render('signup', { error: `Request body required.` });
 		}
