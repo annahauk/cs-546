@@ -2,8 +2,9 @@ import { users } from "./config/mongoCollections.js";
 import { get_user_gh_token } from "./data/oauth.js";
 import { getUserByUsername, createUser } from "./data/users.js";
 import { create_auth, login, try_auth } from "./src/lib/auth.js";
-import { GIT_Get_User_Info } from "./src/lib/git.js";
+import { GIT_Get_User_Info, GIT_Get_User_Langs, GIT_Get_User_Repos, set_user_github_info } from "./src/lib/git.js";
 import { exit } from "./src/util/common.js";
+import { writeFileSync } from "fs";
 
 /**
  * FUNCTIONS FOR TESTING SPESIFIC FUNCTIONALITY OF THE APPLICATION
@@ -127,8 +128,99 @@ export async function do_action(action) {
                 process.exit(1);
             }
 
-            let gh_token = await get_user_gh_token((await getUserByUsername(username))._id);
-            console.log(await GIT_Get_User_Info(username, gh_token));
+            let user = await getUserByUsername(username);
+            if(!user) {
+                console.error(`No user found.`);
+                process.exit(1);
+            }
+
+            let gh_token = await get_user_gh_token(user._id);
+            if(!gh_token) {
+                console.error(`User has no github token`);
+                process.exit(1);
+            }
+
+            let res = await GIT_Get_User_Info(username, gh_token);
+            console.log(res);
+        } break;
+
+        case "gh_get_user_repos": {
+            const username = argv[argc-1];
+            if(!username) {
+                console.error(`Usage: gh_get_user_repos <username>`);
+                process.exit(1);
+            }
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                console.error(`No user found.`);
+                process.exit(1);
+            }
+            
+            let gh_token = await get_user_gh_token(user._id);
+            if(!gh_token) {
+                console.error(`User has no github token`);
+                process.exit(1);
+            }
+
+            let res = await GIT_Get_User_Repos(username, gh_token);
+            console.log(res);
+            writeFileSync("./test.json", JSON.stringify(res, null, 2));
+        } break;
+
+        case "gh_get_user_langs": {
+            const username = argv[argc-1];
+            if(!username) {
+                console.error(`Usage: gh_get_user_repos <username>`);
+                process.exit(1);
+            }
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                console.error(`No user found.`);
+                process.exit(1);
+            }
+            
+            let gh_token = await get_user_gh_token(user._id);
+            if(!gh_token) {
+                console.error(`User has no github token`);
+                process.exit(1);
+            }
+
+            let res = await GIT_Get_User_Langs(username, gh_token);
+            console.log(res);
+        } break;
+
+        case "gh_set_user_info": {
+            const username = argv[argc-1];
+            if(!username) {
+                console.error(`Usage: set_user_gh_info <username>`);
+                process.exit(1);
+            }
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                console.error(`No user found.`);
+                process.exit(1);
+            }
+
+            let gh_token = await get_user_gh_token(user._id);
+            if(!gh_token) {
+                console.error(`User has no gh_token`);
+                process.exit(1);
+            }
+
+            try {
+                await set_user_github_info(username, gh_token);
+                console.log("Success!");
+            } catch (e) {
+                console.error(e);
+            }
+        } break;
+
+        default: {
+            console.error(`Error: No action ${action}`);
+            process.exit(1);
         }
     }
 }
