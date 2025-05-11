@@ -7,7 +7,8 @@ import {
 	arrayVal,
 	idVal,
 	validatePassword,
-	validateUserID
+	validateUserID,
+	TERMS_AND_DOMAINS
 } from "../helpers.js";
 
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!

@@ -10,18 +10,28 @@
             <input type="text" name="search" placeholder="Search by project name" />
 
             <!-- Filter by tags TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE (maybe so don't need to hardcode?) -->
-            <label for="tags">Tags:</label>
+            <label for="tags">Domains:</label>
             <select name="tags" id="tags" multiple>
-                <option value="Web">Web</option>
+                {{!-- <option value="Web">Web</option>
                 <option value="Machine Learning">Machine Learning</option>
-                <option value="Mobile">Mobile</option>
+                <option value="Mobile">Mobile</option> --}}
+                {{#each termsAndDomains}}
+                    {{#unless (isDuplicate this.domain)}}
+                        <option value="{{this.domain}}">{{this.domain}}</option>
+                    {{/unless}}
+                {{/each}}
             </select>
             <!-- Filter by language/domain TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE(maybe so don't need to hardcode?)  -->
             <label for="languages">Languages:</label>
             <select name="languages" id="languages" multiple>
-                <option value="JavaScript">JavaScript</option>
+                {{!-- <option value="JavaScript">JavaScript</option>
                 <option value="Python">Python</option>
-                <option value="Java">Java</option>
+                <option value="Java">Java</option> --}}
+                {{#each termsAndDomains}}
+                    {{#if (eq this.tag "ProgrammingLanguage")}}
+                        <option value="{{@key}}">{{@key}}</option>
+                    {{/if}}
+                {{/each}}
             </select>
 
             <!-- Filter by project status -->
