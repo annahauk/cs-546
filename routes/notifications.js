@@ -21,12 +21,16 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		const userId = idVal(req.params.id);
 		const user = await getUserById(userId);
 		if (!user) {
-			return res.status(404).render("error", { message: "User not found" });
+			return res
+				.status(404)
+				.render("error", { message: "User not found", title: "Error" });
 		}
-		res.render("notifications", { user: user });
+		res.render("notifications", { user: user, title: "My Notifications" });
 	} catch (error) {
 		console.error(error);
-		res.status(500).render("error", { message: "Internal server error" });
+		res
+			.status(500)
+			.render("error", { message: "Internal server error", title: "Error" });
 	}
 });
 

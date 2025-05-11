@@ -42,12 +42,16 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		const userId = idVal(req.params.id);
 		const user = await getUserById(userId);
 		if (!user) {
-			return res.status(404).render("error", { message: "User not found" });
+			return res
+				.status(404)
+				.render("error", { message: "User not found", title: "Error" });
 		}
-		res.render("profile", { user: user });
+		res.render("profile", { user: user, title: user.user_name });
 	} catch (error) {
 		console.error(error);
-		res.status(500).render("error", { message: "Internal server error" });
+		res
+			.status(500)
+			.render("error", { message: "Internal server error", title: "Error" });
 	}
 });
 router
@@ -58,16 +62,23 @@ router
 			const userId = idVal(req.params.id);
 			const user = await getUserById(userId);
 			if (!user) {
-				return res.status(404).render("error", { message: "User not found" });
+				return res
+					.status(404)
+					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.body.username)) {
 				return res
 					.status(403)
-					.render("error", { message: "You can only edit your own profile." });
+					.render("error", {
+						message: "You can only edit your own profile.",
+						title: "Error"
+					});
 			}
-			res.render("editProfile", { user: user });
+			res.render("editProfile", { user: user, title: "Edit Profile" });
 		} catch (error) {
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	})
 	.post(isLoggedIn, async (req, res) => {
@@ -76,21 +87,28 @@ router
 			const userId = idVal(req.params.id);
 			const user = await getUserById(userId);
 			if (!user) {
-				return res.status(404).render("error", { message: "User not found" });
+				return res
+					.status(404)
+					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.body.username)) {
 				return res
 					.status(403)
-					.render("error", { message: "You can only edit your own profile." });
+					.render("error", {
+						message: "You can only edit your own profile.",
+						title: "Error"
+					});
 			}
 
 			// TODO
 			// Implement profile updating features
 			// After done, hitting "save" will redirect back to profile view
 
-			res.render("profile", { user: user });
+			res.render("profile", { user: user, title: user.user_name });
 		} catch (error) {
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
 router
@@ -100,15 +118,22 @@ router
 			const userId = idVal(req.params.id);
 			const user = await getUserById(userId);
 			if (!user) {
-				return res.status(404).render("error", { message: "User not found" });
+				return res
+					.status(404)
+					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.cookies["username"])) {
 				return res
 					.status(403)
-					.render("error", { message: "You can only edit your own profile." });
+					.render("error", {
+						message: "You can only edit your own profile.",
+						title: "Error"
+					});
 			}
 			if (!req.file) {
-				return res.status(400).render("error", { message: "No file uploaded" });
+				return res
+					.status(400)
+					.render("error", { message: "No file uploaded", title: "Error" });
 			}
 
 			const tags = await processUploadedResume(req.file);
@@ -130,9 +155,11 @@ router
 				])
 			];
 			await updateUserTags(userId, newTags);
-			res.render("profile", { user: user });
+			res.render("profile", { user: user, title: user.user_name });
 		} catch (error) {
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
 

@@ -22,11 +22,14 @@ router
 			res.render("projects", {
 				posts: allPosts,
 				hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
-				termsAndDomains: TERMS_AND_DOMAINS
+				termsAndDomains: TERMS_AND_DOMAINS,
+				title: "Projects"
 			});
 		} catch (error) {
 			console.error(error);
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	})
 	.post(isLoggedIn, async (req, res) => {
@@ -49,11 +52,14 @@ router
 				// Disable the main layout for partial rendering
 				layout: false,
 				posts: filteredPosts,
-				hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0
+				hasPosts: Array.isArray(filteredPosts) && filteredPosts.length > 0,
+				title: "Projects"
 			});
 		} catch (e) {
 			console.error(e);
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
 
@@ -61,10 +67,12 @@ router
 	.route("/projectcreate")
 	.get(isLoggedIn, async (req, res) => {
 		try {
-			res.render("projectcreate", {});
+			res.render("projectcreate", { title: "New Project" });
 		} catch (error) {
 			console.error(error);
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	})
 	.post(isLoggedIn, async (req, res) => {
@@ -135,15 +143,21 @@ router
 			} catch (e) {
 				return res
 					.status(404)
-					.render("error", { message: "Project not found" });
+					.render("error", { message: "Project not found", title: "Error" });
 			}
 			// Get the project creator
 			let creatorUser = await getUserById(post.ownerId);
 			let username = creatorUser.user_name;
-			res.render("project", { project: post, creatorUsername: username });
+			res.render("project", {
+				project: post,
+				creatorUsername: username,
+				title: post.title
+			});
 		} catch (error) {
 			console.error(error);
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	})
 	.post(isLoggedIn, async (req, res) => {
@@ -166,11 +180,13 @@ router
 			} catch (e) {
 				return res
 					.status(404)
-					.render("error", { message: "Project not found" });
+					.render("error", { message: "Project not found", title: "Error" });
 			}
 			const user = await getUserByUsername(stringVal(req.cookies["username"]));
 			if (!user) {
-				return res.status(404).render("error", { message: "User not found" });
+				return res
+					.status(404)
+					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (action === "comment") {
 				await createComment(content, projectId, user._id.toString());
@@ -179,11 +195,15 @@ router
 				// TODO
 				// Implement join functionality
 			} else {
-				return res.status(400).render("error", { message: "Invalid action" });
+				return res
+					.status(400)
+					.render("error", { message: "Invalid action", title: "Error" });
 			}
 		} catch (error) {
 			console.error(error);
-			res.status(500).render("error", { message: "Internal server error" });
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
 
