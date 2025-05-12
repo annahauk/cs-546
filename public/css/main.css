@@ -11,17 +11,73 @@ body {
     min-height: 100vh;
   }
 
+  .message-container {
+	display: flex;
+	justify-content: center;
+	gap: 0.5rem;
+	overflow: hidden;
+	position: relative;
+	margin-top: 1rem;
+}
+
+.messageleft, .messageright {
+	font-size: 2rem;
+	color: #555;
+	font-weight: 400;
+	opacity: 0;
+	animation: slideIn 1s ease-out forwards;
+}
+
+.messageleft {
+	transform: translateX(-100%);
+	animation-delay: 0.2s;
+}
+
+.messageright {
+	transform: translateX(100%);
+	animation-delay: 0.4s;
+}
+
+@keyframes slideIn {
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+header h1 {
+	font-size: 4rem;
+	margin-bottom: 0.5rem;
+	color: #1a73e8;
+	opacity: 0;
+	animation: fadeInTitle 1s ease-out forwards;
+	animation-delay: 0.1s;
+	transform: translateY(-20px);
+}
+
+@keyframes fadeInTitle {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+
 .navbar {
 	background-color: #ffffff;
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1rem 2rem;
 	text-align: right;
+    font-size: 1.25rem ;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .navbar a {
 	text-decoration: none;
 	color: #0073e6;
-	font-weight: 500;
+	font-weight: 600;
 }
 
 header {
@@ -32,13 +88,13 @@ header {
 }
 
 header h1 {
-	font-size: 3rem;
+	font-size: 4rem;
 	margin-bottom: 0.5rem;
 	color: #1a73e8;
 }
 
 header h2 {
-	font-size: 1.5rem;
+	font-size: 2rem;
     margin-top: 15px;
 	color: #555;
 	font-weight: 400;
@@ -88,7 +144,7 @@ h1 {
     text-align: center;
     color: #1a73e8;
     margin-top: 2rem;
-    font-size: 2.5rem;
+    font-size: 4rem;
 }
 
 form {
@@ -293,5 +349,33 @@ a:hover {
     color: #888;
     font-style: italic;
     margin-top: 2rem;
+}
+
+
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #ffffff;
+	border-bottom: 1px solid #e0e0e0;
+	padding: 1rem 2rem;
+}
+
+.nav-left {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo {
+	height: 32px;
+	width: auto;
+}
+
+.brand-text {
+	font-weight: 600;
+	font-size: 1.3rem;
+	color: #1a73e8;
+	text-decoration: none;
 }
 
