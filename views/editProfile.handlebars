@@ -17,9 +17,16 @@
     <div class="rightSide">
         <h2>Edit Projects</h2>
         {{#if userProjects.length}}
-            <ul class="projectsList">
+            <label for="projectSelector">Select a Project:</label>
+            <select id="projectSelector">
+                <option value="" disabled selected>Select a project</option>
                 {{#each userProjects}}
-                    <li>
+                    <option value="project-{{this._id}}">{{this.title}}</option>
+                {{/each}}
+            </select>
+            <div id="projectForms">
+                {{#each userProjects}}
+                    <div class="projectForm" id="project-{{this._id}}" style="display: none;">
                         <form action="/projects/{{this._id}}/edit" method="POST" class="editProject-form">
                             <label for="title-{{this._id}}">Title:</label>
                             <input type="text" id="title-{{this._id}}" name="title" value="{{this.title}}" required>
@@ -44,19 +51,23 @@
                             </select>
                             
                             <h3>Project Members</h3>
-                            <ul>
-                                {{#each this.members}}
-                                    <li>
-                                        {{this}}
-                                        <button type="submit" formaction="/projects/{{../this._id}}/removeMember/{{this}}" formmethod="POST">Remove</button>
-                                    </li>
-                                {{/each}}
-                            </ul>
+                            {{#if this.members.length}}
+                                <ul>
+                                    {{#each this.members}}
+                                        <li>
+                                            {{this}}
+                                            <button type="submit" formaction="/projects/{{../this._id}}/removeMember/{{this}}" formmethod="POST">Remove</button>
+                                        </li>
+                                    {{/each}}
+                                </ul>
+                            {{else}}
+                                <p>No members to manage.</p>
+                            {{/if}}
                             <button type="submit">Save Changes</button>
                         </form>
-                    </li>
+                    </div>
                 {{/each}}
-            </ul>
+            </div>
         {{else}}
             <p>No projects to edit.</p>
         {{/if}}
