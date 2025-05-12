@@ -58,7 +58,8 @@ async function Main() {
 					}
 					seenValues.add(value);
 					return false;
-				}
+				},
+				json: (context) => JSON.stringify(context)
 			}
 		})
 	);

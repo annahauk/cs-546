@@ -29,6 +29,7 @@
 			<li>Oldest Post: {{stats.oldestPost}}</li>
 			<li>Newest Post: {{stats.newestPost}}</li>
 		</ul>
+		<div class="userTagsChart" id="userTagsChart" data-chart-data='{{json chartData}}'></div>
 	</div>
 	<div class="centerInfo">
 		<p>Welcome to GitMatches, your source for finding high quality, open source
@@ -39,3 +40,4 @@
 		<p>Need to get active/completed project stats here</p>
 	</div>
 </div>
+<script src="/public/js/renderCharts.js"></script>

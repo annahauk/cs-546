@@ -8,7 +8,11 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 	const numProjects = await getProjectCount();
 	const numUsers = await getUserCount();
 	const topPostTags = await getTopPostTags(3);
-	const topUserTags = await getTopUserTags(3);
+	const topUserTags = await getTopUserTags(10);
+	const chartData = {
+		tags: topUserTags.map(tag => tag[0]),
+		counts: topUserTags.map(tag => tag[1])
+	};
 	let oldestPost = "";
 	let newestPost = "";
 	try {
@@ -27,7 +31,7 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 		oldestPost: oldestPost,
 		newestPost: newestPost
 	};
-	res.render("landing", { title: "GitMatches", stats: stats });
+	res.render("landing", { title: "GitMatches", stats: stats, chartData });
 });
 
 // TEMPORARY - TO allow browser login
