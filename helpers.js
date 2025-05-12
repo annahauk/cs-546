@@ -477,7 +477,7 @@ const validatePassword = (val, varName, funcName) => {
  * throw error if not a valid object id
  * @param {ObjectId} objid
  */
-async function validObjectId(objid) {
+function validObjectId(objid) {
 	if (!ObjectId.isValid(objid)) {
 		throw new Error(`Invalid ObjectId.`);
 	}
