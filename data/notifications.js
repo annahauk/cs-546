@@ -29,7 +29,7 @@ Notifs from:
 
 /**
  * This function creates a new notification for a user.
- * @param {ObjectId} ownerId 
+ * @param {string} ownerId 
  * @param {String} content 
  * @param {ObjectId} referencePost 
  * @param {ObjectId} referenceComment 
