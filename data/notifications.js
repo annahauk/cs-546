@@ -31,23 +31,24 @@ Notifs from:
 - project requests to join
 */
 
-
 /**
  * This function creates a new notification for a user.
  * @param {string} ownerId 
  * @param {String} title
- * @param {String} content 
- * @param {ObjectId} referencePost 
- * @param {ObjectId} referenceComment 
- * @param {String} origin -- where the notification is coming from
+ * @param {string} content 
+ * @param {string} referencePost 
+ * @param {string} referenceComment 
+ * @param {string} origin -- where the notification is coming from
  * @param {boolean} acceptedFriend -- whether the notification is accepting or rejecting a friend request
  * @param {boolean} acceptedProject -- whether the notification is for accepting or rejecting a project request
- * @param {ObjectId} senderId -- the user who sent the notification(used for friend requests)
- * @param {ObjectId} projectId -- the project id for project requests
+ * @param {string} senderId -- the user who sent the notification(used for friend requests)
+ * @param {string} projectId -- the project id for project requests
+ * @param {(null|boolean)} requiresApproval -- mark notification as an application (will show approve/deny buttons and a text field in notification)
+ * @param {string} referenceApplication -- the referance application if requiresApproval is true
  * @returns 
  */
 
-async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null) {
+async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null, requiresApproval = null, referenceApplication = null) {
   // INPUT VALIDATION
   ownerId = idVal(ownerId, 'ownerId', 'createNotif');
   title = stringVal(title, 'title', 'createNotif');
@@ -61,14 +62,28 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
   if (referenceComment) {
     referenceComment = idVal(referenceComment);
   }
+  if(referenceApplication) {
+    referenceApplication = idVal(referenceApplication);
+  }
   if (acceptedFriend) {
     if (typeof acceptedFriend !== 'boolean') {
-      throw 'acceptedFriend must be a boolean';
+      throw new Error('acceptedFriend must be a boolean');
     }
   }
   if (acceptedProject) {
     if (typeof acceptedProject !== 'boolean') {
-      throw 'acceptedProject must be a boolean';
+      throw new Error('acceptedProject must be a boolean');
+    }
+  }
+  if(requiresApproval) {
+    if(typeof requiresApproval !== 'boolean') {
+      throw new Error('requiresApproval must be a boolean');
+    }
+    if(typeof referenceApplication === "undefined") {
+      throw new Error('requiresApproval passed without referenceApplication');
+    }
+    if(typeof referencePost === "undefined") {
+      throw new Error('requiresApproval passed without referencePost');
     }
   }
   if (senderId) {
@@ -81,7 +96,7 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
 
   const userCollection = await users();
   const user = await userCollection.findOne({ _id: new ObjectId(ownerId) });
-  if (!user) throw 'User not found';
+  if (!user) throw new Error('User not found');
 
   // Store the time and day the notification was created
   let notifTime = new Date();
@@ -99,9 +114,11 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     resolved: resolved, // Default to false when created
     time: notifDate, // The time the notification was created
     referencePost: referencePost, // Reference to the related post, if applicable
-    referenceComment: referenceComment, // Reference to the related comment, if applicable
+    referenceComment: referenceComment, // Reference to the related comment, if applicable,
+    referenceApplication: referenceApplication, // Reference to related application, if applicable,
     acceptedFriend: acceptedFriend, // A boolean to accept or reject a friend request
     acceptedProject: acceptedProject, // A boolean to accept or reject a project request
+    requiresApproval: requiresApproval, // boolean to indicate if notification is an application (or not),
     senderId: senderId, // Reference to the user who sent the notification
     projectId: projectId // Reference to the project for project requests
   };
@@ -113,11 +130,11 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     { returnDocument: 'after' }
   );
 
-  if (!userUpdate) throw 'Could not add notification to user';
+  if (!userUpdate) throw new Error('Could not add notification to user');
   
   // Check if the notification was added successfully
   const notificationAdded = userUpdate.notifications.some((notif) => notif._id.toString() === newNotif._id.toString());
-  if (!notificationAdded) throw 'Notification not added to user';
+  if (!notificationAdded) throw new Error('Notification not added to user');
 
   // return the new notification object
   const newId = newNotif._id.toString();
