@@ -260,25 +260,37 @@ router.route("/:id/join/")
 		// XSS
 
 		try {
-			// applicant notification
+			// applicant notification (nclude reference post, NOT reference application)
 			await createNotif(
 				application.applicant_id.toString(), 
 				`You have successfully applied to ${project.title}`,
 				`Once the owner of this project reveiws your application, you will see a new notification here.`,
-				undefined,
-				undefined,
-				"GitMatches System"
+				new ObjectId(project._id),
+				null,
+				"GitMatches System",
+				null,
+				null,
+				null,
+				new ObjectId(project._id),
+				null,
+				null
 			);
 
-			// owner notification
+			// owner notification, requires approval, include reference application and post
 			await createNotif(
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
 				`${application.applicant} has requested to join ${project.title}. Here you may choose to accept or deny their application.`,
-				undefined,
-				undefined,
-				"GitMatches System"
-			)
+				new ObjectId(project._id),
+				null,
+				"GitMatches System",
+				null,
+				null,
+				null,
+				new ObjectId(project._id),
+				true,
+				application._id
+			);
 		} catch (e) {
 			console.error(e);
 			return await res.status(500).render("error", {error: `Failed to push notifications.`});
