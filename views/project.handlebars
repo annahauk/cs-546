@@ -3,29 +3,18 @@
 <div class="container">
     <div class="leftSide">
         <h1>{{project.title}}</h1>
-        <h2>Creator: {{project.creator}}</h2>
+        <h2>Creator: {{creatorUsername}}</h2>
         <h3>Created at {{project.createdAt}}</h3>
         <h3>Description</h3>
-        <p>{{project.description}}</p>
+        <p>{{project.content}}</p>
         <a href="{{project.repoLink}}" target="_blank">GitHub Repository</a>
         {{!-- Likes --}}
-        <form method="POST" action="/projects/{{project.id}}/like">
+        <form method="POST" action="/projects/{{project._id}}/like">
             <button type="submit">Like</button>
         </form>
         <span>{{project.likes}} Likes</span>
         {{!-- Comments --}}
-        {{#if project.comments}}
-            <ul>
-                {{#each project.comments}}
-                    <li>
-                        {{this.author}}: {{this.text}}
-                        <span>({{this.createdAt}})</span>
-                    </li>
-                {{/each}}
-            </ul>
-        {{else}}
-            <p>No comments yet.</p>
-        {{/if}}
+        {{> commentsList comments=project.comments}}
         <form method="POST" action="/projects/{{project._id}}/comments">
             <textarea name="comment" placeholder="Add a comment..." required></textarea><br>
             <button type="submit">Post Comment</button>
@@ -40,3 +29,4 @@
         </ol>
     </div>
 </div>
+<script src="/public/js/comment.js"></script>

@@ -1,5 +1,4 @@
 // seed file for mongodb
-
 import { createUser, getAllUsers, getUserById, getUserByUsername, removeUser, updateUser, updateUserTags, getUserTags, create_auth, addFriend, removeFriend } from './users.js';
 import { createPost, getAllPosts, getPostById, getPostsByUserId, removePost, updatePost, grabfilteredPosts } from './posts.js';
 import { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif } from './notifications.js';
@@ -275,7 +274,6 @@ async function main() {
         console.log('Closing database connection...');
         await closeConnection();
     }
-
 
 }
 

@@ -31,13 +31,13 @@ schema
 /**
  * Creates a new user
  * @param {string} userName
- * @param {string} password
- * @param {string} githubProfile
+ * @param {string} gh_info
  * @param {Array<string>} skillTags
  * @param {Array<ObjectId>} friends
  * @param {Array<string>} achievements
  * @param {Array<ObjectId>} notifications
- * @returns {ObjectId} user obj 
+ * @param {(null|ObjectId)} Auth
+ * @returns {ObjectId} userId
  * @throws Will throw an error if userName not unique
  * @throws Will throw an error if user creation fails
  *
@@ -48,7 +48,6 @@ async function createUser(userName, password) {
 	userName = validateUserID(userName, "userName", "createUser");
 	userName = userName.trim().toLowerCase();
 	password = validatePassword(password, "password", "createUser");
-	let githubProfile = "";
 	let skillTags = [];
 	let friends = [];
 	let achievements = ["Welcome!"];
@@ -64,13 +63,11 @@ async function createUser(userName, password) {
 	// HASHED IN AUTH
 	// const saltRounds = 10;
 	// const hashedPassword = await bcrypt.hash(password, saltRounds);
-	const hashedPassword = "";
 	// create new user
 	let newUser = {
 		user_name: userName,
-		password: hashedPassword,
-		Auth: undefined,
-		github_profile: githubProfile,
+		Auth: null,
+		gh_info: null,
 		skill_tags: skillTags,
 		friends: friends,
 		achievements: achievements,

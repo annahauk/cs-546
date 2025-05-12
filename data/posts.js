@@ -1,8 +1,16 @@
-import {projectPosts} from '../config/mongoCollections.js'; // imported to reference that collection
-import {ObjectId} from 'mongodb';
+import { projectPosts } from "../config/mongoCollections.js"; // imported to reference that collection
+import { ObjectId } from "mongodb";
 
 // helper imports
-import { stringVal, arrayVal, idVal, validatePassword, validateUserID} from '../helpers.js'
+import {
+	stringVal,
+	arrayVal,
+	idVal,
+	validatePassword,
+	validateUserID,
+	TERMS_AND_DOMAINS,
+	validObjectId
+} from "../helpers.js";
 
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
 
@@ -30,39 +38,39 @@ topic_tags: Array<String>
  * @param {Array<String>} topic_tags
  * @returns {object} post object
  *
- */ 
+ */
 async function createPost(title, ownerId, content, repoLink, topic_tags) {
-  // INPUT VALIDATION
-  title = stringVal(title, 'title', 'createPost');
-  content = stringVal(content, 'content', 'createPost');
-  repoLink = stringVal(repoLink, 'repoLink', 'createPost');
-  ownerId = idVal(ownerId, 'ownerId', 'createPost');
-  topic_tags = arrayVal(topic_tags, 'topic_tags', 'createPost');
+	// INPUT VALIDATION
+	title = stringVal(title, "title", "createPost");
+	content = stringVal(content, "content", "createPost");
+	repoLink = stringVal(repoLink, "repoLink", "createPost");
+	ownerId = idVal(ownerId, "ownerId", "createPost");
+	topic_tags = arrayVal(topic_tags, "topic_tags", "createPost");
 
-  const postCollection = await projectPosts();
-  let createTime = new Date();
-  let createdTime = `${createTime.getFullYear()}-${(createTime.getMonth() + 1).toString().padStart(2, '0')}-${createTime.getDate().toString().padStart(2, '0')} ${createTime.getHours().toString().padStart(2, '0')}:${createTime.getMinutes().toString().padStart(2, '0')}:${createTime.getSeconds().toString().padStart(2, '0')}`;
-  
+	const postCollection = await projectPosts();
+	let createdTime = new Date().toLocaleString();
 
-  // Create new post object
-  let newPost = {
-    "_id": new ObjectId(),
-    "title": title,
-    "ownerId": ownerId,
-    "content": content,
-    "repoLink": repoLink,
-    "comments": [],
-    "createdAt": createdTime,
-    "likes": 0,
-    "topic_tags": topic_tags
-  }
+	// Create new post object
+	let newPost = {
+		_id: new ObjectId(),
+		title: title,
+		ownerId: ownerId,
+		content: content,
+		repoLink: repoLink,
+		comments: [],
+		createdAt: createdTime,
+		likes: 0,
+		topic_tags: topic_tags,
+		members: [],
+		applications: []
+	};
 
-  const insertInfo = await postCollection.insertOne(newPost);
-  if (!insertInfo.acknowledged) throw `Could not add post`;
-  // return post object
-  const newId = insertInfo.insertedId.toString();
-  const post = await getPostById(newId);
-  return post;
+	const insertInfo = await postCollection.insertOne(newPost);
+	if (!insertInfo.acknowledged) throw `Could not add post`;
+	// return post object
+	const newId = insertInfo.insertedId.toString();
+	const post = await getPostById(newId);
+	return post;
 }
 
 /**
@@ -70,15 +78,14 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
  * @returns {Array<Post>} posts, or empty list if no posts are found
  * */
 async function getAllPosts() {
-  const postCollection = await projectPosts();
-  let posts = await postCollection.find({}).toArray();
-  if (!posts) return [];
-
-  posts = posts.map((element) => {
+	const postCollection = await projectPosts();
+	let posts = await postCollection.find({}).toArray();
+	if (!posts) return [];
+	posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;
 	});
-  return posts;
+	return posts;
 }
 
 /**
@@ -88,17 +95,17 @@ async function getAllPosts() {
  * @throws {Error} if post is not found
  * */
 async function getPostById(postId) {
-  postId = idVal(postId, 'postId', 'getPostById');
-  const postCollection = await projectPosts();
-  const post = await postCollection.findOne({_id: new ObjectId(postId)});
-  if (!post) throw `No post with that id: ${postId}`;
-  post._id = post._id.toString();
-  return post;
+	postId = idVal(postId, "postId", "getPostById");
+	const postCollection = await projectPosts();
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
+	if (!post) throw `No post with that id: ${postId}`;
+	post._id = post._id.toString();
+	return post;
 }
 
 /**
  * This function retrieves all posts created by a specific user
- * @param {string} ownerId - The ID of the user whose posts are to be retrieved
+ * @param {string} id - The ID of the user whose posts are to be retrieved
  * @returns {Array<Post>} posts - An array of posts created by the user
  * @throws {Error} if no posts are found for the user
  */
@@ -111,7 +118,7 @@ async function getPostsByUserId(id) {
 		element._id = element._id.toString();
 		return element;
 	});
-  return posts;
+	return posts;
 }
 
 /**
@@ -120,12 +127,15 @@ async function getPostsByUserId(id) {
  * @returns {ObjectId} postId
  * @throws {Error} if post is not found
  * */
-async function removePost(postId){
-  postId = idVal(postId, 'postId', 'removePost');
-  const postCollection = await projectPosts();
-  const deletionInfo = await postCollection.deleteOne({_id: new ObjectId(postId)});
-  if (deletionInfo.deletedCount === 0) throw `Could not delete post with id of ${postId}`;
-  return postId;
+async function removePost(postId) {
+	postId = idVal(postId, "postId", "removePost");
+	const postCollection = await projectPosts();
+	const deletionInfo = await postCollection.deleteOne({
+		_id: new ObjectId(postId)
+	});
+	if (deletionInfo.deletedCount === 0)
+		throw `Could not delete post with id of ${postId}`;
+	return postId;
 }
 
 /**
@@ -138,39 +148,202 @@ async function removePost(postId){
 
 // IDK if we wanna do an dict of field:update but yeah???
 async function updatePost(postId, updateData) {
-  postId = idVal(postId, 'postId', 'updatePost');
-  const postCollection = await projectPosts();
-  const updateInfo = await postCollection.updateOne(
-    {_id: new ObjectId(postId)},
-    {$set: updateData}
-  );
-  if (updateInfo.modifiedCount === 0) throw `Could not update post with id of ${postId}`;
-  return postId;
-};
-
+	postId = idVal(postId, "postId", "updatePost");
+	const postCollection = await projectPosts();
+	const updateInfo = await postCollection.updateOne(
+		{ _id: new ObjectId(postId) },
+		{ $set: updateData }
+	);
+	if (updateInfo.modifiedCount === 0)
+		throw `Could not update post with id of ${postId}`;
+	return postId;
+}
 
 /**
  * This queries the database for the filtered posts by tags when a user selects from the menu in the frontend
  * @param {Array<String>} tags
+ * @param {String} name
  * @returns {Array<Post>} posts
  */
-async function grabfilteredPosts(tags){
-  tags = arrayVal(tags, 'tags', 'grabfilteredPosts');
-  const postCollection = await projectPosts();
-  let posts = await postCollection.find({topic_tags: {$in: tags}}).toArray();
-  if (!posts) throw `No posts with that tag`;
-  posts = posts.map((element) => {
-	  element._id = element._id.toString();
+async function grabfilteredPosts(tags, name) {
+	// Validate tags array, allowing for empty tag array if user is only filtering by name
+	if (!Array.isArray(tags)) {
+		throw `Error in grabfilteredPosts: tags must be an array.`;
+	}
+	for (const item of tags) {
+		if (typeof item !== "string" || item.trim().length === 0) {
+			throw `Error in grabfilteredPosts: tags must contain only non-empty strings.`;
+		}
+	}
+	// validate the name specifically just the type, since it can be empty if user doesn't care about project name
+	if (typeof name !== "string") {
+		throw `Error in grabfilteredPosts: name must be a string.`;
+	}
+	const postCollection = await projectPosts();
+	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
+	const regexTags = tags.map((tag) => new RegExp(`^${tag}$`, "i"));
+	// Create case-insensitive regex for the name, partial matching
+	const regexName = new RegExp(name, "i");
+	// Filter the project posts based on the topic tags
+	let posts = null;
+	if (tags.length !== 0) {
+		posts = await postCollection
+			.find({ topic_tags: { $in: regexTags }, title: regexName })
+			.toArray();
+	} else {
+		posts = await postCollection.find({ title: regexName }).toArray();
+	}
+	// Found no posts, that's a problem
+	if (!posts || posts.length === 0) throw `No posts with that tag`;
+	posts = posts.map((element) => {
+		element._id = element._id.toString();
 		return element;
 	});
-  return posts;
+	return posts;
 }
 
-export { createPost, 
-         getAllPosts, 
-         getPostById, 
-         removePost, 
-         updatePost,
-        grabfilteredPosts, 
-        getPostsByUserId
-        };
+/**
+ * Check if user is member of project
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<boolean>}
+ */
+async function post_has_member(post, member_id) {
+	let post_members = post.members.map((m) => {return m.toString()});
+	return (post_members.includes(member_id.toString()) || post.ownerId === member_id.toString());
+}
+
+/**
+ * Create application for project
+ * @param {Post} post 
+ * @param {User} user 
+ * @param {string?} _additional_text
+ * @returns {Promise<Application>}
+ */
+async function create_project_application(post, user, _additional_text) {
+	let postsc = await projectPosts();
+	let application = {
+		"_id": new ObjectId(),
+		"applicant": user.user_name,
+		"applicant_id": user._id,
+		"message": (_additional_text)? _additional_text : "No additional message."
+	}
+
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"applications": application}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to create post application`);
+	}
+
+	console.log(`[NOTIF]: You have successfully applied to ${post.title} ==> ${application.applicant_id.toString()}`);
+	console.log(`[NOTIF]: ${application.applicant} has requested to join ${post.title}: ${application.message}
+		[Approve this application](/projects/${post._id}/join/${application._id.toString()}/approve)
+		[Deny this application](/projects/${post._id}/join/${application._id.toString()}/deny)`);
+
+	return application;
+}
+
+/**
+ * Remove application from project applications
+ * @param {Post} post 
+ * @param {Application} application 
+ * @param {boolean} approved
+ * @param {string?} _text
+ * @returns {Promise<Application}
+ */
+async function remove_project_applicaiton(project, application, approved, _text) {
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to remove application`);
+	}
+
+	if(approved) {
+		console.log(`[NOTIF]: Your application to ${project.title} has been approved! ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);	
+	} else {
+		console.log(`[NOTIF]: Your application to ${project.title} has been denied. ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);
+	}
+
+	return application;
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {string} app_id 
+ * @returns {Promise<null|Application>}
+ */
+async function get_project_application(post, app_id) {
+	let applications = await post.applications.filter((app) => {
+		return (app._id.toString() === app_id);
+	})
+
+	if(applications.length < 1) {
+		return null;
+	}
+
+	return applications[0];
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<Post>}
+ */
+async function add_project_member(post, member_id) {
+	await validObjectId(member_id);
+
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"members": member_id}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to add member to project`);
+	}
+	
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
+	if(!newpost) {
+		throw new Error(`Could not retrieve modified post`);
+	}
+
+	console.log(`[NOTIF]: Your application to ${post.title} has been accepted! ==> ${member_id.toString()}`);
+
+	return newpost;
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<Post>}
+ */
+async function remove_project_member(post, member_id) {
+	await validObjectId(member_id);
+
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$pull: {"members": member_id}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to remove member from project`);
+	}
+	
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
+	if(!newpost) {
+		throw new Error(`Could not retrieve modified post`);
+	}
+
+	return newpost;
+}
+
+export {
+	createPost,
+	getAllPosts,
+	getPostById,
+	removePost,
+	updatePost,
+	grabfilteredPosts,
+	getPostsByUserId,
+	post_has_member,
+	create_project_application,
+	get_project_application,
+	remove_project_applicaiton,
+	add_project_member,
+	remove_project_member
+};

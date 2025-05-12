@@ -2,9 +2,9 @@
 {{> navbar}}
 <div class="container">
     <div class="leftSide">
-        <img src="" alt="{{user.user_name}}">
+        <img src="{{user.gh_info.data.avatar_url}}" alt="{{user.user_name}}">
         <h1>{{user.user_name}}</h1>
-        <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form">
+        <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form" data-user-id="{{user._id}}">
             <label for="resume">Upload Resume (PDF):</label>
             <input type="file" id="resume" name="resume" accept="application/pdf" required>
             <button type="submit">Upload</button>

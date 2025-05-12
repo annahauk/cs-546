@@ -2,6 +2,7 @@
 import { projectPosts } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
 import { getPostById } from "./posts.js";
+import { getUserById } from "./users.js";
 // helper imports
 import { stringVal, idVal } from "../helpers.js";
 
@@ -24,13 +25,18 @@ async function createComment(content, postId, ownerId) {
 	content = stringVal(content, "content", "createComment");
 	postId = idVal(postId, "postId", "createComment");
 	ownerId = idVal(ownerId, "ownerId", "createComment");
-	if (content.length < 1 || content.length > 100) throw `Comment must be between 1 and 100 characters`;
+	if (content.length < 1 || content.length > 100)
+		throw `Comment must be between 1 and 100 characters`;
 
 	const postIdObj = new ObjectId(postId);
+
+	// Get the author username
+	let user = await getUserById(ownerId);
 
 	let newComment = {
 		_id: new ObjectId(),
 		ownerId: new ObjectId(ownerId),
+		author: user.user_name,
 		postId: postIdObj,
 		content: content,
 		comments: []
@@ -42,21 +48,19 @@ async function createComment(content, postId, ownerId) {
 		{ $push: { comments: newComment } }
 	);
 	if (post === null) throw `No post with id ${postId}`;
-  	post = await getPostById(post._id.toString());
+	post = await getPostById(post._id.toString());
 	return post;
 }
 
 /**
  * Returns all comments for a given post id
- * @param {string} postId 
+ * @param {string} postId
  * @returns Array<CommentIds>
  */
 async function getAllCommentsByPostId(postId) {
 	postId = idVal(postId, "postId", "getAllCommentsByPostId");
 	const postCollection = await projectPosts();
-	const post = await postCollection.findOne(
-		{ _id: new ObjectId(postId) }
-	);
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
 	if (post === null) throw `No post with id ${postId}`;
 	let comments = post.comments;
 	comments = comments.map((element) => {
@@ -119,13 +123,14 @@ async function removeComment(commentId) {
  */
 
 async function updateComment(commentId, updateData) {
-	commentId = idVal(commentId, 'commentId', 'updateComment');
+	commentId = idVal(commentId, "commentId", "updateComment");
 	const postCollection = await projectPosts();
 	const updateInfo = await postCollection.updateOne(
-		{"comments._id": new ObjectId(commentId)},
-		{$set: updateData}
+		{ "comments._id": new ObjectId(commentId) },
+		{ $set: updateData }
 	);
-	if (updateInfo.modifiedCount === 0) throw `Could not update comment with id of ${commentId}`;
+	if (updateInfo.modifiedCount === 0)
+		throw `Could not update comment with id of ${commentId}`;
 	return commentId;
 }
 
@@ -134,5 +139,5 @@ export {
 	getAllCommentsByPostId,
 	getCommentById,
 	removeComment,
-	updateComment,
+	updateComment
 };

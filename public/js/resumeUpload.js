@@ -4,7 +4,7 @@ if (form) {
 	form.addEventListener("submit", async function (event) {
 		event.preventDefault();
 		const formData = new FormData(form);
-		const userId = "{{user.id}}";
+		const userId = form.getAttribute("data-user-id"); //"{{user._id}}";
 		try {
 			const response = await fetch(`/profile/${userId}/resume`, {
 				method: "POST",
@@ -16,6 +16,7 @@ if (form) {
 				return;
 			}
 			alert("Resume uploaded successfully!");
+			location.reload();
 		} catch (err) {
 			alert("An error occurred: " + err.message);
 		}
