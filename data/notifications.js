@@ -35,16 +35,16 @@ Notifs from:
  * This function creates a new notification for a user.
  * @param {string} ownerId 
  * @param {String} title
- * @param {String} content 
- * @param {ObjectId} referencePost 
- * @param {ObjectId} referenceComment 
- * @param {String} origin -- where the notification is coming from
+ * @param {string} content 
+ * @param {string} referencePost 
+ * @param {string} referenceComment 
+ * @param {string} origin -- where the notification is coming from
  * @param {boolean} acceptedFriend -- whether the notification is accepting or rejecting a friend request
  * @param {boolean} acceptedProject -- whether the notification is for accepting or rejecting a project request
- * @param {ObjectId} senderId -- the user who sent the notification(used for friend requests)
- * @param {ObjectId} projectId -- the project id for project requests
+ * @param {string} senderId -- the user who sent the notification(used for friend requests)
+ * @param {string} projectId -- the project id for project requests
  * @param {(null|boolean)} requiresApproval -- mark notification as an application (will show approve/deny buttons and a text field in notification)
- * @param {ObjectId} referenceApplication -- the referance application if requiresApproval is true
+ * @param {string} referenceApplication -- the referance application if requiresApproval is true
  * @returns 
  */
 
@@ -61,6 +61,9 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
 
   if (referenceComment) {
     referenceComment = idVal(referenceComment);
+  }
+  if(referenceApplication) {
+    referenceApplication = idVal(referenceApplication);
   }
   if (acceptedFriend) {
     if (typeof acceptedFriend !== 'boolean') {
