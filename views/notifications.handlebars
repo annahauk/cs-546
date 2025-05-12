@@ -12,6 +12,16 @@
                             <p>{{this.content}}</p>
                             <p>Origin: {{this.origin}}</p>
                             <p>Time: {{this.time}}</p>
+                            <!-- if notification requires action, show approve, deny and text field as form -->
+                            {{#if this.requiresApproval}}
+                                <p>Approve or Deny this application</p>
+                                <!-- approve | posts to /projects/:id/join/:appId/approve -->
+                                <form method="POST" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" action="">
+                                    <button type="submit">Approve</button>
+                                    <button type="submit">Deny</button>
+                                    <input type="text">
+                                </form>
+                            {{/if}}
                             <p class="unresolved">Status: Unresolved</p>
                             <form method="POST" action="/notifications/resolve/{{this._id}}">
                                 <button type="submit" class="resolve-btn">Mark as Resolved</button>
