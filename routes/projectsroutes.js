@@ -19,6 +19,7 @@ import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
 import { all } from "axios";
+import { createNotif } from "../data/notifications.js";
 
 router
 	.route("/")
@@ -210,7 +211,7 @@ router
 		}
 	});
 
-router.route(":id/join/")
+router.route("/:id/join/")
 	/**
 	 * request to join a project
 	 * sends notification to project owner with approve/deny links + additional text from user
@@ -250,7 +251,7 @@ router.route(":id/join/")
 		// create application
 		let application;
 		try {
-			await create_project_application(project, user, req.body["text"]);
+			application = await create_project_application(project, user, req.body["text"]);
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Failed to create project application ${e}`});
 		}
@@ -258,10 +259,35 @@ router.route(":id/join/")
 		// TODO:: Send notification
 		// XSS
 
+		try {
+			// applicant notification
+			await createNotif(
+				application.applicant_id.toString(), 
+				`You have successfully applied to ${project.title}`,
+				`Once the owner of this project reveiws your application, you will see a new notification here.`,
+				undefined,
+				undefined,
+				"GitMatches System"
+			);
+
+			// owner notification
+			await createNotif(
+				project.ownerId,
+				`${application.applicant} as applied to join ${project.title}`,
+				`${application.applicant} has requested to join ${project.title}. Here you may choose to accept or deny their application.`,
+				undefined,
+				undefined,
+				"GitMatches System"
+			)
+		} catch (e) {
+			console.error(e);
+			return await res.status(500).render("error", {error: `Failed to push notifications.`});
+		}
+
 		res.redirect(`/projects/${project._id}`);
 	})
 
-router.route(":id/join/:applicationId/approve")
+router.route("/:id/join/:applicationId/approve")
 	/**
 	 * approve application to join project
 	 * send notification back to user saying application was approved + additional text and linking to project
@@ -333,11 +359,18 @@ router.route(":id/join/:applicationId/approve")
 		await addAchievement(application.applicant_id.toString(), "join", thisUserCount);
 		await addAchievement(project.ownerId, "othersJoined", allMembers.length);
 
+		try {
+			// anonymous
+			await createNotif(application.applicant_id.toString(), `You have been accepted to ${project.title}!`, `Your application to join ${project.title} has been accepted.`, undefined, undefined, "GitMatches System");
+		} catch (e) {
+			throw new Error(`Failed to create acception notification`);
+		}
+
 		// redirec to notification page
 		res.redirect("/notifications");
 	})
 
-router.route(":id/join/:applicationId/deny")
+router.route("/:id/join/:applicationId/deny")
 	/**
 	 * deny appliaction to join project
 	 * send user notification that they were denied + additional text
@@ -379,11 +412,18 @@ router.route(":id/join/:applicationId/deny")
 			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
 		}
 
+		try {
+			// anonymous
+			await createNotif(application.applicant_id.toString(), `Application ${project.title} was denied.`, `Your application to join ${project.title} has been denied.`, undefined, undefined, "GitMatches System");
+		} catch (e) {
+			throw new Error(`Failed to create acception notification`);
+		}
+
 		// redirec to notification page
 		res.redirect("/notifications");
 	})
 
-router.route(":id/leave")
+router.route("/:id/leave")
 	/**
 	 * leave project
 	 * if user is owner then error
