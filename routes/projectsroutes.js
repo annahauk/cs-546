@@ -51,7 +51,7 @@ router
 					posts: allPosts,
 					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
 					termsAndDomains: TERMS_AND_DOMAINS,
-					title: "Projects",
+					title: "Projects"
 				});
 			} else {
 				return res.redirect("/login");
@@ -79,7 +79,11 @@ router
 					)
 				];
 				if (!reset) {
-					filteredPosts = await grabfilteredPosts(tagsAndLanguages, search);
+					filteredPosts = await grabfilteredPosts(
+						tagsAndLanguages,
+						search,
+						status
+					);
 				} else {
 					filteredPosts = await getAllPosts();
 				}
@@ -194,40 +198,40 @@ router
 
 router.route("/:id").get(isLoggedIn, async (req, res) => {
 	// Display a specific project
+	const projectId = idVal(req.params.id);
+	let post = null;
+	try {
 		const projectId = idVal(req.params.id);
 		let post = null;
 		try {
-			const projectId = idVal(req.params.id);
-			let post = null;
-			try {
-				post = await getPostById(projectId);
-			} catch (e) {
-				return res
-					.status(404)
-					.render("error", { message: "Project not found", title: "Error" });
-			}
-			// Get the project creator
-			let creatorUser = await getUserById(post.ownerId);
-			let username = creatorUser.user_name;
-
-			// get current user (to check if theyre a member)
-			let user = await getUserByUsername(req.cookies["username"]);
-			if(!user) {
-				return await res.status(500).render("error", {error: `No user found.`});
-			}
-
-			res.render("project", {
-				project: post,
-				creatorUsername: username,
-				title: post.title,
-				isMember: (await post_has_member(post, user._id))
-			});
-		} catch (error) {
-			console.error(error);
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
+			post = await getPostById(projectId);
+		} catch (e) {
+			return res
+				.status(404)
+				.render("error", { message: "Project not found", title: "Error" });
 		}
+		// Get the project creator
+		let creatorUser = await getUserById(post.ownerId);
+		let username = creatorUser.user_name;
+
+		// get current user (to check if theyre a member)
+		let user = await getUserByUsername(req.cookies["username"]);
+		if (!user) {
+			return await res.status(500).render("error", { error: `No user found.` });
+		}
+
+		res.render("project", {
+			project: post,
+			creatorUsername: username,
+			title: post.title,
+			isMember: await post_has_member(post, user._id)
+		});
+	} catch (error) {
+		console.error(error);
+		res
+			.status(500)
+			.render("error", { message: "Internal server error", title: "Error" });
+	}
 });
 
 router
@@ -307,12 +311,14 @@ router
 			);
 
 			// owner notification, requires approval, include reference application and post
-			let message = (req.body["text"])? req.body["text"] : "";
+			let message = req.body["text"] ? req.body["text"] : "";
 			console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
-				`${application.applicant} has requested to join ${project.title}. "${(message.length > 0)? `${message}\n` : ""}". Here you may choose to accept or deny their application.`,
+				`${application.applicant} has requested to join ${project.title}. "${
+					message.length > 0 ? `${message}\n` : ""
+				}". Here you may choose to accept or deny their application.`,
 				project._id,
 				null,
 				"GitMatches System",
@@ -428,9 +434,16 @@ router
 
 		try {
 			// anonymous
-			let message = (req.body["text"])? req.body["text"] : "";
+			let message = req.body["text"] ? req.body["text"] : "";
 			console.log(`approve message: ${message}`, req.body);
-			await createNotif(application.applicant_id.toString(), `You have been accepted to ${project.title}!`, `Your application to join ${project.title} has been accepted. "${message}"`, undefined, undefined, "GitMatches System");
+			await createNotif(
+				application.applicant_id.toString(),
+				`You have been accepted to ${project.title}!`,
+				`Your application to join ${project.title} has been accepted. "${message}"`,
+				undefined,
+				undefined,
+				"GitMatches System"
+			);
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
@@ -493,9 +506,16 @@ router
 
 		try {
 			// anonymous
-			let message = (req.body["text"])? req.body["text"] : "";
+			let message = req.body["text"] ? req.body["text"] : "";
 			console.log(`deny additional message: ${message}`, req.body);
-			await createNotif(application.applicant_id.toString(), `Application ${project.title} was denied.`, `Your application to join ${project.title} has been denied. "${message}"`, undefined, undefined, "GitMatches System");
+			await createNotif(
+				application.applicant_id.toString(),
+				`Application ${project.title} was denied.`,
+				`Your application to join ${project.title} has been denied. "${message}"`,
+				undefined,
+				undefined,
+				"GitMatches System"
+			);
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
@@ -511,8 +531,8 @@ router
 	 * if user is owner then error
 	 * else remove user id from project members and project id from user projects
 	 */
-	.post(async (req,res) => {
-		if(!req.authorized) {
+	.post(async (req, res) => {
+		if (!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");
 		}
