@@ -2,6 +2,7 @@
 
 import { createUser, getAllUsers, getUserById, getUserByUsername, removeUser, updateUser, updateUserTags, getUserTags, create_auth, addFriend, removeFriend } from './users.js';
 import { createPost, getAllPosts, getPostById, getPostsByUserId, removePost, updatePost, grabfilteredPosts } from './posts.js';
+import { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif } from './notifications.js';
 import { dbConnection, closeConnection } from '../config/mongoConnection.js';
 
 async function main() {
@@ -111,6 +112,11 @@ async function main() {
         console.log('Remaining users after removal:');
         console.log(remainingUsers);
 
+        console.log('Adding user5 as a friend of user4...');
+        const updatedUser4WithFriend = await addFriend(user4._id, user5._id);
+        console.log('Updated user4 with friends:');
+        console.log(updatedUser4WithFriend);
+
         /**
          * 
          *      TESTING POST FUNCTIONS
@@ -118,15 +124,19 @@ async function main() {
          */
         
         // add anna as friend of zakypoo
-        console.log('Adding user5 as a friend of user4...');
-        const updatedUser4WithFriend = await addFriend(user4._id, user5._id);
-        console.log('Updated user4 with friends:');
-        console.log(updatedUser4WithFriend);
+
+        const db = await dbConnection();
+        const postCollection = await db.collection('projectPosts');
+        console.log('Clearing the posts collection...');
+        await postCollection.deleteMany({});
+
+        console.log('Seeding database with sample posts...');
+
 
         // Create sample posts from user4 nd user5
         console.log('Creating sample posts...');
         const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/miniStockDash", ["Machine Learning", "Deep Learning"]);
-        const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB']);
+        const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
 
         console.log('Created posts:');
         console.log(post1);
@@ -166,11 +176,82 @@ async function main() {
 
         // Test grabfilteredPosts
         console.log('Fetching posts with filters...');
-        const filteredPosts = await grabfilteredPosts({ topic_tags: 'Machine Learning' });
+        const filteredPosts = await grabfilteredPosts(['Machine Learning']);
         console.log('Filtered posts:');
         console.log(filteredPosts);
 
         
+        /**
+         * 
+         *      TESTING NOTIFICATION FUNCTIONS
+         * 
+         */
+
+        console.log('Testing notification functions...');
+
+        try {
+            // Create sample notifications
+            // async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin)
+            console.log('Creating sample notifications...');
+            const notif1 = await createNotif(user4._id, 'Friend Request', 'User5 has sent you a friend request.', null, null, 'friend_request');
+            const notif2 = await createNotif(user4._id, 'Post Liked', 'User5 liked your post.', post1._id, null, 'like');
+            const notif3 = await createNotif(user5._id, 'Achievement Unlocked', 'You have unlocked the "Top Contributor" badge.', null, null, 'achievement');
+            // we will add the comment reference when we test comments lmao
+            const notif4 = await createNotif(user4._id, 'Commented on your post', 'User5 commented on your post.', post1._id, null, 'comment');
+            const notif5 = await createNotif(user5._id, 'Friend Request', 'User4 has sent you a friend request.', null, null, 'friend_request');
+            // console.log('Created notifications:');
+            // console.log(notif1);
+            // console.log(notif2);
+            // console.log(notif3);
+            // console.log(notif4);
+
+            // Test getAllNotifs
+            console.log('Fetching all notifications...');
+            const allNotifs = await getAllNotifs(user4._id);
+            console.log('All notifications for user4:');
+            console.log(allNotifs);
+
+            // Test getNotif by ID
+            console.log(`Fetching notification by ID (${notif1._id})...`);
+            console.log("notif1 is as follows: ", notif1);
+            const fetchedNotif = await getNotif(notif1._id);
+            console.log('Fetched notification:');
+            console.log(fetchedNotif);
+
+            // Test resolveNotif
+            console.log(`Resolving notification with ID (${notif2._id})...`);
+            const resolvedNotif = await resolveNotif(notif2._id);
+            console.log('Resolved notification:');
+            console.log(resolvedNotif);
+
+            // Test removeNotif
+            console.log(`Removing notification with ID (${notif3._id})...`);
+            const removedNotif = await removeNotif(notif3._id);
+            console.log('Removed notification:');
+            console.log(removedNotif);
+
+            // Verify removal
+            console.log('Fetching all notifications after removal...');
+            const remainingNotifs = await getAllNotifs(user5._id);
+            console.log('Remaining notifications:');
+            console.log(remainingNotifs);
+
+            // Test removeAllNotif for a user
+            console.log(`Removing all notifications for user (${user5._id})...`);
+            const removedAllNotifs = await removeAllNotif(user5._id);
+            console.log('Removed all notifications for user5:');
+            console.log(removedAllNotifs);
+
+            // Verify removal
+            console.log('Fetching all notifications after removing all for user5...');
+            const remainingNotifsAfterAllRemoved = await getAllNotifs(user5._id);
+            console.log('Remaining notifications:');
+            console.log(remainingNotifsAfterAllRemoved);
+
+        } catch (error) {
+        console.error('Error during notification testing:', error);
+        }
+
 
         // Test invalid inputs
         try {
@@ -194,6 +275,8 @@ async function main() {
         console.log('Closing database connection...');
         await closeConnection();
     }
+
+
 }
 
 main();

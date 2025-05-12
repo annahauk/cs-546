@@ -24,7 +24,7 @@ schema
     skill_tags: Array<string>,  List of skills, e.g., ["Web Dev", "JavaScript"]
     friends: Array<ObjectId>,   References to other user documents in the collection
     achievements: Array<String>, 
-    notifications: Array<ObjectId> References to the Notification collection
+    notifications: Array<String> Notification subdocument
 }
 */
 
@@ -37,7 +37,7 @@ schema
  * @param {Array<ObjectId>} friends
  * @param {Array<string>} achievements
  * @param {Array<ObjectId>} notifications
- * @returns {ObjectId} userId
+ * @returns {ObjectId} user obj 
  * @throws Will throw an error if userName not unique
  * @throws Will throw an error if user creation fails
  *

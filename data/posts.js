@@ -40,7 +40,9 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
   topic_tags = arrayVal(topic_tags, 'topic_tags', 'createPost');
 
   const postCollection = await projectPosts();
-  let createdTime = new Date().toLocaleTimeString();
+  let createTime = new Date();
+  let createdTime = `${createTime.getFullYear()}-${(createTime.getMonth() + 1).toString().padStart(2, '0')}-${createTime.getDate().toString().padStart(2, '0')} ${createTime.getHours().toString().padStart(2, '0')}:${createTime.getMinutes().toString().padStart(2, '0')}:${createTime.getSeconds().toString().padStart(2, '0')}`;
+  
 
   // Create new post object
   let newPost = {
@@ -69,8 +71,9 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
  * */
 async function getAllPosts() {
   const postCollection = await projectPosts();
-  const posts = await postCollection.find({}).toArray();
+  let posts = await postCollection.find({}).toArray();
   if (!posts) return [];
+
   posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;
@@ -99,11 +102,11 @@ async function getPostById(postId) {
  * @returns {Array<Post>} posts - An array of posts created by the user
  * @throws {Error} if no posts are found for the user
  */
-async function getPostsByUserId(ownerId) {
-  ownerId = idVal(ownerId, 'ownerId', 'getPostsByUserId');
+async function getPostsByUserId(id) {
+  id = idVal(id, 'ownerId', 'getPostsByUserId');
   const postCollection = await projectPosts();
-  const posts = await postCollection.find({ ownerId: new ObjectId(ownerId) }).toArray();
-  if (!posts || posts.length === 0) throw `No posts found for user with id: ${ownerId}`;
+  let posts = await postCollection.find({ ownerId: id }).toArray();
+  if (!posts || posts.length === 0) throw `No posts found for user with id: ${id}`;
   posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;
@@ -154,7 +157,7 @@ async function updatePost(postId, updateData) {
 async function grabfilteredPosts(tags){
   tags = arrayVal(tags, 'tags', 'grabfilteredPosts');
   const postCollection = await projectPosts();
-  const posts = await postCollection.find({topic_tags: {$in: tags}}).toArray();
+  let posts = await postCollection.find({topic_tags: {$in: tags}}).toArray();
   if (!posts) throw `No posts with that tag`;
   posts = posts.map((element) => {
 	  element._id = element._id.toString();
