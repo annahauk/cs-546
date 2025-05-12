@@ -25,7 +25,9 @@ repoLink: String,            URL to the related GitHub repository
 comments: Array<CommentIDs>, Comment ids associated with the post
 createdAt: String,
 likes: Number,
-topic_tags: Array<String> 
+topic_tags: Array<String>,
+members: Array<userIDs>,
+applications: Array<Applications>
 }
 */
 

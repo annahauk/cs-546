@@ -1,7 +1,7 @@
 import * as express from "express";
 import { ghConfig } from "../config/settings.js";
 import { github_oauth_login } from "../data/oauth.js";
-import { getUserByUsername } from "../data/users.js";
+import { getUserByUsername, addAchievement } from "../data/users.js";
 import { set_user_gh_langs, set_user_github_info } from "../src/lib/git.js";
 
 const router = express.Router();
@@ -37,6 +37,13 @@ router.route("/callback").get(async (req, res) => {
 		//console.log("set the fucking thing");
 		let gh_info = await set_user_github_info(user.user_name, access_token);
 		let langs = await set_user_gh_langs(user.user_name, access_token);
+		try {
+			if (!user.achievements.includes("GitInit")) {
+				await addAchievement(user._id.toString(), "created", 1);
+			}
+		} catch (e) {
+			console.log("Error adding GitInit achievement: ", e);
+		}
 		return await res.redirect("/projects");
 	} catch (e) {
 		return await res
