@@ -1,10 +1,33 @@
 import { Router } from "express";
 import { isLoggedOut } from "./middleware.js";
+import { getProjectCount, getTopPostTags, getOldestPost, getNewestPost } from "../data/posts.js"
+import { getUserCount, getTopUserTags } from "../data/users.js";
 const router = Router();
 
-router.route("/").get(isLoggedOut, (req, res) => {
-	// add whatever the handlebars need
-	res.render("landing", { title: "GitMatches" });
+router.route("/").get(isLoggedOut, async (req, res) => {
+	const numProjects = await getProjectCount();
+	const numUsers = await getUserCount();
+	const topPostTags = await getTopPostTags(3);
+	const topUserTags = await getTopUserTags(3);
+	let oldestPost = "";
+	let newestPost = "";
+	try {
+		oldestPost = (await getOldestPost()).createdAt;
+		newestPost = (await getNewestPost()).createdAt;
+	} catch (e) {
+		oldestPost = "No posts yet";
+		newestPost = "No posts yet";
+	}
+	
+	const stats = {
+		numProjects: numProjects,
+		numUsers: numUsers,
+		topPostTags: topPostTags,
+		topUserTags: topUserTags,
+		oldestPost: oldestPost,
+		newestPost: newestPost
+	};
+	res.render("landing", { title: "GitMatches", stats: stats });
 });
 
 // TEMPORARY - TO allow browser login

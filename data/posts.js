@@ -6,6 +6,7 @@ import {
 	stringVal,
 	arrayVal,
 	idVal,
+	numberVal,
 	validatePassword,
 	validateUserID,
 	TERMS_AND_DOMAINS,
@@ -25,8 +26,8 @@ repoLink: String,            URL to the related GitHub repository
 comments: Array<Comments>	 Comments associated with the post
 createdAt: String,
 likes: Number,
-topic_tags: Array<String>,
-members: Array<userIDs>,
+topic_tags: Array<String> 
+members: Array<ObjectId>,    User IDs of members in the project
 applications: Array<Applications>
 }
 */
@@ -64,7 +65,7 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		likes: 0,
 		topic_tags: topic_tags,
 		members: [],
-		applications: []
+		applications: [],
 	};
 
 	const insertInfo = await postCollection.insertOne(newPost);
@@ -330,6 +331,54 @@ async function remove_project_member(post, member_id) {
 	return newpost;
 }
 
+/**
+ * Gets the number of entries in the projects collection
+ * @returns {number} The total number of projects in the collection
+ */
+async function getProjectCount() {
+    const postCollection = await projectPosts();
+    const count = await postCollection.countDocuments();
+    return count;
+}
+
+/**
+ * Gets the top n tags across all posts
+ * @param {number} n number of tags to return 
+ * @returns {Array<String>} Array<string> of top n tags
+ */
+async function getTopPostTags(n=3) {
+	n = numberVal(n, "n", "getTopPostTags");
+	const posts = await getAllPosts();
+	const tagCount = {};
+	for (let post of posts) {
+		for (let tag of post.topic_tags) {
+			if (tagCount[tag]) tagCount[tag]++;
+			else tagCount[tag] = 1;
+		}
+	}
+	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
+	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
+	return topTags
+}
+
+async function getOldestPost() {
+	const postCollection = await projectPosts();
+	const oldestPost = await postCollection.find().sort({ createdAt: 1 }).limit(1).toArray();
+	if (oldestPost.length === 0) {
+		throw new Error("No posts found");
+	}
+	return oldestPost[0];
+}
+
+async function getNewestPost() {
+	const postCollection = await projectPosts();
+	const newestPost = await postCollection.find().sort({ createdAt: -1 }).limit(1).toArray();
+	if (newestPost.length === 0) {
+		throw new Error("No posts found");
+	}
+	return newestPost[0];
+}
+
 export {
 	createPost,
 	getAllPosts,
@@ -343,5 +392,9 @@ export {
 	get_project_application,
 	remove_project_applicaiton,
 	add_project_member,
-	remove_project_member
+	remove_project_member,
+	getProjectCount,
+	getTopPostTags,
+	getOldestPost,
+	getNewestPost
 };
