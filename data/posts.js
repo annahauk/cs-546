@@ -26,6 +26,7 @@ comments: Array<CommentIDs>, Comment ids associated with the post
 createdAt: String,
 likes: Number,
 topic_tags: Array<String> 
+members: Array<ObjectId>,    User IDs of members in the project
 }
 */
 
@@ -62,7 +63,7 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		likes: 0,
 		topic_tags: topic_tags,
 		members: [],
-		applications: []
+		applications: [],
 	};
 
 	const insertInfo = await postCollection.insertOne(newPost);
