@@ -232,7 +232,7 @@ async function grabfilteredPosts(tags, name, status) {
 		throw `Error in grabfilteredPosts: name must be a string.`;
 	}
 	if (typeof status !== "string") {
-		throw `Error in grabfilteredPosts: status must be a string, either 'all' or 'completed'.`;
+		throw `Error in grabfilteredPosts: status must be a string, either 'active' or 'completed'.`;
 	}
 	const postCollection = await projectPosts();
 	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
@@ -407,10 +407,23 @@ async function remove_project_member(post, member_id) {
  * Gets the number of entries in the projects collection
  * @returns {number} The total number of projects in the collection
  */
-async function getProjectCount() {
+async function getProjectCount(calibration = "all") {
+	if (!calibration) {
+		throw new Error("Calibration value is required");
+	}
 	const postCollection = await projectPosts();
-	const count = await postCollection.countDocuments();
-	return count;
+	if (calibration === "all") {
+		return (await postCollection.countDocuments());
+	} else if (calibration === "active") {
+		return (await postCollection.countDocuments(
+			{ status: "active" }
+		));
+	} else if (calibration === "completed") {
+		return (await postCollection.countDocuments(
+			{ status: "completed" }
+		));
+	}
+	throw new Error(`Invalid calibration value ${calibration}`);
 }
 
 /**
@@ -433,10 +446,10 @@ async function getTopPostTags(n = 3) {
 	return topTags;
 }
 
-async function getOldestPost() {
+async function getOldestActivePost() {
 	const postCollection = await projectPosts();
 	const oldestPost = await postCollection
-		.find()
+		.find({status: "active"})
 		.sort({ createdAt: 1 })
 		.limit(1)
 		.toArray();
@@ -446,10 +459,10 @@ async function getOldestPost() {
 	return oldestPost[0];
 }
 
-async function getNewestPost() {
+async function getNewestActivePost() {
 	const postCollection = await projectPosts();
 	const newestPost = await postCollection
-		.find()
+		.find({status: "active"})
 		.sort({ createdAt: -1 })
 		.limit(1)
 		.toArray();
@@ -475,6 +488,6 @@ export {
 	remove_project_member,
 	getProjectCount,
 	getTopPostTags,
-	getOldestPost,
-	getNewestPost
+	getOldestActivePost,
+	getNewestActivePost
 };

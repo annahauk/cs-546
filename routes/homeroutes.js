@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { isLoggedOut } from "./middleware.js";
-import { getProjectCount, getTopPostTags, getOldestPost, getNewestPost } from "../data/posts.js"
+import { getProjectCount, getTopPostTags, getOldestActivePost, getNewestActivePost } from "../data/posts.js"
 import { getUserCount, getTopUserTags } from "../data/users.js";
 const router = Router();
 
 router.route("/").get(isLoggedOut, async (req, res) => {
-	const numProjects = await getProjectCount();
+	const numProjectsActive = await getProjectCount("active");
+	const numProjectsCompleted = await getProjectCount("completed");
 	const numUsers = await getUserCount();
 	const topPostTags = await getTopPostTags(10);
 	const topUserTags = await getTopUserTags(10);
@@ -20,15 +21,16 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 	let oldestPost = "";
 	let newestPost = "";
 	try {
-		oldestPost = (await getOldestPost()).createdAt;
-		newestPost = (await getNewestPost()).createdAt;
+		oldestPost = (await getOldestActivePost()).createdAt;
+		newestPost = (await getNewestActivePost()).createdAt;
 	} catch (e) {
 		oldestPost = "No posts yet";
 		newestPost = "No posts yet";
 	}
 	
 	const stats = {
-		numProjects: numProjects,
+		numProjectsActive: numProjectsActive,
+		numProjectsCompleted: numProjectsCompleted,
 		numUsers: numUsers,
 		oldestPost: oldestPost,
 		newestPost: newestPost
