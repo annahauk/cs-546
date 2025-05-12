@@ -189,7 +189,7 @@ async function main() {
 
         // Test grabfilteredPosts
         console.log('Fetching posts with filters...');
-        const filteredPosts = await grabfilteredPosts(['Machine Learning'], "");
+        const filteredPosts = await grabfilteredPosts(['Machine Learning'], "", "active");
         console.log('Filtered posts:');
         console.log(filteredPosts);
 
