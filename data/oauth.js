@@ -17,7 +17,7 @@ export async function github_oauth_login(userid, code) {
     let access_token;
 
     // validate
-    await validObjectId(userid);
+    validObjectId(userid);
 
     if(!gh_client_id || !gh_client_secret) {
         throw new Error("Github credentials not defined.");
@@ -89,7 +89,7 @@ export async function destroy_gh_token(username) {
  * @returns {(string|null)} gh_token
  */
 export async function get_user_gh_token(userid) {
-    await validObjectId(userid);
+    validObjectId(userid);
 
     let user = await getUserById_ObjectId(userid);
     if(!user) {

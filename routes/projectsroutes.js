@@ -171,7 +171,7 @@ router
 				combinedTags.map((tag) => tag.trim())
 			);
 			const postId = post._id.toString();
-			const numPosts = await getPostsByUserId(ownerId).length;
+			const numPosts = (await getPostsByUserId(ownerId)).length;
 			await addAchievement(ownerId, "post", numPosts);
 			return res.status(200).json({ message: "Project created", postId });
 		} catch (error) {
@@ -428,7 +428,7 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			ownerId: comment.ownerId.toString(),
 			postId: comment.postId.toString()
 		}));
-		const numComments = await getAllCommentsByUserId(ownerId).length;
+		const numComments = (await getAllCommentsByUserId(ownerId)).length;
 		await addAchievement(ownerId, "comment", numComments);
 		res.render("partials/commentsList", {
 			comments,
