@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
     function plot(chartData={tags: "Test", counts: [1]}, name="", id="") {
-        chartData = {
+        /*chartData = {
             tags: ["JavaScript", "Python", "Java", "C++", "Ruby"],
             counts: [10, 20, 15, 5, 8]
         };
-        console.log("Chart Data:", chartData);
+        console.log("Chart Data:", chartData);*/
         let data = [{
             values: chartData.counts,
             labels: chartData.tags,
