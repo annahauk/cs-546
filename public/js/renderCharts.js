@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const postTagsChart = document.getElementById("postTagsChart");
     if (userTagsChart && postTagsChart) {
         try {
-            plot(userTagsChart.dataset.userChartData, "User", "userTagsChart");
-            plot(postTagsChart.dataset.postChartData, "Post", "postTagsChart");
+            plot(JSON.parse(userTagsChart.dataset.chartData), "User", "userTagsChart");
+            plot(JSON.parse(postTagsChart.dataset.chartData), "Post", "postTagsChart");
         } catch (error) {
             console.error("Error parsing chart data:", error);
         }
