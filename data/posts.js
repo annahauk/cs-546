@@ -8,7 +8,8 @@ import {
 	idVal,
 	validatePassword,
 	validateUserID,
-	TERMS_AND_DOMAINS
+	TERMS_AND_DOMAINS,
+	validObjectId
 } from "../helpers.js";
 
 // Do not forget, for any input that is a string (even if that string is in an array, or as a value of a property in an object), you must TRIM all string input using the trim function for ALL functions!
@@ -59,7 +60,9 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		comments: [],
 		createdAt: createdTime,
 		likes: 0,
-		topic_tags: topic_tags
+		topic_tags: topic_tags,
+		members: [],
+		applications: []
 	};
 
 	const insertInfo = await postCollection.insertOne(newPost);
@@ -202,6 +205,136 @@ async function grabfilteredPosts(tags, name) {
 	return posts;
 }
 
+/**
+ * Check if user is member of project
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<boolean>}
+ */
+async function post_has_member(post, member_id) {
+	let post_members = post.members.map((m) => {return m.toString()});
+	return (post_members.includes(member_id.toString()) || post.ownerId === member_id.toString());
+}
+
+/**
+ * Create application for project
+ * @param {Post} post 
+ * @param {User} user 
+ * @param {string?} _additional_text
+ * @returns {Promise<Application>}
+ */
+async function create_project_application(post, user, _additional_text) {
+	let postsc = await projectPosts();
+	let application = {
+		"_id": new ObjectId(),
+		"applicant": user.user_name,
+		"applicant_id": user._id,
+		"message": (_additional_text)? _additional_text : "No additional message."
+	}
+
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"applications": application}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to create post application`);
+	}
+
+	console.log(`[NOTIF]: You have successfully applied to ${post.title} ==> ${application.applicant_id.toString()}`);
+	console.log(`[NOTIF]: ${application.applicant} has requested to join ${post.title}: ${application.message}
+		[Approve this application](/projects/${post._id}/join/${application._id.toString()}/approve)
+		[Deny this application](/projects/${post._id}/join/${application._id.toString()}/deny)`);
+
+	return application;
+}
+
+/**
+ * Remove application from project applications
+ * @param {Post} post 
+ * @param {Application} application 
+ * @param {boolean} approved
+ * @param {string?} _text
+ * @returns {Promise<Application}
+ */
+async function remove_project_applicaiton(project, application, approved, _text) {
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to remove application`);
+	}
+
+	if(approved) {
+		console.log(`[NOTIF]: Your application to ${project.title} has been approved! ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);	
+	} else {
+		console.log(`[NOTIF]: Your application to ${project.title} has been denied. ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);
+	}
+
+	return application;
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {string} app_id 
+ * @returns {Promise<null|Application>}
+ */
+async function get_project_application(post, app_id) {
+	let applications = await post.applications.filter((app) => {
+		return (app._id.toString() === app_id);
+	})
+
+	if(applications.length < 1) {
+		return null;
+	}
+
+	return applications[0];
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<Post>}
+ */
+async function add_project_member(post, member_id) {
+	await validObjectId(member_id);
+
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"members": member_id}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to add member to project`);
+	}
+	
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
+	if(!newpost) {
+		throw new Error(`Could not retrieve modified post`);
+	}
+
+	console.log(`[NOTIF]: Your application to ${post.title} has been accepted! ==> ${member_id.toString()}`);
+
+	return newpost;
+}
+
+/**
+ * 
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns {Promise<Post>}
+ */
+async function remove_project_member(post, member_id) {
+	await validObjectId(member_id);
+
+	let postsc = await projectPosts();
+	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$pull: {"members": member_id}});
+	if(!res.acknowledged) {
+		throw new Error(`Failed to remove member from project`);
+	}
+	
+	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
+	if(!newpost) {
+		throw new Error(`Could not retrieve modified post`);
+	}
+
+	return newpost;
+}
+
 export {
 	createPost,
 	getAllPosts,
@@ -209,5 +342,11 @@ export {
 	removePost,
 	updatePost,
 	grabfilteredPosts,
-	getPostsByUserId
+	getPostsByUserId,
+	post_has_member,
+	create_project_application,
+	get_project_application,
+	remove_project_applicaiton,
+	add_project_member,
+	remove_project_member
 };

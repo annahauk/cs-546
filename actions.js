@@ -1,5 +1,6 @@
 import { users } from "./config/mongoCollections.js";
 import { get_user_gh_token } from "./data/oauth.js";
+import { add_project_member, create_project_application, get_project_application, getPostById, remove_project_applicaiton, remove_project_member } from "./data/posts.js";
 import { getUserByUsername, createUser } from "./data/users.js";
 import { create_auth, login, try_auth } from "./src/lib/auth.js";
 import { GIT_Get_User_Info, GIT_Get_User_Langs, GIT_Get_User_Repos, set_user_gh_langs, set_user_github_info } from "./src/lib/git.js";
@@ -242,6 +243,99 @@ export async function do_action(action) {
                 console.log(res);
             } catch (e) {
                 console.error(e);
+            }
+        } break;
+
+        case "join_project": {
+            let post_id =   argv[argc - 3];
+            let username =  argv[argc - 2];
+            let text =      argv[argc - 1];
+
+            if(!post_id || !username || !text) {
+                console.error(`Usage: join_project <post_id> <username> <text>`);
+                process.exit(1);
+            }
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                throw new Error(`No user`);
+            }
+
+            let post = await getPostById(post_id);
+
+            try {
+                console.log(await create_project_application(post, user, text))
+            } catch(e) {
+                console.error(e);
+                process.exit(1);
+            }
+        } break;
+
+        case "approve_project_application": {
+            let post_id = argv[argc - 3];
+            let app_id = argv[argc - 2];
+            let text = argv[argc - 1];
+
+            if(!post_id || !app_id || !text) {
+                console.error(`Usage: <post_id> <app_id> <text>`);
+                process.exit(1);
+            }
+
+            let post = await getPostById(post_id);
+            let app = await get_project_application(post, app_id);
+            if(!app) {
+                throw new Error(`Application not found.`);
+            }
+
+            try {
+                console.log(await remove_project_applicaiton(post, app, true, text));
+                console.log(await await add_project_member(post, app.applicant_id));
+            } catch (e) {
+                console.error(e);
+                process.exit(1);
+            }
+        } break;
+
+        case "deny_project_application": {
+            let post_id = argv[argc - 3];
+            let app_id = argv[argc - 2];
+            let text = argv[argc - 1];
+
+            if(!post_id || !app_id || !text) {
+                console.error(`Usage: <post_id> <app_id> <text>`);
+                process.exit(1);
+            }
+
+            let post = await getPostById(post_id);
+            let app = await get_project_application(post, app_id);
+            if(!app) {
+                throw new Error(`Application not found.`);
+            }
+
+            try {
+                console.log(await remove_project_applicaiton(post, app, false, text));
+            } catch (e) {
+                console.error(e);
+                process.exit(1);
+            }
+        } break;
+
+        case "leave_project": {
+            let post_id = argv[argc - 2];
+            let username = argv[argc - 1];
+
+            let user = await getUserByUsername(username);
+            if(!user) {
+                throw new Error(`No user`);
+            }
+
+            let post = await getPostById(post_id);
+
+            try {
+                console.log(await remove_project_member(post, user._id));
+            } catch(e) {
+                console.error(e);
+                process.exit(1);
             }
         } break;
 
