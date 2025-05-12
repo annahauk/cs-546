@@ -253,10 +253,9 @@ async function create_project_application(post, user, _additional_text) {
  * @param {Post} post 
  * @param {Application} application 
  * @param {boolean} approved
- * @param {string?} _text
  * @returns {Promise<Application}
  */
-async function remove_project_applicaiton(project, application, approved, _text) {
+async function remove_project_applicaiton(project, application, approved) {
 	let postsc = await projectPosts();
 	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
 	if(!res.acknowledged) {
