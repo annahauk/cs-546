@@ -244,11 +244,6 @@ async function create_project_application(post, user, _additional_text) {
 		throw new Error(`Failed to create post application`);
 	}
 
-	console.log(`[NOTIF]: You have successfully applied to ${post.title} ==> ${application.applicant_id.toString()}`);
-	console.log(`[NOTIF]: ${application.applicant} has requested to join ${post.title}: ${application.message}
-		[Approve this application](/projects/${post._id}/join/${application._id.toString()}/approve)
-		[Deny this application](/projects/${post._id}/join/${application._id.toString()}/deny)`);
-
 	return application;
 }
 
@@ -265,12 +260,6 @@ async function remove_project_applicaiton(project, application, approved, _text)
 	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
 	if(!res.acknowledged) {
 		throw new Error(`Failed to remove application`);
-	}
-
-	if(approved) {
-		console.log(`[NOTIF]: Your application to ${project.title} has been approved! ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);	
-	} else {
-		console.log(`[NOTIF]: Your application to ${project.title} has been denied. ${(_text)? _text : ""} ==> ${application.applicant_id.toString()}`);
 	}
 
 	return application;
@@ -314,8 +303,7 @@ async function add_project_member(post, member_id) {
 		throw new Error(`Could not retrieve modified post`);
 	}
 
-	console.log(`[NOTIF]: Your application to ${post.title} has been accepted! ==> ${member_id.toString()}`);
-
+	//console.log(`[NOTIF]: Your application to ${post.title} has been accepted! ==> ${member_id.toString()}`);
 	return newpost;
 }
 
