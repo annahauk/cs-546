@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let errorElement = document.getElementById("error");
 	if (form) {
 		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
 			errorElement.hidden = true;
 			errorElement.innerHTML = "";
 			const errors = [];
