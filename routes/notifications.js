@@ -2,6 +2,7 @@ import { Router } from "express";
 import { isLoggedIn } from "./middleware.js";
 import { getUserById, getUserByUsername } from "../data/users.js";
 import { idVal, stringVal } from "../helpers.js";
+import { resolveNotif } from "../data/notifications.js";
 
 const router = Router();
 
@@ -34,4 +35,27 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 	}
 });
 
+router.route("/resolve/:id").post(isLoggedIn, async (req, res) => {
+	try {
+		const notificationId = idVal(req.params.id);
+		let username = req.cookies["username"];
+		let user = await getUserByUsername(username);
+
+		if (!user) {
+			return res
+				.status(404)
+				.render("error", { message: "User not found", title: "Error" });
+		}
+
+		// Use the resolveNotif function to mark the notification as resolved
+		await resolveNotif(notificationId);
+
+		res.redirect("/notifications/" + user._id);
+	} catch (error) {
+		console.error(error);
+		res
+			.status(500)
+			.render("error", { message: "Internal server error", title: "Error" });
+	}
+});
 export default router;

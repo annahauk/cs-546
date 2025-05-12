@@ -2,11 +2,41 @@
 {{> navbar}}
 <div class="container">
     {{#if user.notifications}}
-        <ol>
-            {{#each user.notifications}}
-                <li class="notif">{{this}}</li>
-            {{/each}}
-        </ol>
+        <div class="leftSide">
+            <h2>Unresolved Notifications</h2>
+            <ol>
+                {{#each user.notifications}}
+                    {{#unless this.resolved}}
+                        <li class="notif">
+                            <h3>{{this.title}}</h3>
+                            <p>{{this.content}}</p>
+                            <p>Origin: {{this.origin}}</p>
+                            <p>Time: {{this.time}}</p>
+                            <p class="unresolved">Status: Unresolved</p>
+                            <form method="POST" action="/notifications/resolve/{{this._id}}">
+                                <button type="submit" class="resolve-btn">Mark as Resolved</button>
+                            </form>
+                        </li>
+                    {{/unless}}
+                {{/each}}
+            </ol>
+        </div>
+        <div class="rightSide">
+            <h2>Resolved Notifications</h2>
+            <ol>
+                {{#each user.notifications}}
+                    {{#if this.resolved}}
+                        <li class="notif">
+                            <h3>{{this.title}}</h3>
+                            <p>{{this.content}}</p>
+                            <p>Origin: {{this.origin}}</p>
+                            <p>Time: {{this.time}}</p>
+                            <p class="resolved">Status: Resolved</p>
+                        </li>
+                    {{/if}}
+                {{/each}}
+            </ol>
+        </div>
     {{else}}
         <p>You have no notifications!</p>
     {{/if}}
