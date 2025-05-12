@@ -45,7 +45,7 @@ router
 					posts: allPosts,
 					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
 					termsAndDomains: TERMS_AND_DOMAINS,
-					title: "Projects"
+					title: "Projects",
 				});
 			} else {
 				return res.redirect("/login");
@@ -203,10 +203,18 @@ router
 			// Get the project creator
 			let creatorUser = await getUserById(post.ownerId);
 			let username = creatorUser.user_name;
+
+			// get current user (to check if theyre a member)
+			let user = await getUserByUsername(req.cookies["username"]);
+			if(!user) {
+				return await res.status(500).render("error", {error: `No user found.`});
+			}
+
 			res.render("project", {
 				project: post,
 				creatorUsername: username,
-				title: post.title
+				title: post.title,
+				isMember: (await post_has_member(post, user._id))
 			});
 		} catch (error) {
 			console.error(error);
@@ -452,7 +460,7 @@ router.route("/:id/leave")
 	 * if user is owner then error
 	 * else remove user id from project members and project id from user projects
 	 */
-	.get(async (req,res) => {
+	.post(async (req,res) => {
 		if(!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");

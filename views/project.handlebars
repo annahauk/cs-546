@@ -27,6 +27,20 @@
                 <li>{{this}}</li>
             {{/each}}
         </ol>
+
+        <!-- project join/leave button -->
+        {{#if isMember}}
+        <!-- leave button -->
+            <form method="POST" action="/projects/{{project._id}}/leave">
+                <button type="submit">Leave {{project.title}}</button>
+            </form>
+        {{else}}
+            <!-- join button -->
+            <form method="POST" action="/projects/{{project._id}}/join">
+                <button type="submit">Apply to join {{project.title}}</button><br>
+                <textarea name="text" placeholder="Add an additional message..."></textarea>
+            </form>
+        {{/if}}
     </div>
 </div>
 <script src="/public/js/comment.js"></script>
