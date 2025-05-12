@@ -194,7 +194,6 @@ router
 
 router.route("/:id").get(isLoggedIn, async (req, res) => {
 	// Display a specific project
-	try {
 		const projectId = idVal(req.params.id);
 		let post = null;
 		try {
@@ -229,7 +228,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				.status(500)
 				.render("error", { message: "Internal server error", title: "Error" });
 		}
-	});
+});
 
 router
 	.route("/:id/join/")
