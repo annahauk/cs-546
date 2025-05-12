@@ -1,3 +1,86 @@
+/**
+ * Validates that the input is a non-empty array with string elements.
+ * @param {Array} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {Array} - The validated array if valid.
+ */
+function arrayVal(val, varName = "value", funcName = "arrayVal") {
+	if (!Array.isArray(val) || val.length === 0) {
+		throw `Error in ${funcName}: ${varName} must be a non-empty array.`;
+	}
+	for (const item of val) {
+		if (typeof item !== "string" || item.trim().length === 0) {
+			throw `Error in ${funcName}: ${varName} must contain only non-empty strings.`;
+		}
+	}
+	return val;
+}
+
+/**
+ * Validates that the input is a non-empty string.
+ * @param {string} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {string} - The trimmed string if valid.
+ */
+function stringVal(val, varName = "value", funcName = "stringVal") {
+	if (typeof val !== "string" || val.trim().length === 0) {
+		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
+	}
+	return val.trim();
+}
+
+function validateProjectData(data) {
+	// Validate title
+	if (
+		!data.title ||
+		typeof data.title !== "string" ||
+		data.title.trim().length === 0
+	) {
+		throw new Error("Title is required and must be a non-empty string.");
+	}
+
+	// Validate content
+	if (
+		!data.content ||
+		typeof data.content !== "string" ||
+		data.content.trim().length === 0
+	) {
+		throw new Error("Content is required and must be a non-empty string.");
+	}
+
+	// Validate repoLink
+	if (
+		!data.repoLink ||
+		typeof data.repoLink !== "string" ||
+		!/^https?:\/\/.+/.test(data.repoLink.trim())
+	) {
+		throw new Error("A valid repository link is required.");
+	}
+
+	// Validate status
+	if (!["active", "completed"].includes(data.status)) {
+		throw new Error("Status must be either 'active' or 'completed'.");
+	}
+
+	// Validate topic_tags
+	if (data.topic_tags) {
+		if (typeof data.topic_tags === "string") {
+			// Convert single tag to an array
+			data.topic_tags = [data.topic_tags];
+		}
+		if (
+			!Array.isArray(data.topic_tags) ||
+			data.topic_tags.some(
+				(tag) => typeof tag !== "string" || tag.trim().length === 0
+			)
+		) {
+			throw new Error("Topic tags must be an array of non-empty strings.");
+		}
+	}
+}
+
 // Handle project selection and form display
 document.addEventListener("DOMContentLoaded", function () {
 	const projectSelector = document.getElementById("projectSelector");
@@ -150,5 +233,84 @@ document.addEventListener("DOMContentLoaded", function () {
 		if (selectedForm) {
 			selectedForm.style.display = "block";
 		}
+	});
+
+	/* Now, for the actual form submission LOL */
+	// First, user tags update form
+	const tagsForm = document.getElementById("updateTags-form");
+
+	tagsForm.addEventListener("submit", async (event) => {
+		event.preventDefault(); // Prevent the default form submission
+		// Get selected tags as an array
+		let selectedTags = tagsChoices.getValue(true);
+		selectedTags = arrayVal(
+			selectedTags,
+			"selectedTags",
+			"editProfile(client)"
+		);
+		// Extract user ID from form action
+		const userId = tagsForm.action.split("/").slice(-2, -1)[0];
+
+		try {
+			const response = await fetch(`/profile/${userId}/updateTags`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ tags: selectedTags })
+			});
+
+			if (response.ok) {
+				const result = await response.json();
+				alert("Tags updated successfully!");
+				hasUnsavedTags = false;
+				unsavedTagsWarning.hidden = true;
+			} else {
+				const error = await response.json();
+				alert(`Error updating tags: ${error.message}`);
+			}
+		} catch (error) {
+			console.error("Error updating tags:", error);
+			alert("An error occurred while updating tags.");
+		}
+	});
+
+	// Now, project data submission
+	document.querySelectorAll(".editProject-form").forEach((form) => {
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault(); // Prevent the default form submission
+
+			const formData = new FormData(form);
+			// Extract project ID from form action
+			const projectId = form.action.split("/").slice(-2, -1)[0];
+			// Convert FormData to a plain object
+			const data = Object.fromEntries(formData.entries());
+
+			try {
+				// Validate the data before sending it to the server
+				validateProjectData(data);
+
+				const response = await fetch(`/projects/${projectId}/edit`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(data)
+				});
+
+				if (response.ok) {
+					const result = await response.json();
+					alert("Project updated successfully!");
+					unsavedProjects.delete(data.title);
+					updateUnsavedChangesWarning();
+				} else {
+					const error = await response.json();
+					alert(`Error updating project: ${error.message}`);
+				}
+			} catch (error) {
+				console.error("Validation or submission error:", error);
+				alert(error.message || "An error occurred while updating the project.");
+			}
+		});
 	});
 });

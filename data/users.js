@@ -110,7 +110,14 @@ async function createUser(userName, password) {
 
 	// give user initial "welcome" notification
 	try {
-		await createNotif(user._id.toString(), "Welcome to GitMatches!", "yay :3", undefined, undefined, "GitMatches");
+		await createNotif(
+			user._id.toString(),
+			"Welcome to GitMatches!",
+			"yay :3",
+			undefined,
+			undefined,
+			"GitMatches"
+		);
 	} catch (e) {
 		throw new Error(`Failed to create initial comment ${e}`);
 	}
@@ -182,6 +189,42 @@ async function updateUserTags(id, skillTags) {
 	if (!updateInfo) {
 		throw "could not update user successfully";
 	}
+	updateInfo._id = updateInfo._id.toString();
+	return updateInfo;
+}
+
+/**
+ * Replaces the user's skill tags with the provided tags.
+ * @param {string} id - The ID of the user whose tags are to be updated.
+ * @param {Array<string>} skillTags - The new set of skill tags to replace the user's current tags.
+ * @returns {ObjectId} userId - The ID of the updated user.
+ * @throws Will throw an error if the user ID is not found or if the update fails.
+ */
+async function setUserTags(id, skillTags) {
+	id = idVal(id, "id", "setUserTags");
+	skillTags = arrayVal(skillTags, "skillTags", "setUserTags");
+
+	const userCollection = await users();
+	const user = await userCollection.findOne({ _id: new ObjectId(id) });
+	if (user === null) {
+		throw "No user with that id";
+	}
+
+	// Update the user's skill tags in the database
+	const updatedUser = {
+		skill_tags: skillTags.map((tag) => tag.trim()) // Ensure all tags are trimmed
+	};
+
+	const updateInfo = await userCollection.findOneAndUpdate(
+		{ _id: new ObjectId(id) },
+		{ $set: updatedUser },
+		{ returnDocument: "after" }
+	);
+
+	if (!updateInfo) {
+		throw "Could not update user successfully";
+	}
+
 	updateInfo._id = updateInfo._id.toString();
 	return updateInfo;
 }
@@ -410,14 +453,17 @@ async function addAchievement(id, category, val) {
 
 	let pushed = false;
 	for (let achievement of ACHIEVEMENTS[category]) {
-		if (!user.achievements.includes(achievement.name) && val >= achievement.value) {
+		if (
+			!user.achievements.includes(achievement.name) &&
+			val >= achievement.value
+		) {
 			user.achievements.push(achievement.name);
 			pushed = true;
 		}
 	}
 
-	if (pushed)	await updateUser(id, {achievements: user.achievements});
-	
+	if (pushed) await updateUser(id, { achievements: user.achievements });
+
 	return id;
 }
 
@@ -436,11 +482,9 @@ async function getAllAchievements(id) {
 	for (let achievement of user.achievements) {
 		if (ACHIEVEMENTS[achievement]) {
 			achievements.push(getAchievementByName(achievement));
-		}
-		else throw new Error(`Invalid achievement: ${achievement}`);
+		} else throw new Error(`Invalid achievement: ${achievement}`);
 	}
 	return achievements;
-
 }
 
 /**
@@ -458,8 +502,7 @@ async function getAllAchievementNames(id) {
 	for (let achievement of user.achievements) {
 		if (ACHIEVEMENTS[achievement]) {
 			achievements.push(achievement);
-		}
-		else throw new Error(`Invalid achievement: ${achievement}`);
+		} else throw new Error(`Invalid achievement: ${achievement}`);
 	}
 	return achievements;
 }
@@ -469,17 +512,17 @@ async function getAllAchievementNames(id) {
  * @returns {number} The total number of users in the collection
  */
 async function getUserCount() {
-    const userCollection = await users();
-    const count = await userCollection.countDocuments();
-    return count;
+	const userCollection = await users();
+	const count = await userCollection.countDocuments();
+	return count;
 }
 
 /**
  * Gets the top n tags across all users
- * @param {number} n number of tags to return 
+ * @param {number} n number of tags to return
  * @returns {Array<String>} Array<string> of top n tags
  */
-async function getTopUserTags(n=3) {
+async function getTopUserTags(n = 3) {
 	n = numberVal(n, "n", "getTopUserTags");
 	const users = await getAllUsers();
 	const tagCount = {};
@@ -491,7 +534,7 @@ async function getTopUserTags(n=3) {
 	}
 	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
 	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
-	return topTags
+	return topTags;
 }
 
 export {
@@ -511,5 +554,6 @@ export {
 	getAllAchievements,
 	getAllAchievementNames,
 	getUserCount,
-	getTopUserTags
+	getTopUserTags,
+	setUserTags
 };

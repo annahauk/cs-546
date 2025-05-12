@@ -65,7 +65,7 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		likes: 0,
 		topic_tags: topic_tags,
 		members: [],
-		applications: [],
+		applications: []
 	};
 
 	const insertInfo = await postCollection.insertOne(newPost);
@@ -113,11 +113,12 @@ async function getPostById(postId) {
  * @throws {Error} if no posts are found for the user
  */
 async function getPostsByUserId(id) {
-  id = idVal(id, 'ownerId', 'getPostsByUserId');
-  const postCollection = await projectPosts();
-  let posts = await postCollection.find({ ownerId: id }).toArray();
-  if (!posts || posts.length === 0) throw `No posts found for user with id: ${id}`;
-  posts = posts.map((element) => {
+	id = idVal(id, "ownerId", "getPostsByUserId");
+	const postCollection = await projectPosts();
+	let posts = await postCollection.find({ ownerId: id }).toArray();
+	if (!posts || posts.length === 0)
+		throw `No posts found for user with id: ${id}`;
+	posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;
 	});
@@ -160,13 +161,41 @@ async function removePost(postId) {
 // IDK if we wanna do an dict of field:update but yeah???
 async function updatePost(postId, updateData) {
 	postId = idVal(postId, "postId", "updatePost");
+
+	// Validate updateData fields
+	if (updateData.title)
+		updateData.title = stringVal(updateData.title, "title", "updatePost");
+	if (updateData.content)
+		updateData.content = stringVal(updateData.content, "content", "updatePost");
+	if (updateData.repoLink)
+		updateData.repoLink = stringVal(
+			updateData.repoLink,
+			"repoLink",
+			"updatePost"
+		);
+	if (
+		updateData.status &&
+		!["active", "completed"].includes(updateData.status)
+	) {
+		throw `Invalid status value in updatePost.`;
+	}
+	if (updateData.topic_tags)
+		updateData.topic_tags = arrayVal(
+			updateData.topic_tags,
+			"topic_tags",
+			"updatePost"
+		);
+
 	const postCollection = await projectPosts();
 	const updateInfo = await postCollection.updateOne(
 		{ _id: new ObjectId(postId) },
 		{ $set: updateData }
 	);
-	if (updateInfo.modifiedCount === 0)
+
+	if (updateInfo.modifiedCount === 0) {
 		throw `Could not update post with id of ${postId}`;
+	}
+
 	return postId;
 }
 
@@ -215,33 +244,41 @@ async function grabfilteredPosts(tags, name) {
 
 /**
  * Check if user is member of project
- * @param {Post} post 
- * @param {ObjectId} member_id 
+ * @param {Post} post
+ * @param {ObjectId} member_id
  * @returns {Promise<boolean>}
  */
 async function post_has_member(post, member_id) {
-	let post_members = post.members.map((m) => {return m.toString()});
-	return (post_members.includes(member_id.toString()) || post.ownerId === member_id.toString());
+	let post_members = post.members.map((m) => {
+		return m.toString();
+	});
+	return (
+		post_members.includes(member_id.toString()) ||
+		post.ownerId === member_id.toString()
+	);
 }
 
 /**
  * Create application for project
- * @param {Post} post 
- * @param {User} user 
+ * @param {Post} post
+ * @param {User} user
  * @param {string?} _additional_text
  * @returns {Promise<Application>}
  */
 async function create_project_application(post, user, _additional_text) {
 	let postsc = await projectPosts();
 	let application = {
-		"_id": new ObjectId(),
-		"applicant": user.user_name,
-		"applicant_id": user._id,
-		"message": (_additional_text)? _additional_text : "No additional message."
-	}
+		_id: new ObjectId(),
+		applicant: user.user_name,
+		applicant_id: user._id,
+		message: _additional_text ? _additional_text : "No additional message."
+	};
 
-	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"applications": application}});
-	if(!res.acknowledged) {
+	let res = await postsc.updateOne(
+		{ _id: new ObjectId(post._id) },
+		{ $push: { applications: application } }
+	);
+	if (!res.acknowledged) {
 		throw new Error(`Failed to create post application`);
 	}
 
@@ -250,16 +287,24 @@ async function create_project_application(post, user, _additional_text) {
 
 /**
  * Remove application from project applications
- * @param {Post} post 
- * @param {Application} application 
+ * @param {Post} post
+ * @param {Application} application
  * @param {boolean} approved
  * @param {string?} _text
  * @returns {Promise<Application}
  */
-async function remove_project_applicaiton(project, application, approved, _text) {
+async function remove_project_applicaiton(
+	project,
+	application,
+	approved,
+	_text
+) {
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: new ObjectId(project._id)}, {$pull: {"applications": {_id: application._id}}});
-	if(!res.acknowledged) {
+	let res = await postsc.updateOne(
+		{ _id: new ObjectId(project._id) },
+		{ $pull: { applications: { _id: application._id } } }
+	);
+	if (!res.acknowledged) {
 		throw new Error(`Failed to remove application`);
 	}
 
@@ -267,17 +312,17 @@ async function remove_project_applicaiton(project, application, approved, _text)
 }
 
 /**
- * 
- * @param {Post} post 
- * @param {string} app_id 
+ *
+ * @param {Post} post
+ * @param {string} app_id
  * @returns {Promise<null|Application>}
  */
 async function get_project_application(post, app_id) {
 	let applications = await post.applications.filter((app) => {
-		return (app._id.toString() === app_id);
-	})
+		return app._id.toString() === app_id;
+	});
 
-	if(applications.length < 1) {
+	if (applications.length < 1) {
 		return null;
 	}
 
@@ -285,22 +330,25 @@ async function get_project_application(post, app_id) {
 }
 
 /**
- * 
- * @param {Post} post 
- * @param {ObjectId} member_id 
+ *
+ * @param {Post} post
+ * @param {ObjectId} member_id
  * @returns {Promise<Post>}
  */
 async function add_project_member(post, member_id) {
 	validObjectId(member_id);
 
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"members": member_id}});
-	if(!res.acknowledged) {
+	let res = await postsc.updateOne(
+		{ _id: new ObjectId(post._id) },
+		{ $push: { members: member_id } }
+	);
+	if (!res.acknowledged) {
 		throw new Error(`Failed to add member to project`);
 	}
-	
-	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
-	if(!newpost) {
+
+	let newpost = await postsc.findOne({ _id: new ObjectId(post._id) });
+	if (!newpost) {
 		throw new Error(`Could not retrieve modified post`);
 	}
 
@@ -309,22 +357,25 @@ async function add_project_member(post, member_id) {
 }
 
 /**
- * 
- * @param {Post} post 
- * @param {ObjectId} member_id 
+ *
+ * @param {Post} post
+ * @param {ObjectId} member_id
  * @returns {Promise<Post>}
  */
 async function remove_project_member(post, member_id) {
 	validObjectId(member_id);
 
 	let postsc = await projectPosts();
-	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$pull: {"members": member_id}});
-	if(!res.acknowledged) {
+	let res = await postsc.updateOne(
+		{ _id: new ObjectId(post._id) },
+		{ $pull: { members: member_id } }
+	);
+	if (!res.acknowledged) {
 		throw new Error(`Failed to remove member from project`);
 	}
-	
-	let newpost = await postsc.findOne({_id: new ObjectId(post._id)});
-	if(!newpost) {
+
+	let newpost = await postsc.findOne({ _id: new ObjectId(post._id) });
+	if (!newpost) {
 		throw new Error(`Could not retrieve modified post`);
 	}
 
@@ -336,17 +387,17 @@ async function remove_project_member(post, member_id) {
  * @returns {number} The total number of projects in the collection
  */
 async function getProjectCount() {
-    const postCollection = await projectPosts();
-    const count = await postCollection.countDocuments();
-    return count;
+	const postCollection = await projectPosts();
+	const count = await postCollection.countDocuments();
+	return count;
 }
 
 /**
  * Gets the top n tags across all posts
- * @param {number} n number of tags to return 
+ * @param {number} n number of tags to return
  * @returns {Array<String>} Array<string> of top n tags
  */
-async function getTopPostTags(n=3) {
+async function getTopPostTags(n = 3) {
 	n = numberVal(n, "n", "getTopPostTags");
 	const posts = await getAllPosts();
 	const tagCount = {};
@@ -358,12 +409,16 @@ async function getTopPostTags(n=3) {
 	}
 	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
 	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
-	return topTags
+	return topTags;
 }
 
 async function getOldestPost() {
 	const postCollection = await projectPosts();
-	const oldestPost = await postCollection.find().sort({ createdAt: 1 }).limit(1).toArray();
+	const oldestPost = await postCollection
+		.find()
+		.sort({ createdAt: 1 })
+		.limit(1)
+		.toArray();
 	if (oldestPost.length === 0) {
 		throw new Error("No posts found");
 	}
@@ -372,7 +427,11 @@ async function getOldestPost() {
 
 async function getNewestPost() {
 	const postCollection = await projectPosts();
-	const newestPost = await postCollection.find().sort({ createdAt: -1 }).limit(1).toArray();
+	const newestPost = await postCollection
+		.find()
+		.sort({ createdAt: -1 })
+		.limit(1)
+		.toArray();
 	if (newestPost.length === 0) {
 		throw new Error("No posts found");
 	}

@@ -5,7 +5,8 @@ import path from "path";
 import {
 	getUserById,
 	getUserByUsername,
-	updateUserTags
+	updateUserTags,
+	setUserTags
 } from "../data/users.js";
 import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
@@ -61,73 +62,44 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			.render("error", { message: "Internal server error", title: "Error" });
 	}
 });
-router
-	.route("/:id/edit")
-	.get(isLoggedIn, async (req, res) => {
-		// Display edit profile page
-		try {
-			const userId = idVal(req.params.id);
-			const user = await getUserById(userId);
-			if (!user) {
-				return res
-					.status(404)
-					.render("error", { message: "User not found", title: "Error" });
-			}
-			if (user.user_name !== stringVal(req.cookies["username"])) {
-				return res.status(403).render("error", {
-					message: "You can only edit your own profile.",
-					title: "Error"
-				});
-			}
-			// Extract all unique tags (programming languages and domains)
-			const allTags = [
-				...new Set([
-					...Object.keys(TERMS_AND_DOMAINS),
-					...Object.values(TERMS_AND_DOMAINS).map((item) => item.domain)
-				])
-			];
-			// Get the projects created by the user
-			const userProjects = await getPostsByUserId(userId);
-			res.render("editProfile", {
-				user: user,
-				title: "Edit Profile",
-				allTags: allTags,
-				userProjects: userProjects
+router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
+	// Display edit profile page
+	try {
+		const userId = idVal(req.params.id);
+		const user = await getUserById(userId);
+		if (!user) {
+			return res
+				.status(404)
+				.render("error", { message: "User not found", title: "Error" });
+		}
+		if (user.user_name !== stringVal(req.cookies["username"])) {
+			return res.status(403).render("error", {
+				message: "You can only edit your own profile.",
+				title: "Error"
 			});
-		} catch (error) {
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
 		}
-	})
-	.post(isLoggedIn, async (req, res) => {
-		// Perform an update
-		try {
-			const userId = idVal(req.params.id);
-			const user = await getUserById(userId);
-			if (!user) {
-				return res
-					.status(404)
-					.render("error", { message: "User not found", title: "Error" });
-			}
-			if (user.user_name !== stringVal(req.body.username)) {
-				return res.status(403).render("error", {
-					message: "You can only edit your own profile.",
-					title: "Error"
-				});
-			}
+		// Extract all unique tags (programming languages and domains)
+		const allTags = [
+			...new Set([
+				...Object.keys(TERMS_AND_DOMAINS),
+				...Object.values(TERMS_AND_DOMAINS).map((item) => item.domain)
+			])
+		];
+		// Get the projects created by the user
+		const userProjects = await getPostsByUserId(userId);
+		res.render("editProfile", {
+			user: user,
+			title: "Edit Profile",
+			allTags: allTags,
+			userProjects: userProjects
+		});
+	} catch (error) {
+		res
+			.status(500)
+			.render("error", { message: "Internal server error", title: "Error" });
+	}
+});
 
-			// TODO
-			// Implement profile updating features
-			// After done, hitting "save" will redirect back to profile view
-
-			res.render("profile", { user: user, title: user.user_name });
-		} catch (error) {
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
-		}
-	});
 router
 	.route("/:id/resume")
 	.post(isLoggedIn, upload.single("resume"), async (req, res) => {
@@ -177,5 +149,22 @@ router
 				.render("error", { message: "Internal server error", title: "Error" });
 		}
 	});
+
+router.route("/:id/updateTags").post(isLoggedIn, async (req, res) => {
+	try {
+		const userId = idVal(req.params.id);
+		const { tags } = req.body;
+
+		if (!Array.isArray(tags)) {
+			return res.status(400).json({ message: "Invalid tags format." });
+		}
+
+		await setUserTags(userId, tags);
+		res.json({ message: "Tags updated successfully." });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Internal server error." });
+	}
+});
 
 export default router;
