@@ -533,8 +533,8 @@ async function getTopUserTags(n = 3) {
 		}
 	}
 	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
-	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
-	return topTags;
+	const topTags = sortedTags.slice(0, n);
+	return topTags
 }
 
 export {

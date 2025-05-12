@@ -51,7 +51,7 @@ router
 					posts: allPosts,
 					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
 					termsAndDomains: TERMS_AND_DOMAINS,
-					title: "Projects"
+					title: "Projects",
 				});
 			} else {
 				return res.redirect("/login");
@@ -170,17 +170,22 @@ router
 			}
 
 			// Create the project post
-			const post = await createPost(
-				title.trim(),
-				ownerId,
-				description.trim(),
-				repoLink.trim(),
-				combinedTags.map((tag) => tag.trim())
-			);
-			const postId = post._id.toString();
-			const numPosts = (await getPostsByUserId(ownerId)).length;
-			await addAchievement(ownerId, "post", numPosts);
-			return res.status(200).json({ message: "Project created", postId });
+			try {
+				// Err if post title/link already exists
+				const post = await createPost(
+					title.trim(),
+					ownerId,
+					description.trim(),
+					repoLink.trim(),
+					combinedTags.map((tag) => tag.trim())
+				);
+				const postId = post._id.toString();
+				const numPosts = (await getPostsByUserId(ownerId)).length;
+				await addAchievement(ownerId, "post", numPosts);
+				return res.status(200).json({ message: "Project created", postId });
+			} catch (e) {
+				return res.status(400).json({ message: e });
+			}
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: "Internal server error" });
@@ -193,27 +198,38 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		const projectId = idVal(req.params.id);
 		let post = null;
 		try {
-			post = await getPostById(projectId);
-		} catch (e) {
-			return res
-				.status(404)
-				.render("error", { message: "Project not found", title: "Error" });
+			const projectId = idVal(req.params.id);
+			let post = null;
+			try {
+				post = await getPostById(projectId);
+			} catch (e) {
+				return res
+					.status(404)
+					.render("error", { message: "Project not found", title: "Error" });
+			}
+			// Get the project creator
+			let creatorUser = await getUserById(post.ownerId);
+			let username = creatorUser.user_name;
+
+			// get current user (to check if theyre a member)
+			let user = await getUserByUsername(req.cookies["username"]);
+			if(!user) {
+				return await res.status(500).render("error", {error: `No user found.`});
+			}
+
+			res.render("project", {
+				project: post,
+				creatorUsername: username,
+				title: post.title,
+				isMember: (await post_has_member(post, user._id))
+			});
+		} catch (error) {
+			console.error(error);
+			res
+				.status(500)
+				.render("error", { message: "Internal server error", title: "Error" });
 		}
-		// Get the project creator
-		let creatorUser = await getUserById(post.ownerId);
-		let username = creatorUser.user_name;
-		res.render("project", {
-			project: post,
-			creatorUsername: username,
-			title: post.title
-		});
-	} catch (error) {
-		console.error(error);
-		res
-			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
-	}
-});
+	});
 
 router
 	.route("/:id/join/")
@@ -275,24 +291,38 @@ router
 		// XSS
 
 		try {
-			// applicant notification
+			// applicant notification (nclude reference post, NOT reference application)
 			await createNotif(
 				application.applicant_id.toString(),
 				`You have successfully applied to ${project.title}`,
 				`Once the owner of this project reveiws your application, you will see a new notification here.`,
-				undefined,
-				undefined,
-				"GitMatches System"
+				project._id,
+				null,
+				"GitMatches System",
+				null,
+				null,
+				project.ownerId,
+				project._id,
+				null,
+				null
 			);
 
-			// owner notification
+			// owner notification, requires approval, include reference application and post
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
-				`${application.applicant} has requested to join ${project.title}. Here you may choose to accept or deny their application.`,
-				undefined,
-				undefined,
-				"GitMatches System"
+				`${application.applicant} has requested to join ${project.title}. "${(message.length > 0)? `${message}\n` : ""}". Here you may choose to accept or deny their application.`,
+				project._id,
+				null,
+				"GitMatches System",
+				null,
+				null,
+				project.ownerId,
+				project._id,
+				true,
+				application._id.toString()
 			);
 		} catch (e) {
 			console.error(e);
@@ -399,14 +429,9 @@ router
 
 		try {
 			// anonymous
-			await createNotif(
-				application.applicant_id.toString(),
-				`You have been accepted to ${project.title}!`,
-				`Your application to join ${project.title} has been accepted.`,
-				undefined,
-				undefined,
-				"GitMatches System"
-			);
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`approve message: ${message}`, req.body);
+			await createNotif(application.applicant_id.toString(), `You have been accepted to ${project.title}!`, `Your application to join ${project.title} has been accepted. "${message}"`, undefined, undefined, "GitMatches System");
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
@@ -469,14 +494,9 @@ router
 
 		try {
 			// anonymous
-			await createNotif(
-				application.applicant_id.toString(),
-				`Application ${project.title} was denied.`,
-				`Your application to join ${project.title} has been denied.`,
-				undefined,
-				undefined,
-				"GitMatches System"
-			);
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`deny additional message: ${message}`, req.body);
+			await createNotif(application.applicant_id.toString(), `Application ${project.title} was denied.`, `Your application to join ${project.title} has been denied. "${message}"`, undefined, undefined, "GitMatches System");
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
@@ -492,8 +512,8 @@ router
 	 * if user is owner then error
 	 * else remove user id from project members and project id from user projects
 	 */
-	.get(async (req, res) => {
-		if (!req.authorized) {
+	.post(async (req,res) => {
+		if(!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");
 		}

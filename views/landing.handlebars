@@ -7,7 +7,7 @@
 	<a href="/auth/login">Join or Login</a>
 </div>
 
-<header>
+<header class="headerbg">
 	<h1>GitMatches</h1>
 	<div class="message-container">
 		<div class="messageleft">Connecting Developers to </div>
@@ -16,26 +16,15 @@
 </header>
 <div class="container">
 	<div class="leftStats">
+		<p>Add completed projects stats</p>
+		<p>As well as possibly some more stats in general</p>
+		<P>And make it look pretty - add a graph, perchance</P>
 		<ul>
-			<li>{{stats.numProjects}} Projects</li>
+			<li>{{stats.numProjects}} active projects</li>
+			<ll>{{stats.numProjectsCompleted}} completed projects</ll>
 			<li>{{stats.numUsers}} Users</li>
-			<li>Top project tags:
-				<ul>
-					{{#each stats.topPostTags}}
-					<li>{{this}}</li>
-					{{/each}}
-				</ul>
-			</li>
-			<li>
-				Top user tags:
-				<ul>
-					{{#each stats.topUserTags}}
-					<li>{{this}}</li>
-					{{/each}}
-				</ul>
-			</li>
-			<li>Oldest Post: {{stats.oldestPost}}</li>
-			<li>Newest Post: {{stats.newestPost}}</li>
+			<li>Oldest active post: {{stats.oldestPost}}</li>
+			<li>Newest active post: {{stats.newestPost}}</li>
 		</ul>
 	</div>
 	<div class="centerInfo">
@@ -44,6 +33,9 @@
 
 	</div>
 	<div class="rightStats">
-		<p>Need to get active/completed project stats here</p>
+		<div class="userTagsChart" id="userTagsChart" data-chart-data='{{json userChartData}}'></div>
+		<div class="postTagsChart" id="postTagsChart" data-chart-data='{{json postChartData}}'></div>
 	</div>
 </div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/public/js/renderCharts.js"></script>

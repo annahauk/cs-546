@@ -68,6 +68,20 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		applications: []
 	};
 
+	// Check and err if title or repoLink already exists
+	let postExists = await postCollection.findOne(
+		{ title: title }
+	);
+	if (postExists) {
+		throw `Post with title ${title} already exists`;
+	}
+	postExists = await postCollection.findOne(
+		{ repoLink: repoLink }
+	);
+	if (postExists) {
+		throw `Post with repoLink ${repoLink} already exists`;
+	}
+
 	const insertInfo = await postCollection.insertOne(newPost);
 	if (!insertInfo.acknowledged) throw `Could not add post`;
 	// return post object
@@ -290,15 +304,9 @@ async function create_project_application(post, user, _additional_text) {
  * @param {Post} post
  * @param {Application} application
  * @param {boolean} approved
- * @param {string?} _text
  * @returns {Promise<Application}
  */
-async function remove_project_applicaiton(
-	project,
-	application,
-	approved,
-	_text
-) {
+async function remove_project_applicaiton(project, application, approved) {
 	let postsc = await projectPosts();
 	let res = await postsc.updateOne(
 		{ _id: new ObjectId(project._id) },
@@ -408,8 +416,8 @@ async function getTopPostTags(n = 3) {
 		}
 	}
 	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
-	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
-	return topTags;
+	const topTags = sortedTags.slice(0, n);
+	return topTags
 }
 
 async function getOldestPost() {
