@@ -39,7 +39,7 @@ router.route("/callback").get(async (req, res) => {
 		let langs = await set_user_gh_langs(user.user_name, access_token);
 		try {
 			if (!user.achievements.includes("GitInit")) {
-				addAchievement(user._id.toString(), "created", 1);
+				await addAchievement(user._id.toString(), "created", 1);
 			}
 		} catch (e) {
 			console.log("Error adding GitInit achievement: ", e);

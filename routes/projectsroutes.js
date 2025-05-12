@@ -172,7 +172,7 @@ router
 			);
 			const postId = post._id.toString();
 			const numPosts = await getPostsByUserId(ownerId).length;
-			addAchievement(ownerId, "post", numPosts);
+			await addAchievement(ownerId, "post", numPosts);
 			return res.status(200).json({ message: "Project created", postId });
 		} catch (error) {
 			console.error(error);
@@ -429,7 +429,7 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			postId: comment.postId.toString()
 		}));
 		const numComments = await getAllCommentIdsByUserId(ownerId).length;
-		addAchievement(ownerId, "comment", numComments);
+		await addAchievement(ownerId, "comment", numComments);
 		res.render("partials/commentsList", {
 			comments,
 			layout: false
