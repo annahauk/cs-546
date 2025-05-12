@@ -407,7 +407,7 @@ async function addAchievement(id, category, val) {
 		}
 	}
 
-	if (pushed)	updateUser(id, user.achievements);
+	if (pushed)	await updateUser(id, {achievements: user.achievements});
 	
 	return id;
 }
