@@ -27,7 +27,7 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 		numProjects: numProjects,
 		numUsers: numUsers,
 		topPostTags: topPostTags,
-		topUserTags: topUserTags,
+		topUserTags: topUserTags[0],
 		oldestPost: oldestPost,
 		newestPost: newestPost
 	};
