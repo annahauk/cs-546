@@ -25,6 +25,7 @@ async function createComment(content, postId, ownerId) {
 	content = stringVal(content, "content", "createComment");
 	postId = idVal(postId, "postId", "createComment");
 	ownerId = idVal(ownerId, "ownerId", "createComment");
+	console.log("postId", postId, "ownerId", ownerId);
 	if (content.length < 1 || content.length > 100)
 		throw `Comment must be between 1 and 100 characters`;
 
@@ -49,7 +50,9 @@ async function createComment(content, postId, ownerId) {
 	);
 	if (post === null) throw `No post with id ${postId}`;
 	post = await getPostById(post._id.toString());
-	return post;
+	// Logic here to confirm that the comment exists in the retrieved post
+
+	return newComment;
 }
 
 /**
@@ -97,7 +100,7 @@ async function getAllCommentsByUserId(userId) {
 async function getCommentById(commentId) {
 	commentId = idVal(commentId, "commentId", "getCommentById");
 	const postCollection = await projectPosts();
-	const foundComment = await postCollection.findOne(
+	let foundComment = await postCollection.findOne(
 		{ "comments._id": new ObjectId(commentId) },
 		{ projection: { _id: 0, "comments.$": 1 } }
 	);

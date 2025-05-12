@@ -1,5 +1,5 @@
 //Export the following functions using ES6 Syntax
-import {users} from '../config/mongoCollections.js'
+import {users, projectPosts} from '../config/mongoCollections.js'
 import {ObjectId} from 'mongodb';
 
 import {createUser,getAllUsers, getUserById, getUserByUsername, removeUser, removeFriend, updateUser, updateUserTags, getUserTags, create_auth, addFriend, getUserById_ObjectId} from './users.js'; 
@@ -15,6 +15,11 @@ import {idVal, stringVal} from '../helpers.js'
   time: String,              The time the notification was created
   referencePost: ObjectId,   Reference to the related post, if applicable
   referenceComment: ObjectId Reference to the related comment, if applicable
+  origin: String             The origin of the notification (e.g., "post", "comment", etc.)
+  acceptedFriend: Boolean | null,        A boolean to accept or reject a friend request
+  acceptedProject: Boolean | null        A boolean to accept or reject a project request
+  senderId: ObjectId | null,        Reference to the user who sent the notification
+  projectId: ObjectId | null,        Reference to the project for project requests
 }
 
 Notifs from:
@@ -29,15 +34,20 @@ Notifs from:
 
 /**
  * This function creates a new notification for a user.
- * @param {ObjectId} ownerId 
+ * @param {string} ownerId 
+ * @param {String} title
  * @param {String} content 
  * @param {ObjectId} referencePost 
  * @param {ObjectId} referenceComment 
- * @param {String} origin 
+ * @param {String} origin -- where the notification is coming from
+ * @param {boolean} acceptedFriend -- whether the notification is accepting or rejecting a friend request
+ * @param {boolean} acceptedProject -- whether the notification is for accepting or rejecting a project request
+ * @param {ObjectId} senderId -- the user who sent the notification(used for friend requests)
+ * @param {ObjectId} projectId -- the project id for project requests
  * @returns 
  */
 
-async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin) {
+async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null) {
   // INPUT VALIDATION
   ownerId = idVal(ownerId, 'ownerId', 'createNotif');
   title = stringVal(title, 'title', 'createNotif');
@@ -50,6 +60,23 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
 
   if (referenceComment) {
     referenceComment = idVal(referenceComment);
+  }
+  if (acceptedFriend) {
+    if (typeof acceptedFriend !== 'boolean') {
+      throw 'acceptedFriend must be a boolean';
+    }
+  }
+  if (acceptedProject) {
+    if (typeof acceptedProject !== 'boolean') {
+      throw 'acceptedProject must be a boolean';
+    }
+  }
+  if (senderId) {
+    senderId = idVal(senderId, 'senderId', 'createNotif');
+  }
+
+  if (projectId) {
+    projectId = idVal(projectId, 'projectId', 'createNotif');
   }
 
   const userCollection = await users();
@@ -71,16 +98,14 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     content: content, // The content of the notification
     resolved: resolved, // Default to false when created
     time: notifDate, // The time the notification was created
+    referencePost: referencePost, // Reference to the related post, if applicable
+    referenceComment: referenceComment, // Reference to the related comment, if applicable
+    acceptedFriend: acceptedFriend, // A boolean to accept or reject a friend request
+    acceptedProject: acceptedProject, // A boolean to accept or reject a project request
+    senderId: senderId, // Reference to the user who sent the notification
+    projectId: projectId // Reference to the project for project requests
   };
 
-  // Add referencePost only if it exists
-  if (referencePost) {
-    newNotif.referencePost = referencePost;
-  }
-  // Add referenceComment only if it exists
-  if (referenceComment) {
-    newNotif.referenceComment = referenceComment;
-  }
   // Add the notification to the user's notifications array
   const userUpdate = await userCollection.findOneAndUpdate(
     { _id: new ObjectId(ownerId) },
@@ -218,5 +243,90 @@ async function resolveNotif(notifId) {
   return updatedNotif; // Return the updated notification object
 }
 
+// add approve func
+// if
+/** 
+ * This function will accept or reject a friend request
+ * @param {ObjectId} notifId
+ * @param {boolean} acceptedFriend
+ * @param {ObjectId} senderId
+ * @returns updated notification
+ */
+async function handleFriend(notifId, acceptedFriend, senderId) {
+  // INPUT VALIDATION
+  notifId = idVal(notifId, 'notifId', 'acceptedFriend');
+  senderId = idVal(senderId, 'senderId', 'acceptedFriend');
 
-export { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif };
+  const userCollection = await users();
+  const user = await userCollection.findOne({ notifications: { $elemMatch: { _id: new ObjectId(notifId) } } });
+  if (!user) throw 'Notification not found';
+
+  // if true, update the user obj with the friend (sender in this case)
+  if (acceptedFriend && !user.friends.contains(senderId)) {
+    const sender = await userCollection.findOne({ _id: new ObjectId(senderId) });
+    if (!sender) throw 'Friend not found';
+
+    // Add the sender as a friend to the user
+    const updatedUser = await userCollection.findOneAndUpdate(
+      { _id: new ObjectId(user._id) },
+      { $addToSet: { friends: senderId } }, // Add the senderId to the user's friends array
+      { returnDocument: 'after' }
+    );
+    if (!updatedUser) throw 'Could not add friend';
+  } else if (user.friends.contains(senderId)) {
+    // If the sender is already a friend, do not add them again
+    throw 'Friend already exists';
+  }
+
+  // Update the notification to accept or reject the friend request
+  const updatedNotif = await userCollection.findOneAndUpdate(
+    { "notifications._id": new ObjectId(notifId) },
+    { $set: { "notifications.$.acceptedFriend": acceptedFriend } }, // Set the acceptFriend field to true or false
+    { returnDocument: 'after' }
+  );
+  if (!updatedNotif) throw 'Could not update notification';
+
+  
+
+  return updatedNotif; // Return the updated notification object
+}
+
+
+// add reject func
+/**
+ * This function will accept or reject a project request
+ * @param {ObjectId} notifId
+ * @param {boolean} acceptedProject
+ * @param {ObjectId} projectId
+ * @returns updated notification
+ */
+async function handleProject(notifId, acceptedProject, projectId) {
+  // INPUT VALIDATION
+  notifId = idVal(notifId, 'notifId', 'acceptedProject');
+  projectId = idVal(projectId, 'projectId', 'acceptedProject');
+
+  const posts = await projectPosts();
+  const project = await posts.findOne({ _id: new ObjectId(projectId) });
+  if (!project) throw 'Project not found';
+
+  const userCollection = await users();
+  const user = await userCollection.findOne({ notifications: { $elemMatch: { _id: new ObjectId(notifId) } } });
+  if (!user) throw 'Notification not found';
+
+  // Update the notification to accept or reject the project request
+  if(acceptedProject && !project.members.contains(user._id)) {
+    const updatedProject = await posts.findOneAndUpdate(
+      { _id: new ObjectId(projectId) },
+      { $addToSet: { members: user._id } }, // Add the userId to the project's members array
+      { returnDocument: 'after' }
+    );
+    if (!updatedProject) throw 'Could not add member to project';
+  }else if (project.members.contains(user._id)) {
+    // If the user is already a member, do not add them again
+    throw 'Member already exists';
+  }
+
+  return updatedNotif; // Return the updated notification object
+}
+
+export { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif, handleFriend, handleProject };

@@ -193,7 +193,7 @@ async function getUserById(id) {
 
 	const user = await userCollection.findOne({ _id: new ObjectId(id) }); // new ObjectId(id) converts the string to ObjectId
 	if (user === null) {
-		throw "No user with that id";
+		throw `No user with id ${id}`;
 	}
 	// have to convert back to string, servers will do this for us in the future
 	user._id = user._id.toString();
