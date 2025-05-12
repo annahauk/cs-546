@@ -8,11 +8,25 @@
 </header>
 <div class="container">
 	<div class="leftStats">
-		<ol>
-			<li>Stat1: Need to figure out stats and connect to db!</li>
-			<li>Stat2</li>
-			<li>Stat3</li>
-		</ol>
+		<ul>
+			<li>{{stats.numProjects}} Projets</li>
+			<li>{{stats.numUsers}} Users</li>
+			<li>Top project tags:
+				<ul>
+					{{#each stats.topPostTags}}
+					<li>{{this}}</li>
+					{{/each}}
+				</ul>
+			</li>
+			<li>
+				Top user tags:
+				<ul>
+					{{#each stats.topUserTags}}
+					<li>{{this}}</li>
+					{{/each}}
+				</ul>
+			</li>
+		</ul>
 	</div>
 	<div class="centerInfo">
 		<p>Welcome to GitMatches, your source for finding high quality, open source
