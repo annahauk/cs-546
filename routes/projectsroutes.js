@@ -265,13 +265,13 @@ router.route("/:id/join/")
 				application.applicant_id.toString(), 
 				`You have successfully applied to ${project.title}`,
 				`Once the owner of this project reveiws your application, you will see a new notification here.`,
-				new ObjectId(project._id),
+				project._id,
 				null,
 				"GitMatches System",
 				null,
 				null,
-				null,
-				new ObjectId(project._id),
+				project.ownerId,
+				project._id,
 				null,
 				null
 			);
@@ -281,15 +281,15 @@ router.route("/:id/join/")
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
 				`${application.applicant} has requested to join ${project.title}. Here you may choose to accept or deny their application.`,
-				new ObjectId(project._id),
+				project._id,
 				null,
 				"GitMatches System",
 				null,
 				null,
-				null,
-				new ObjectId(project._id),
+				project.ownerId,
+				project._id,
 				true,
-				application._id
+				application._id.toString()
 			);
 		} catch (e) {
 			console.error(e);
