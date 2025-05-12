@@ -373,6 +373,24 @@ async function getTopPostTags(n=3) {
 	return topTags
 }
 
+async function getOldestPost() {
+	const postCollection = await projectPosts();
+	const oldestPost = await postCollection.find().sort({ createdAt: 1 }).limit(1).toArray();
+	if (oldestPost.length === 0) {
+		throw new Error("No posts found");
+	}
+	return oldestPost[0];
+}
+
+async function getNewestPost() {
+	const postCollection = await projectPosts();
+	const newestPost = await postCollection.find().sort({ createdAt: -1 }).limit(1).toArray();
+	if (newestPost.length === 0) {
+		throw new Error("No posts found");
+	}
+	return newestPost[0];
+}
+
 export {
 	createPost,
 	getAllPosts,
@@ -388,5 +406,7 @@ export {
 	add_project_member,
 	remove_project_member,
 	getProjectCount,
-	getTopPostTags
+	getTopPostTags,
+	getOldestPost,
+	getNewestPost
 };
