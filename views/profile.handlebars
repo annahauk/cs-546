@@ -33,17 +33,35 @@
         </ul>
         <p>Projects</p>
         <ul class="projectsList">
-            {{#if user.projects.length}}
-                {{#each user.projects}}
-                    <li>{{this}}</li>
+            {{#if userProjects.length}}
+                {{#each userProjects}}
+                    <li class="projectItem">
+                        <h3>{{this.title}}</h3>
+                        <p>{{this.description}}</p>
+                        <p>Status: {{this.status}}</p>
+                        {{#if this.repoLink}}
+                            <a href="{{this.repoLink}}" target="_blank">Repository Link</a>
+                        {{else}}
+                            <p>No repository link provided.</p>
+                        {{/if}}
+                        {{#if this.topic_tags.length}}
+                            <p>Tags:</p>
+                            <ul class="tagsList">
+                                {{#each this.topic_tags}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <p>No tags available.</p>
+                        {{/if}}
+                    </li>
                 {{/each}}
             {{else}}
                 <li>No projects yet.</li>
             {{/if}}
         </ul>
         <div class="manageLinks">
-            <a href="/{{user._id}}/edit">Edit Profile</a>
-            <a href="/{{user._id}}/projects">Manage Projects</a>
+            <a href="/profile/{{user._id}}/edit">Managed Profile & Projects</a>
         </div>
     </div>
     <div class="rightSide">

@@ -11,9 +11,15 @@ import {
 	add_project_member,
 	create_project_application,
 	remove_project_member,
-	getPostsByUserId
+	getPostsByUserId,
+	updatePost
 } from "../data/posts.js";
-import { getUserByUsername, getUserById, getUserTags, addAchievement } from "../data/users.js";
+import {
+	getUserByUsername,
+	getUserById,
+	getUserTags,
+	addAchievement
+} from "../data/users.js";
 import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
@@ -186,10 +192,11 @@ router
 		}
 	});
 
-router
-	.route("/:id")
-	.get(isLoggedIn, async (req, res) => {
-		// Display a specific project
+router.route("/:id").get(isLoggedIn, async (req, res) => {
+	// Display a specific project
+	try {
+		const projectId = idVal(req.params.id);
+		let post = null;
 		try {
 			const projectId = idVal(req.params.id);
 			let post = null;
@@ -224,14 +231,15 @@ router
 		}
 	});
 
-router.route("/:id/join/")
+router
+	.route("/:id/join/")
 	/**
 	 * request to join a project
 	 * sends notification to project owner with approve/deny links + additional text from user
 	 * join request has individual id
 	 */
-	.post(async(req,res) => {
-		if(!req.authorized) {
+	.post(async (req, res) => {
+		if (!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");
 		}
@@ -240,7 +248,7 @@ router.route("/:id/join/")
 		try {
 			id = await idVal(req.params.id);
 		} catch (e) {
-			return await res.status(400).render("error", {"error": `Bad id format.`});
+			return await res.status(400).render("error", { error: `Bad id format.` });
 		}
 
 		// make sure project exists
@@ -248,15 +256,19 @@ router.route("/:id/join/")
 		try {
 			project = await getPostById(id);
 		} catch (e) {
-			return await res.status(404).render("error", {error: `No post with id ${id}`});
+			return await res
+				.status(404)
+				.render("error", { error: `No post with id ${id}` });
 		}
 
 		// make sure user is not in project. If so, redirec to project page
 		let user = await getUserByUsername(req.cookies["username"]);
-		if(!user) {
-			return await res.status(500).render("error", {error: "User not found."});
+		if (!user) {
+			return await res
+				.status(500)
+				.render("error", { error: "User not found." });
 		}
-		if(await post_has_member(project, user._id)) {
+		if (await post_has_member(project, user._id)) {
 			// user is member
 			return await res.redirect(`/projects/${project._id.toString()}`);
 		}
@@ -264,9 +276,15 @@ router.route("/:id/join/")
 		// create application
 		let application;
 		try {
-			application = await create_project_application(project, user, req.body["text"]);
+			application = await create_project_application(
+				project,
+				user,
+				req.body["text"]
+			);
 		} catch (e) {
-			return await res.status(500).render("error", {error: `Failed to create project application ${e}`});
+			return await res.status(500).render("error", {
+				error: `Failed to create project application ${e}`
+			});
 		}
 
 		// TODO:: Send notification
@@ -275,7 +293,7 @@ router.route("/:id/join/")
 		try {
 			// applicant notification (nclude reference post, NOT reference application)
 			await createNotif(
-				application.applicant_id.toString(), 
+				application.applicant_id.toString(),
 				`You have successfully applied to ${project.title}`,
 				`Once the owner of this project reveiws your application, you will see a new notification here.`,
 				project._id,
@@ -308,23 +326,26 @@ router.route("/:id/join/")
 			);
 		} catch (e) {
 			console.error(e);
-			return await res.status(500).render("error", {error: `Failed to push notifications.`});
+			return await res
+				.status(500)
+				.render("error", { error: `Failed to push notifications.` });
 		}
 
 		res.redirect(`/projects/${project._id}`);
-	})
+	});
 
-router.route("/:id/join/:applicationId/approve")
+router
+	.route("/:id/join/:applicationId/approve")
 	/**
 	 * approve application to join project
 	 * send notification back to user saying application was approved + additional text and linking to project
 	 * add user id to project members
 	 * add project id to user projects
 	 */
-	.post(async(req,res) => {
+	.post(async (req, res) => {
 		let project;
 
-		if(!req.authorized) {
+		if (!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");
 		}
@@ -335,36 +356,47 @@ router.route("/:id/join/:applicationId/approve")
 			id = await idVal(req.params.id);
 			appId = await idVal(req.params.applicationId);
 		} catch (e) {
-			return await res.status(400).render("error", {error: `${e}`});
+			return await res.status(400).render("error", { error: `${e}` });
 		}
 
 		try {
 			project = await getPostById(id);
 		} catch (e) {
-			return await res.status(404).render("error", {error: `${e}`});
+			return await res.status(404).render("error", { error: `${e}` });
 		}
 
 		// make sure application exists
 		let application = await get_project_application(project, appId);
-		if(!application) {
-			return await res.status(404).render("error", {error: `No application with id ${appId}`});
+		if (!application) {
+			return await res
+				.status(404)
+				.render("error", { error: `No application with id ${appId}` });
 		}
 
 		// application approved
 		// remove application, add user to project members and notify
 		try {
-			await remove_project_applicaiton(project, application, true, req.body["text"]);
+			await remove_project_applicaiton(
+				project,
+				application,
+				true,
+				req.body["text"]
+			);
 		} catch (e) {
-			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
+			return await res
+				.status(500)
+				.render("error", { error: `Failed to remove application: ${e}` });
 		}
 
 		// add member to project
 		try {
 			await add_project_member(project, application.applicant_id);
 		} catch (e) {
-			return await res.status(500).render("error", {error: `Could not add user to post: ${e}`});
+			return await res
+				.status(500)
+				.render("error", { error: `Could not add user to post: ${e}` });
 		}
-		
+
 		// joiner and joinee achievements
 		// Lot of comments here because this is a lil confusing lol
 		// Get all projects
@@ -378,12 +410,21 @@ router.route("/:id/join/:applicationId/approve")
 			let members = proj.members;
 			for (let member of members) {
 				// Count when this joiner is a member
-				if (member.toString() === application.applicant_id.toString()) thisUserCount++;
+				if (member.toString() === application.applicant_id.toString())
+					thisUserCount++;
 				// Count when this joinee is the owner (project.ownerId should be a string)
-				if (proj.ownerId.toString() === project.ownerId && !allMembers.includes(member.toString())) allMembers.push(member.toString());
+				if (
+					proj.ownerId.toString() === project.ownerId &&
+					!allMembers.includes(member.toString())
+				)
+					allMembers.push(member.toString());
 			}
 		}
-		await addAchievement(application.applicant_id.toString(), "join", thisUserCount);
+		await addAchievement(
+			application.applicant_id.toString(),
+			"join",
+			thisUserCount
+		);
 		await addAchievement(project.ownerId, "othersJoined", allMembers.length);
 
 		try {
@@ -397,17 +438,18 @@ router.route("/:id/join/:applicationId/approve")
 
 		// redirec to notification page
 		res.redirect("/notifications");
-	})
+	});
 
-router.route("/:id/join/:applicationId/deny")
+router
+	.route("/:id/join/:applicationId/deny")
 	/**
 	 * deny appliaction to join project
 	 * send user notification that they were denied + additional text
 	 */
-	.post(async(req,res) => {
+	.post(async (req, res) => {
 		let project;
 
-		if(!req.authorized) {
+		if (!req.authorized) {
 			// redirect to login
 			return await res.redirect("/login");
 		}
@@ -418,27 +460,36 @@ router.route("/:id/join/:applicationId/deny")
 			id = await idVal(req.params.id);
 			appId = await idVal(req.params.applicationId);
 		} catch (e) {
-			return await res.status(400).render("error", {error: `${e}`});
+			return await res.status(400).render("error", { error: `${e}` });
 		}
 
 		try {
 			project = await getPostById(id);
 		} catch (e) {
-			return await res.status(404).render("error", {error: `${e}`});
+			return await res.status(404).render("error", { error: `${e}` });
 		}
 
 		// make sure application exists
 		let application = await get_project_application(project, appId);
-		if(!application) {
-			return await res.status(404).render("error", {error: `No application with id ${appId}`});
+		if (!application) {
+			return await res
+				.status(404)
+				.render("error", { error: `No application with id ${appId}` });
 		}
 
 		// application denied
 		// remove application, add user to project members and notify
 		try {
-			await remove_project_applicaiton(project, application, false, req.body["text"]);
+			await remove_project_applicaiton(
+				project,
+				application,
+				false,
+				req.body["text"]
+			);
 		} catch (e) {
-			return await res.status(500).render("error", {error: `Failed to remove application: ${e}`});
+			return await res
+				.status(500)
+				.render("error", { error: `Failed to remove application: ${e}` });
 		}
 
 		try {
@@ -452,9 +503,10 @@ router.route("/:id/join/:applicationId/deny")
 
 		// redirec to notification page
 		res.redirect("/notifications");
-	})
+	});
 
-router.route("/:id/leave")
+router
+	.route("/:id/leave")
 	/**
 	 * leave project
 	 * if user is owner then error
@@ -472,32 +524,38 @@ router.route("/:id/leave")
 		let id = req.params.id;
 
 		let user = await getUserByUsername(req.cookies["username"]);
-		if(!user) {
-			return await res.status(500).render("error", {error: `No user found.`});
+		if (!user) {
+			return await res.status(500).render("error", { error: `No user found.` });
 		}
 
 		let project;
 		try {
 			project = await getPostById(id);
 		} catch (e) {
-			return await res.status(404).render("error", {error: `Could not find project: ${e}`})
+			return await res
+				.status(404)
+				.render("error", { error: `Could not find project: ${e}` });
 		}
 
 		// make sure user is not project owner
-		if(user._id.toString() === project.ownerId) {
-			return await res.status(401).render("error", {error: `Cannot leave project which you are the owner of!`});
+		if (user._id.toString() === project.ownerId) {
+			return await res.status(401).render("error", {
+				error: `Cannot leave project which you are the owner of!`
+			});
 		}
 
 		// remove member
 		try {
 			await remove_project_member(project, user._id);
 		} catch (e) {
-			return await res.status(500).render("error", {error: `Failed to remove member from project: ${e}`});
+			return await res.status(500).render("error", {
+				error: `Failed to remove member from project: ${e}`
+			});
 		}
 
 		// redirect to project page
 		res.redirect(`/projects/${project._id.toString()}`);
-	})
+	});
 
 router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 	try {
@@ -526,6 +584,56 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			comments,
 			layout: false
 		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ message: "Internal server error." });
+	}
+});
+
+// Route for updating project
+router.post("/:id/edit", isLoggedIn, async (req, res) => {
+	try {
+		const projectId = idVal(req.params.id);
+		const { title, content, repoLink, status, topic_tags } = req.body;
+
+		// Validate inputs
+		if (!title || typeof title !== "string" || title.trim() === "") {
+			return res.status(400).json({ message: "Title is required." });
+		}
+		if (!content || typeof content !== "string" || content.trim() === "") {
+			return res.status(400).json({ message: "Content is required." });
+		}
+		if (
+			!repoLink ||
+			typeof repoLink !== "string" ||
+			!/^https?:\/\/.+/.test(repoLink.trim())
+		) {
+			return res
+				.status(400)
+				.json({ message: "A valid repository link is required." });
+		}
+		if (!["active", "completed"].includes(status)) {
+			return res.status(400).json({ message: "Invalid status value." });
+		}
+		if (
+			!Array.isArray(topic_tags) ||
+			topic_tags.some((tag) => typeof tag !== "string")
+		) {
+			return res.status(400).json({ message: "Invalid topic tags." });
+		}
+
+		// Update the project
+		const updateData = {
+			title: title.trim(),
+			content: content.trim(),
+			repoLink: repoLink.trim(),
+			status,
+			topic_tags: topic_tags.map((tag) => tag.trim())
+		};
+
+		await updatePost(projectId, updateData);
+
+		res.json({ message: "Project updated successfully." });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error." });

@@ -86,6 +86,7 @@ const TERMS_AND_DOMAINS = {
 	mlflow: { tag: "Tool", domain: "MachineLearning" },
 	openai: { tag: "Tool", domain: "MachineLearning" },
 	jupyter: { tag: "Tool", domain: "Data" },
+	"jupyter notebook": { tag: "Tool", domain: "Data" },
 	vscode: { tag: "Tool", domain: "DevOps" },
 	git: { tag: "Tool", domain: "DevOps" },
 	github: { tag: "Tool", domain: "DevOps" },
@@ -201,40 +202,85 @@ const TERMS_AND_DOMAINS = {
 
 const ACHIEVEMENTS = {
 	created: [
-		{name: "GitInit", description: "Linked a GitHub account with your profile", value: 1 },
+		{
+			name: "GitInit",
+			description: "Linked a GitHub account with your profile",
+			value: 1
+		}
 	],
 	post: [
-		{name: "Coder", description: "Created your first post", value: 1 },
-		{name: "Hard at Work", description: "Created 10 posts", value: 10 },
-		{name: "Elite Developer", description: "Created 50 posts", value: 50 },
-		{name: "Git Master", description: "Created 100 posts", value: 100 }
+		{ name: "Coder", description: "Created your first post", value: 1 },
+		{ name: "Hard at Work", description: "Created 10 posts", value: 10 },
+		{ name: "Elite Developer", description: "Created 50 posts", value: 50 },
+		{ name: "Git Master", description: "Created 100 posts", value: 100 }
 	],
 	comment: [
-		{name: "Hello World!", description: "Left your first commented on another user's post", value: 1 },
-		{name: "Chatterbox", description: "Left 10 comments on other users' posts", value: 10 },
-		{name: "Master of Yap", description: "Left 50 comments on other users' posts", value: 50 },
-		{name: "It's me, Gossip Girl", description: "Left 100 comments on other users' posts", value: 100 }
+		{
+			name: "Hello World!",
+			description: "Left your first commented on another user's post",
+			value: 1
+		},
+		{
+			name: "Chatterbox",
+			description: "Left 10 comments on other users' posts",
+			value: 10
+		},
+		{
+			name: "Master of Yap",
+			description: "Left 50 comments on other users' posts",
+			value: 50
+		},
+		{
+			name: "It's me, Gossip Girl",
+			description: "Left 100 comments on other users' posts",
+			value: 100
+		}
 	],
 	join: [
-		{name: "Checkout", description: "Joined your first project as a contributor", value: 1 },
-		{name: "The Ol' Reliable", description: "Joined 10 projects as a contributor", value: 10 },
-		{name: "Git MVP", description: "Joined 50 projects as a contributor", value: 50 }
+		{
+			name: "Checkout",
+			description: "Joined your first project as a contributor",
+			value: 1
+		},
+		{
+			name: "The Ol' Reliable",
+			description: "Joined 10 projects as a contributor",
+			value: 10
+		},
+		{
+			name: "Git MVP",
+			description: "Joined 50 projects as a contributor",
+			value: 50
+		}
 	],
 	othersJoined: [
-		{name: "Project Leader", description: "Have another user join one of your projects for the first time", value: 1 },
-		{name: "Head of Ops", description: "Have 10 users join your projects", value: 10 },
-		{name: "CEO", description: "Have 50 users join your projects", value: 50 }
+		{
+			name: "Project Leader",
+			description:
+				"Have another user join one of your projects for the first time",
+			value: 1
+		},
+		{
+			name: "Head of Ops",
+			description: "Have 10 users join your projects",
+			value: 10
+		},
+		{ name: "CEO", description: "Have 50 users join your projects", value: 50 }
 	],
 	friends: [
-		{name: "Best Buds", description: "Added your first friend", value: 1 },
-		{name: "We should start a podcast!", description: "Added 10 friends", value: 10 },
-		{name: "Squad Goals", description: "Added 50 friends", value: 50 },
-		{name: "Popular", description: "Added 100 friends", value: 100 },
-		{name: "Class President", description: "Added 200 friends", value: 200 },
-		{name: "Infleuncer", description: "Added 500 friends", value: 500 },
-		{name: "Celebrity", description: "Added 1000 friends", value: 1000 }
+		{ name: "Best Buds", description: "Added your first friend", value: 1 },
+		{
+			name: "We should start a podcast!",
+			description: "Added 10 friends",
+			value: 10
+		},
+		{ name: "Squad Goals", description: "Added 50 friends", value: 50 },
+		{ name: "Popular", description: "Added 100 friends", value: 100 },
+		{ name: "Class President", description: "Added 200 friends", value: 200 },
+		{ name: "Infleuncer", description: "Added 500 friends", value: 500 },
+		{ name: "Celebrity", description: "Added 1000 friends", value: 1000 }
 	]
-}
+};
 
 /**
  * Validates that the input is a non-empty string.
