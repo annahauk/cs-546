@@ -433,10 +433,10 @@ async function getTopPostTags(n = 3) {
 	return topTags
 }
 
-async function getOldestPost() {
+async function getOldestActivePost() {
 	const postCollection = await projectPosts();
 	const oldestPost = await postCollection
-		.find()
+		.find({status: "active"})
 		.sort({ createdAt: 1 })
 		.limit(1)
 		.toArray();
@@ -446,10 +446,10 @@ async function getOldestPost() {
 	return oldestPost[0];
 }
 
-async function getNewestPost() {
+async function getNewestActivePost() {
 	const postCollection = await projectPosts();
 	const newestPost = await postCollection
-		.find()
+		.find({status: "active"})
 		.sort({ createdAt: -1 })
 		.limit(1)
 		.toArray();
@@ -475,6 +475,6 @@ export {
 	remove_project_member,
 	getProjectCount,
 	getTopPostTags,
-	getOldestPost,
-	getNewestPost
+	getOldestActivePost,
+	getNewestActivePost
 };
