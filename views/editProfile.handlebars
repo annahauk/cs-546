@@ -62,7 +62,7 @@
                                     {{#each this.members}}
                                         <li>
                                             {{this}}
-                                            <button type="submit" formaction="/projects/{{../this._id}}/removeMember/{{this}}" formmethod="POST">Remove</button>
+                                            <button type="button" formaction="/projects/{{../this._id}}/removeMember/{{this}}" formmethod="POST">Remove</button>
                                         </li>
                                     {{/each}}
                                 </ul>
