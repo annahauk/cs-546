@@ -67,23 +67,23 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
   }
   if (acceptedFriend) {
     if (typeof acceptedFriend !== 'boolean') {
-      throw 'acceptedFriend must be a boolean';
+      throw new Error('acceptedFriend must be a boolean');
     }
   }
   if (acceptedProject) {
     if (typeof acceptedProject !== 'boolean') {
-      throw 'acceptedProject must be a boolean';
+      throw new Error('acceptedProject must be a boolean');
     }
   }
   if(requiresApproval) {
     if(typeof requiresApproval !== 'boolean') {
-      throw 'requiresApproval must be a boolean';
+      throw new Error('requiresApproval must be a boolean');
     }
     if(typeof referenceApplication === "undefined") {
-      throw 'requiresApproval passed without referenceApplication'
+      throw new Error('requiresApproval passed without referenceApplication');
     }
     if(typeof referencePost === "undefined") {
-      throw 'requiresApproval passed without referencePost'
+      throw new Error('requiresApproval passed without referencePost');
     }
   }
   if (senderId) {
@@ -96,7 +96,7 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
 
   const userCollection = await users();
   const user = await userCollection.findOne({ _id: new ObjectId(ownerId) });
-  if (!user) throw 'User not found';
+  if (!user) throw new Error('User not found');
 
   // Store the time and day the notification was created
   let notifTime = new Date();
@@ -130,11 +130,11 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     { returnDocument: 'after' }
   );
 
-  if (!userUpdate) throw 'Could not add notification to user';
+  if (!userUpdate) throw new Error('Could not add notification to user');
   
   // Check if the notification was added successfully
   const notificationAdded = userUpdate.notifications.some((notif) => notif._id.toString() === newNotif._id.toString());
-  if (!notificationAdded) throw 'Notification not added to user';
+  if (!notificationAdded) throw new Error('Notification not added to user');
 
   // return the new notification object
   const newId = newNotif._id.toString();
