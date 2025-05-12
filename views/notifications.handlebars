@@ -16,7 +16,7 @@
                             {{#if this.requiresApproval}}
                                 <p>Approve or Deny this application</p>
                                 <!-- approve | posts to /projects/:id/join/:appId/approve -->
-                                <form method="POST" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" action="">
+                                <form method="POST" class="notif-application-descision" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" referenceNotification="{{this._id}}" action="">
                                     <button type="submit">Approve</button>
                                     <button type="submit">Deny</button>
                                     <input type="text">
@@ -51,3 +51,4 @@
         <p>You have no notifications!</p>
     {{/if}}
 </div>
+<script src="/public/js/notifications.js"></script>
