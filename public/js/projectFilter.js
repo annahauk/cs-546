@@ -71,9 +71,10 @@ $(document).ready(function () {
 			})
 			.catch(function (error) {
 				console.error("Error fetching filtered projects:", error);
-				alert(
-					"An error occurred while fetching the filtered projects. Please try again."
-				);
+				// Update the projects area with the error
+				$(".projectsArea").html("<p>No projects found.</p>");
+				// Update filter button state
+				updateFilterButtonState();
 			});
 	});
 
