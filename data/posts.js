@@ -65,19 +65,16 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		likes: 0,
 		topic_tags: topic_tags,
 		members: [],
-		applications: []
+		applications: [],
+		status: "active"
 	};
 
 	// Check and err if title or repoLink already exists
-	let postExists = await postCollection.findOne(
-		{ title: title }
-	);
+	let postExists = await postCollection.findOne({ title: title });
 	if (postExists) {
 		throw `Post with title ${title} already exists`;
 	}
-	postExists = await postCollection.findOne(
-		{ repoLink: repoLink }
-	);
+	postExists = await postCollection.findOne({ repoLink: repoLink });
 	if (postExists) {
 		throw `Post with repoLink ${repoLink} already exists`;
 	}
@@ -217,9 +214,10 @@ async function updatePost(postId, updateData) {
  * This queries the database for the filtered posts by tags when a user selects from the menu in the frontend
  * @param {Array<String>} tags
  * @param {String} name
+ * @param {String} status
  * @returns {Array<Post>} posts
  */
-async function grabfilteredPosts(tags, name) {
+async function grabfilteredPosts(tags, name, status) {
 	// Validate tags array, allowing for empty tag array if user is only filtering by name
 	if (!Array.isArray(tags)) {
 		throw `Error in grabfilteredPosts: tags must be an array.`;
@@ -233,19 +231,34 @@ async function grabfilteredPosts(tags, name) {
 	if (typeof name !== "string") {
 		throw `Error in grabfilteredPosts: name must be a string.`;
 	}
+	if (typeof status !== "string") {
+		throw `Error in grabfilteredPosts: status must be a string, either 'all' or 'completed'.`;
+	}
 	const postCollection = await projectPosts();
 	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
 	const regexTags = tags.map((tag) => new RegExp(`^${tag}$`, "i"));
 	// Create case-insensitive regex for the name, partial matching
 	const regexName = new RegExp(name, "i");
+	// Create case-insensitive regex for the status,
+	const regexStatus = new RegExp(status, "i");
 	// Filter the project posts based on the topic tags
 	let posts = null;
 	if (tags.length !== 0) {
 		posts = await postCollection
-			.find({ topic_tags: { $in: regexTags }, title: regexName })
+			.find({
+				topic_tags: { $in: regexTags },
+				title: regexName,
+				status: regexStatus
+			})
 			.toArray();
 	} else {
-		posts = await postCollection.find({ title: regexName }).toArray();
+		if (name !== "") {
+			posts = await postCollection
+				.find({ title: regexName, status: regexStatus })
+				.toArray();
+		} else {
+			posts = await postCollection.find({ status: regexStatus }).toArray();
+		}
 	}
 	// Found no posts, that's a problem
 	if (!posts || posts.length === 0) throw `No posts with that tag`;
@@ -417,7 +430,7 @@ async function getTopPostTags(n = 3) {
 	}
 	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
 	const topTags = sortedTags.slice(0, n);
-	return topTags
+	return topTags;
 }
 
 async function getOldestPost() {
