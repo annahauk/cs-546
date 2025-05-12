@@ -14,7 +14,7 @@ import {
 	getPostsByUserId
 } from "../data/posts.js";
 import { getUserByUsername, getUserById, getUserTags, addAchievement } from "../data/users.js";
-import { createComment, getAllCommentIdsByUserId } from "../data/comments.js";
+import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
@@ -428,7 +428,7 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			ownerId: comment.ownerId.toString(),
 			postId: comment.postId.toString()
 		}));
-		const numComments = await getAllCommentIdsByUserId(ownerId).length;
+		const numComments = await getAllCommentsByUserId(ownerId).length;
 		await addAchievement(ownerId, "comment", numComments);
 		res.render("partials/commentsList", {
 			comments,

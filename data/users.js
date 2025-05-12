@@ -197,7 +197,7 @@ async function getUserById(id) {
  * @returns {(Object|null)} user
  */
 async function getUserById_ObjectId(id) {
-	await validObjectId(id);
+	validObjectId(id);
 	const usersc = await users();
 
 	const user = await usersc.findOne({ _id: id });

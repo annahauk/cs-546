@@ -77,7 +77,7 @@ async function getAllCommentsByPostId(postId) {
  * @param {string} userId 
  * @returns Array<CommentIds>
  */
-async function getAllCommentIdsByUserId(userId) {
+async function getAllCommentsByUserId(userId) {
 	userId = idVal(userId, "userId", "getAllCommentsByUserId");
 	const postCollection = await projectPosts();
 	// All posts with comments
@@ -86,15 +86,9 @@ async function getAllCommentIdsByUserId(userId) {
 	).toArray();
 	if (!posts || posts.length === 0) return [];
 	// Only belonging to userId
-	const commentIds = posts.flatMap(post => post.comments);
-	const retIds = [];
-	for (let cId of commentIds) {
-		const comment = await getCommentById(cId.toString());
-		if (comment.ownerId.toString() === userId) {
-			retIds.push(cId);
-		}
-	}
-	return retIds;
+	let comments = posts.flatMap(post => post.comments);
+	comments.filter(c => c.ownerId.toString() === userId);
+	return comments;
 }
 
 /**
@@ -167,5 +161,5 @@ export {
 	getCommentById,
 	removeComment,
 	updateComment,
-	getAllCommentIdsByUserId
+	getAllCommentsByUserId
 };
