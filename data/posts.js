@@ -22,7 +22,7 @@ title: String,
 ownerId: ObjectId,           Reference to the user who created the post
 content: String, 
 repoLink: String,            URL to the related GitHub repository
-comments: Array<CommentIDs>	 Comments associated with the post
+comments: Array<Comments>	 Comments associated with the post
 createdAt: String,
 likes: Number,
 topic_tags: Array<String>,
@@ -121,6 +121,14 @@ async function getPostsByUserId(id) {
 		return element;
 	});
 	return posts;
+}
+
+async function getAllMembersByPostID(postId) {
+	postId = idVal(postId, "postId", "getAllMembersByPostID");
+	const postCollection = await projectPosts();
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
+	if (!post) throw `No post with that id: ${postId}`;
+	return post.members;
 }
 
 /**

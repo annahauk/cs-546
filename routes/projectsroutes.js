@@ -311,6 +311,27 @@ router.route(":id/join/:applicationId/approve")
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Could not add user to post: ${e}`});
 		}
+		
+		// joiner and joinee achievements
+		// Lot of comments here because this is a lil confusing lol
+		// Get all projects
+		const allProjs = await getAllPosts();
+		// To track when joiner is a member
+		let thisUserCount = 0;
+		// To track distinct members when the joinee is the owner
+		let allMembers = [];
+		for (let proj of allProjs) {
+			// Iterate over all membrs
+			let members = proj.members;
+			for (let member of members) {
+				// Count when this joiner is a member
+				if (member.toString() === application.applicant_id.toString()) thisUserCount++;
+				// Count when this joinee is the owner (project.ownerId should be a string)
+				if (proj.ownerId.toString() === project.ownerId && !allMembers.includes(member.toString())) allMembers.push(member.toString());
+			}
+		}
+		await addAchievement(application.applicant_id.toString(), "join", thisUserCount);
+		await addAchievement(project.ownerId, "othersJoined", allMembers.length);
 
 		// redirec to notification page
 		res.redirect("/notifications");
