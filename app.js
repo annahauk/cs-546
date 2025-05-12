@@ -59,6 +59,7 @@ async function Main() {
 					seenValues.add(value);
 					return false;
 				},
+				includes: (array, value) => Array.isArray(array) && array.includes(value),
 				json: (context) => JSON.stringify(context)
 			}
 		})
