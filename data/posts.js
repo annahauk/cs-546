@@ -68,6 +68,20 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		applications: [],
 	};
 
+	// Check and err if title or repoLink already exists
+	let postExists = await postCollection.findOne(
+		{ title: title }
+	);
+	if (postExists) {
+		throw `Post with title ${title} already exists`;
+	}
+	postExists = await postCollection.findOne(
+		{ repoLink: repoLink }
+	);
+	if (postExists) {
+		throw `Post with repoLink ${repoLink} already exists`;
+	}
+
 	const insertInfo = await postCollection.insertOne(newPost);
 	if (!insertInfo.acknowledged) throw `Could not add post`;
 	// return post object

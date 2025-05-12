@@ -164,17 +164,22 @@ router
 			}
 
 			// Create the project post
-			const post = await createPost(
-				title.trim(),
-				ownerId,
-				description.trim(),
-				repoLink.trim(),
-				combinedTags.map((tag) => tag.trim())
-			);
-			const postId = post._id.toString();
-			const numPosts = (await getPostsByUserId(ownerId)).length;
-			await addAchievement(ownerId, "post", numPosts);
-			return res.status(200).json({ message: "Project created", postId });
+			try {
+				// Err if post title/link already exists
+				const post = await createPost(
+					title.trim(),
+					ownerId,
+					description.trim(),
+					repoLink.trim(),
+					combinedTags.map((tag) => tag.trim())
+				);
+				const postId = post._id.toString();
+				const numPosts = (await getPostsByUserId(ownerId)).length;
+				await addAchievement(ownerId, "post", numPosts);
+				return res.status(200).json({ message: "Project created", postId });
+			} catch (e) {
+				return res.status(400).json({ message: e });
+			}
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: "Internal server error" });
