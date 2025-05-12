@@ -639,4 +639,39 @@ router.post("/:id/edit", isLoggedIn, async (req, res) => {
 	}
 });
 
+// Route for removing user from project
+router.route("/:id/removeMember/:memberId")
+	.post(async (req,res) => {
+		let project;
+		let user;
+		let memberId;
+
+		try {
+			memberId = idVal(req.params.memberId);
+		} catch (e) {
+			return await res.status(400).render("error", {error: `Bad member id`});
+		}
+
+		try {
+			let projId = idVal(req.params.id, "projId", "removeMember_route");
+			project = await getPostById(projId);
+		} catch (e) {
+			return await res.status(404).render("error", {error: `No project with Id: ${req.params.id}`});
+		}
+
+		try {
+			let usrname = idVal(req.cookies["username"]);
+			user = await getUserByUsername(usrname);
+		} catch (e) {
+			return await res.status(500).render("error", {error: `No user found.`});
+		}
+
+		// make sure user is owner of project
+		if(user._id.toString() !== project.ownerId) {
+			res.status(401).render("error", {error: `Only project owners can remove members.`});
+		}
+
+		// remove user and send them a notif
+	})
+
 export default router;
