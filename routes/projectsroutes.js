@@ -208,57 +208,6 @@ router
 				.status(500)
 				.render("error", { message: "Internal server error", title: "Error" });
 		}
-	})
-	.post(isLoggedIn, async (req, res) => {
-		// Add a comment or join a project
-		let userId = "";
-		let userUsername = "";
-		if (req.authorized) {
-			userUsername = req.cookies["username"];
-			let user = await getUserByUsername(userUsername);
-			userId = user._id.toString();
-		} else {
-			return res.redirect("/login");
-		}
-		const projectId = req.params.id;
-		const action = req.body.action;
-		const content = req.body.content;
-		try {
-			projectId = idVal(projectId);
-			action = stringVal(action);
-			content = stringVal(content);
-		} catch (error) {
-			console.error(error);
-			return res.status(400).json({ message: error });
-		}
-
-		try {
-			try {
-				const post = await getPostById(projectId);
-			} catch (e) {
-				return res
-					.status(404)
-					.render("error", { message: "Project not found", title: "Error" });
-			}
-			if (action === "comment") {
-				await createComment(content, projectId, userId);
-				const numComments = await getAllCommentIdsByUserId(userId).length;
-				addAchievement(userId, "post", numComments);
-				return res.status(200).json({ message: "Comment added successfully" });
-			} else if (action === "join") {
-				// TODO
-				// Implement join functionality
-			} else {
-				return res
-					.status(400)
-					.render("error", { message: "Invalid action", title: "Error" });
-			}
-		} catch (error) {
-			console.error(error);
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
-		}
 	});
 
 router.route(":id/join/")
@@ -480,7 +429,7 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			postId: comment.postId.toString()
 		}));
 		const numComments = await getAllCommentIdsByUserId(ownerId).length;
-		addAchievement(ownerId, "post", numComments);
+		addAchievement(ownerId, "comment", numComments);
 		res.render("partials/commentsList", {
 			comments,
 			layout: false
