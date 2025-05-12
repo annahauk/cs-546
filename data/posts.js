@@ -232,7 +232,7 @@ async function grabfilteredPosts(tags, name, status) {
 		throw `Error in grabfilteredPosts: name must be a string.`;
 	}
 	if (typeof status !== "string") {
-		throw `Error in grabfilteredPosts: status must be a string, either 'all' or 'completed'.`;
+		throw `Error in grabfilteredPosts: status must be a string, either 'active' or 'completed'.`;
 	}
 	const postCollection = await projectPosts();
 	// Create case-insensitive regex for each tag, using i flag for case-insensitive (casing doesn't matter)
