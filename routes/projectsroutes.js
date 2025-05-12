@@ -277,10 +277,12 @@ router.route("/:id/join/")
 			);
 
 			// owner notification, requires approval, include reference application and post
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
-				`${application.applicant} has requested to join ${project.title}. Here you may choose to accept or deny their application.`,
+				`${application.applicant} has requested to join ${project.title}. "${(message.length > 0)? `${message}\n` : ""}". Here you may choose to accept or deny their application.`,
 				project._id,
 				null,
 				"GitMatches System",
@@ -373,7 +375,9 @@ router.route("/:id/join/:applicationId/approve")
 
 		try {
 			// anonymous
-			await createNotif(application.applicant_id.toString(), `You have been accepted to ${project.title}!`, `Your application to join ${project.title} has been accepted.`, undefined, undefined, "GitMatches System");
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`approve message: ${message}`, req.body);
+			await createNotif(application.applicant_id.toString(), `You have been accepted to ${project.title}!`, `Your application to join ${project.title} has been accepted. "${message}"`, undefined, undefined, "GitMatches System");
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
@@ -426,7 +430,9 @@ router.route("/:id/join/:applicationId/deny")
 
 		try {
 			// anonymous
-			await createNotif(application.applicant_id.toString(), `Application ${project.title} was denied.`, `Your application to join ${project.title} has been denied.`, undefined, undefined, "GitMatches System");
+			let message = (req.body["text"])? req.body["text"] : "";
+			console.log(`deny additional message: ${message}`, req.body);
+			await createNotif(application.applicant_id.toString(), `Application ${project.title} was denied.`, `Your application to join ${project.title} has been denied. "${message}"`, undefined, undefined, "GitMatches System");
 		} catch (e) {
 			throw new Error(`Failed to create acception notification`);
 		}
