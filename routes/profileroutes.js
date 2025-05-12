@@ -7,9 +7,10 @@ import {
 	getUserByUsername,
 	updateUserTags
 } from "../data/users.js";
-import { idVal, stringVal } from "../helpers.js";
+import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
 import { processUploadedResume } from "../src/lib/resume-parse.js";
+import { getPostsByUserId } from "../data/posts.js";
 const router = Router();
 
 // https://www.npmjs.com/package/multer
@@ -46,7 +47,13 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				.status(404)
 				.render("error", { message: "User not found", title: "Error" });
 		}
-		res.render("profile", { user: user, title: user.user_name });
+		// Get the projects created by the user
+		const userPosts = await getPostsByUserId(userId);
+		res.render("profile", {
+			user: user,
+			title: user.user_name,
+			userProjects: userPosts
+		});
 	} catch (error) {
 		console.error(error);
 		res
@@ -66,15 +73,27 @@ router
 					.status(404)
 					.render("error", { message: "User not found", title: "Error" });
 			}
-			if (user.user_name !== stringVal(req.body.username)) {
-				return res
-					.status(403)
-					.render("error", {
-						message: "You can only edit your own profile.",
-						title: "Error"
-					});
+			if (user.user_name !== stringVal(req.cookies["username"])) {
+				return res.status(403).render("error", {
+					message: "You can only edit your own profile.",
+					title: "Error"
+				});
 			}
-			res.render("editProfile", { user: user, title: "Edit Profile" });
+			// Extract all unique tags (programming languages and domains)
+			const allTags = [
+				...new Set([
+					...Object.keys(TERMS_AND_DOMAINS),
+					...Object.values(TERMS_AND_DOMAINS).map((item) => item.domain)
+				])
+			];
+			// Get the projects created by the user
+			const userProjects = await getPostsByUserId(userId);
+			res.render("editProfile", {
+				user: user,
+				title: "Edit Profile",
+				allTags: allTags,
+				userProjects: userProjects
+			});
 		} catch (error) {
 			res
 				.status(500)
@@ -92,12 +111,10 @@ router
 					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.body.username)) {
-				return res
-					.status(403)
-					.render("error", {
-						message: "You can only edit your own profile.",
-						title: "Error"
-					});
+				return res.status(403).render("error", {
+					message: "You can only edit your own profile.",
+					title: "Error"
+				});
 			}
 
 			// TODO
@@ -123,12 +140,10 @@ router
 					.render("error", { message: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.cookies["username"])) {
-				return res
-					.status(403)
-					.render("error", {
-						message: "You can only edit your own profile.",
-						title: "Error"
-					});
+				return res.status(403).render("error", {
+					message: "You can only edit your own profile.",
+					title: "Error"
+				});
 			}
 			if (!req.file) {
 				return res
