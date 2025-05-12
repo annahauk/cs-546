@@ -74,6 +74,25 @@ async function getAllCommentsByPostId(postId) {
 }
 
 /**
+ * Returns all comment IDs for a given user ID
+ * @param {string} userId 
+ * @returns Array<CommentIds>
+ */
+async function getAllCommentsByUserId(userId) {
+	userId = idVal(userId, "userId", "getAllCommentsByUserId");
+	const postCollection = await projectPosts();
+	// All posts with comments
+	const posts = await postCollection.find(
+		{ comments: { $exists: true, $ne: [] } }
+	).toArray();
+	if (!posts || posts.length === 0) return [];
+	// Only belonging to userId
+	let comments = posts.flatMap(post => post.comments);
+	comments.filter(c => c.ownerId.toString() === userId);
+	return comments;
+}
+
+/**
  * Returns a comment given the id
  * @param {string} commentId
  * @returns comment Object correlated with commentId
@@ -142,5 +161,6 @@ export {
 	getAllCommentsByPostId,
 	getCommentById,
 	removeComment,
-	updateComment
+	updateComment,
+	getAllCommentsByUserId
 };

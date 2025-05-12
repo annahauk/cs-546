@@ -22,11 +22,12 @@ title: String,
 ownerId: ObjectId,           Reference to the user who created the post
 content: String, 
 repoLink: String,            URL to the related GitHub repository
-comments: Array<CommentIDs>, Comment ids associated with the post
+comments: Array<Comments>	 Comments associated with the post
 createdAt: String,
 likes: Number,
 topic_tags: Array<String> 
 members: Array<ObjectId>,    User IDs of members in the project
+applications: Array<Applications>
 }
 */
 
@@ -120,6 +121,14 @@ async function getPostsByUserId(id) {
 		return element;
 	});
 	return posts;
+}
+
+async function getAllMembersByPostID(postId) {
+	postId = idVal(postId, "postId", "getAllMembersByPostID");
+	const postCollection = await projectPosts();
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
+	if (!post) throw `No post with that id: ${postId}`;
+	return post.members;
 }
 
 /**
@@ -292,7 +301,7 @@ async function get_project_application(post, app_id) {
  * @returns {Promise<Post>}
  */
 async function add_project_member(post, member_id) {
-	await validObjectId(member_id);
+	validObjectId(member_id);
 
 	let postsc = await projectPosts();
 	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$push: {"members": member_id}});
@@ -317,7 +326,7 @@ async function add_project_member(post, member_id) {
  * @returns {Promise<Post>}
  */
 async function remove_project_member(post, member_id) {
-	await validObjectId(member_id);
+	validObjectId(member_id);
 
 	let postsc = await projectPosts();
 	let res = await postsc.updateOne({_id: new ObjectId(post._id)}, {$pull: {"members": member_id}});

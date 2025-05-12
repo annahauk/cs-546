@@ -10,10 +10,11 @@ import {
 	remove_project_applicaiton,
 	add_project_member,
 	create_project_application,
-	remove_project_member
+	remove_project_member,
+	getPostsByUserId
 } from "../data/posts.js";
-import { getUserByUsername, getUserById, getUserTags } from "../data/users.js";
-import { createComment } from "../data/comments.js";
+import { getUserByUsername, getUserById, getUserTags, addAchievement } from "../data/users.js";
+import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
 import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { ObjectId } from "mongodb";
@@ -162,13 +163,16 @@ router
 			}
 
 			// Create the project post
-			const postId = await createPost(
+			const post = await createPost(
 				title.trim(),
 				ownerId,
 				description.trim(),
 				repoLink.trim(),
 				combinedTags.map((tag) => tag.trim())
 			);
+			const postId = post._id.toString();
+			const numPosts = (await getPostsByUserId(ownerId)).length;
+			await addAchievement(ownerId, "post", numPosts);
 			return res.status(200).json({ message: "Project created", postId });
 		} catch (error) {
 			console.error(error);
@@ -198,52 +202,6 @@ router
 				creatorUsername: username,
 				title: post.title
 			});
-		} catch (error) {
-			console.error(error);
-			res
-				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
-		}
-	})
-	.post(isLoggedIn, async (req, res) => {
-		// Add a comment or join a project
-		const projectId = req.params.id;
-		const action = req.body.action;
-		const content = req.body.content;
-		try {
-			projectId = idVal(projectId);
-			action = stringVal(action);
-			content = stringVal(content);
-		} catch (error) {
-			console.error(error);
-			return res.status(400).json({ message: error });
-		}
-
-		try {
-			try {
-				const post = await getPostById(projectId);
-			} catch (e) {
-				return res
-					.status(404)
-					.render("error", { message: "Project not found", title: "Error" });
-			}
-			const user = await getUserByUsername(stringVal(req.cookies["username"]));
-			if (!user) {
-				return res
-					.status(404)
-					.render("error", { message: "User not found", title: "Error" });
-			}
-			if (action === "comment") {
-				await createComment(content, projectId, user._id.toString());
-				return res.status(200).json({ message: "Comment added successfully" });
-			} else if (action === "join") {
-				// TODO
-				// Implement join functionality
-			} else {
-				return res
-					.status(400)
-					.render("error", { message: "Invalid action", title: "Error" });
-			}
 		} catch (error) {
 			console.error(error);
 			res
@@ -353,6 +311,27 @@ router.route(":id/join/:applicationId/approve")
 		} catch (e) {
 			return await res.status(500).render("error", {error: `Could not add user to post: ${e}`});
 		}
+		
+		// joiner and joinee achievements
+		// Lot of comments here because this is a lil confusing lol
+		// Get all projects
+		const allProjs = await getAllPosts();
+		// To track when joiner is a member
+		let thisUserCount = 0;
+		// To track distinct members when the joinee is the owner
+		let allMembers = [];
+		for (let proj of allProjs) {
+			// Iterate over all membrs
+			let members = proj.members;
+			for (let member of members) {
+				// Count when this joiner is a member
+				if (member.toString() === application.applicant_id.toString()) thisUserCount++;
+				// Count when this joinee is the owner (project.ownerId should be a string)
+				if (proj.ownerId.toString() === project.ownerId && !allMembers.includes(member.toString())) allMembers.push(member.toString());
+			}
+		}
+		await addAchievement(application.applicant_id.toString(), "join", thisUserCount);
+		await addAchievement(project.ownerId, "othersJoined", allMembers.length);
 
 		// redirec to notification page
 		res.redirect("/notifications");
@@ -470,6 +449,8 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 			ownerId: comment.ownerId.toString(),
 			postId: comment.postId.toString()
 		}));
+		const numComments = (await getAllCommentsByUserId(ownerId)).length;
+		await addAchievement(ownerId, "comment", numComments);
 		res.render("partials/commentsList", {
 			comments,
 			layout: false

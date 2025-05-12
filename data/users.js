@@ -9,9 +9,13 @@ import {
 	idVal,
 	validatePassword,
 	validateUserID,
-	validObjectId
+	validObjectId,
+	numberVal,
+	getAchievementByName,
+	ACHIEVEMENTS
 } from "../helpers.js";
 import { create_auth } from "../src/lib/auth.js";
+import { createNotif } from "./notifications.js";
 
 /*
 schema
@@ -50,7 +54,7 @@ async function createUser(userName, password) {
 	password = validatePassword(password, "password", "createUser");
 	let skillTags = [];
 	let friends = [];
-	let achievements = ["Welcome!"];
+	let achievements = [];
 	let notifications = [];
 
 	// check if userName are unique and not an existing user
@@ -103,6 +107,14 @@ async function createUser(userName, password) {
 	// returns the user object
 	const newId = insertInfo.insertedId.toString();
 	const user = await getUserById(newId);
+
+	// give user initial "welcome" notification
+	try {
+		await createNotif(user._id.toString(), "Welcome to GitMatches!", "yay :3", undefined, undefined, "GitMatches");
+	} catch (e) {
+		throw new Error(`Failed to create initial comment ${e}`);
+	}
+
 	return user;
 }
 
@@ -194,7 +206,7 @@ async function getUserById(id) {
  * @returns {(Object|null)} user
  */
 async function getUserById_ObjectId(id) {
-	await validObjectId(id);
+	validObjectId(id);
 	const usersc = await users();
 
 	const user = await usersc.findOne({ _id: id });
@@ -377,6 +389,82 @@ async function updateUser(id, updateData) {
 	return await getUserById(id);
 }
 
+/**
+ * Adds an achievement to a user's achievements list
+ * @param {string} id ID of user to update
+ * @param {string} category achievement category
+ * @param {number} val number associated with the achievement
+ * @returns id
+ */
+async function addAchievement(id, category, val) {
+	id = idVal(id, "id", "addAchievement");
+	category = stringVal(category, "category", "addAchievement");
+	val = numberVal(val, "val", "addAchievement");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	if (!ACHIEVEMENTS[category]) {
+		throw new Error(`Invalid category: ${category}`);
+	}
+
+	let pushed = false;
+	for (let achievement of ACHIEVEMENTS[category]) {
+		if (!user.achievements.includes(achievement.name) && val >= achievement.value) {
+			user.achievements.push(achievement.name);
+			pushed = true;
+		}
+	}
+
+	if (pushed)	await updateUser(id, {achievements: user.achievements});
+	
+	return id;
+}
+
+/**
+ * Returns the achievement objects for a user
+ * @param {string} id user ID
+ * @returns Array<Achievement object>
+ */
+async function getAllAchievements(id) {
+	id = idVal(id, "id", "getAllAchievements");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	let achievements = [];
+	for (let achievement of user.achievements) {
+		if (ACHIEVEMENTS[achievement]) {
+			achievements.push(getAchievementByName(achievement));
+		}
+		else throw new Error(`Invalid achievement: ${achievement}`);
+	}
+	return achievements;
+
+}
+
+/**
+ * Returns the achievement names for a user
+ * @param {*} id used IF
+ * @returns Array<string>
+ */
+async function getAllAchievementNames(id) {
+	id = idVal(id, "id", "getAllAchievementNames");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	let achievements = [];
+	for (let achievement of user.achievements) {
+		if (ACHIEVEMENTS[achievement]) {
+			achievements.push(achievement);
+		}
+		else throw new Error(`Invalid achievement: ${achievement}`);
+	}
+	return achievements;
+
+}
+
 export {
 	createUser,
 	getAllUsers,
@@ -389,5 +477,8 @@ export {
 	getUserTags,
 	create_auth,
 	addFriend,
-	getUserById_ObjectId
+	getUserById_ObjectId,
+	addAchievement,
+	getAllAchievements,
+	getAllAchievementNames
 };

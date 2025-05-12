@@ -9,7 +9,7 @@ import { stringVal, validObjectId } from "../helpers.js";
  * @returns 
  */
 export async function get_auth_by_id(id) {
-    await validObjectId(id);
+    validObjectId(id);
     const authc = await auth();
     const authdoc = await authc.findOne({_id: id});
     if(!authdoc) {
@@ -48,7 +48,7 @@ export async function get_auth_by_username(username) {
  * @returns 
  */
 export async function remove_token(authId, token) {
-    await validObjectId(authId);
+    validObjectId(authId);
     const authc = await auth();
     const upsert = await authc.updateOne({_id: authId}, {$pull: {"tokens": {"_id": token._id}}});
     if(!upsert.acknowledged) {
