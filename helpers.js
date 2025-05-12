@@ -222,8 +222,8 @@ const ACHIEVEMENTS = {
 	],
 	othersJoined: [
 		{name: "Project Leader", description: "Have another user join one of your projects for the first time", value: 1 },
-		{name: "Head of Ops", description: "Have another user join one of your projects 10 times", value: 10 },
-		{name: "CEO", description: "Have another user join one of your projects 50 times", value: 50 }
+		{name: "Head of Ops", description: "Have 10 users join your projects", value: 10 },
+		{name: "CEO", description: "Have 50 users join your projects", value: 50 }
 	],
 	friends: [
 		{name: "Best Buds", description: "Added your first friend", value: 1 },
