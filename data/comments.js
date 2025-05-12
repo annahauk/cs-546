@@ -11,8 +11,7 @@ Comment Schema:
 _id: ObjectId,
 ownerId: ObjectId,       Reference to the user who created the post
 postId: ObjectId,        Reference to the post this comment belongs to
-content: String,
-likes: Number 
+content: String
 */
 
 /**
@@ -40,8 +39,7 @@ async function createComment(content, postId, ownerId) {
 		author: user.user_name,
 		postId: postIdObj,
 		content: content,
-		comments: [],
-		likes: 0
+		comments: []
 	};
 
 	const postCollection = await projectPosts();

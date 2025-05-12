@@ -1,236 +1,280 @@
 // seed file for mongodb
-
-import {
-	createUser,
-	getAllUsers,
-	getUserById,
-	getUserByUsername,
-	removeUser,
-	updateUser,
-	updateUserTags,
-	getUserTags,
-	create_auth,
-	addFriend,
-	removeFriend
-} from "./users.js";
-import {
-	createPost,
-	getAllPosts,
-	getPostById,
-	getPostsByUserId,
-	removePost,
-	updatePost,
-	grabfilteredPosts
-} from "./posts.js";
-import { dbConnection, closeConnection } from "../config/mongoConnection.js";
+import { createUser, getAllUsers, getUserById, getUserByUsername, removeUser, updateUser, updateUserTags, getUserTags, create_auth, addFriend, removeFriend } from './users.js';
+import { createPost, getAllPosts, getPostById, getPostsByUserId, removePost, updatePost, grabfilteredPosts } from './posts.js';
+import { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif } from './notifications.js';
+import { dbConnection, closeConnection } from '../config/mongoConnection.js';
 
 async function main() {
-	const db = await dbConnection();
-	const userCollection = await db.collection("users");
-	const postCollection = await db.collection("projectPosts");
-	console.log("Clearing the users collection...");
-	await userCollection.deleteMany({});
-	await postCollection.deleteMany({});
-	console.log("Seeding database with sample users...");
+    const db = await dbConnection();
+    const userCollection = await db.collection('users');
 
-	try {
-		// Create sample users
-		const user1 = await createUser("johndoe", "Password123!");
-		const user2 = await createUser("janedoe", "SecurePass456!");
-		const user3 = await createUser("alicesmith", "MyPassword789!");
-		const user4 = await createUser("zakypoo", "StarwarsBearSauce12!");
-		const user5 = await createUser("annaBanana", "BananaPass123!");
+    console.log('Clearing the users collection...');
+    await userCollection.deleteMany({});
 
-		console.log("Created users:");
-		console.log(user1);
-		console.log(user2);
-		console.log(user3);
-		console.log(user4);
-		console.log(user5);
+    console.log('Seeding database with sample users...');
 
-		// Test creating a user with the same username
-		try {
-			console.log(
-				"Attempting to create a user with a duplicate username (johnDoe)..."
-			);
-			await createUser("johnDoe", "AnotherPassword123!");
-			console.log("UH OH! Did not catch duplicate username!");
-		} catch (error) {
-			console.error("Expected error for duplicate username:", error);
-		}
+    try {
+        // Create sample users
+        const user1 = await createUser('johndoe', 'Password123!');
+        const user2 = await createUser('janedoe', 'SecurePass456!');
+        const user3 = await createUser('alicesmith', 'MyPassword789!');
+        const user4 = await createUser('zakypoo', 'StarwarsBearSauce12!');
+        const user5 = await createUser('annaBanana', 'BananaPass123!');
 
-		// Test getAllUsers
-		const allUsers = await getAllUsers();
-		console.log("All users in the database:");
-		console.log(allUsers);
+        console.log('Created users:');
+        console.log(user1);
+        console.log(user2);
+        console.log(user3);
+        console.log(user4);
+        console.log(user5);
 
-		// Test getUserById
-		const userById = await getUserById(user1._id);
-		console.log(`User fetched by ID (${user1._id}):`);
-		console.log(userById);
+        // Test creating a user with the same username
+        try {
+            console.log('Attempting to create a user with a duplicate username (johnDoe)...');
+            await createUser('johnDoe', 'AnotherPassword123!');
+            console.log("UH OH! Did not catch duplicate username!");
+        } catch (error) {
+            console.error('Expected error for duplicate username:', error);
+        }
 
-		// Test getUserByUsername
-		const userByUsername = await getUserByUsername("janedoe");
-		console.log("User fetched by username (janedoe):");
-		console.log(userByUsername);
+        // Test getAllUsers
+        const allUsers = await getAllUsers();
+        console.log('All users in the database:');
+        console.log(allUsers);
 
-		// Test updateUserTags
-		console.log("Updating skill tags for user1...");
-		const updatedTags = await updateUserTags(user1._id, [
-			"JavaScript",
-			"Node.js"
-		]);
-		console.log("Updated skill tags:");
-		console.log(updatedTags);
+        // Test getUserById
+        const userById = await getUserById(user1._id);
+        console.log(`User fetched by ID (${user1._id}):`);
+        console.log(userById);
 
-		// get skill tags of user1
-		console.log("Fetching skill tags for user1...");
-		const userTags = await getUserTags(user1._id);
-		console.log("User1 skill tags:");
-		console.log(userTags);
+        // Test getUserByUsername
+        const userByUsername = await getUserByUsername('janedoe');
+        console.log('User fetched by username (janedoe):');
+        console.log(userByUsername);
 
-		// Test updateUser
-		console.log("Updating achievements for user2...");
-		const updatedUser = await updateUser(user2._id, {
-			achievements: ["Completed 100 projects", "Top contributor"]
-		});
-		console.log("Updated user:");
-		console.log(updatedUser);
+        // Test updateUserTags
+        console.log('Updating skill tags for user1...');
+        const updatedTags = await updateUserTags(user1._id, ['JavaScript', 'Node.js']);
+        console.log('Updated skill tags:');
+        console.log(updatedTags);
 
-		console.log("Updating github_profile for user1...");
-		const updatedUserGithub = await updateUser(user1._id, {
-			github_profile: "johndoe123"
-		});
-		console.log("Updated user with new github profile:");
-		console.log(updatedUserGithub);
+        // get skill tags of user1
+        console.log('Fetching skill tags for user1...');
+        const userTags = await getUserTags(user1._id);
+        console.log('User1 skill tags:');
+        console.log(userTags);
 
-		// Test adding friends
-		console.log("Adding user2 as a friend of user1...");
-		const updatedUser1WithFriend = await addFriend(user1._id, user2._id);
-		console.log("Updated user1 with friends:");
-		console.log(updatedUser1WithFriend);
+        // Test updateUser
+        console.log('Updating achievements for user2...');
+        const updatedUser = await updateUser(user2._id, {
+            achievements: ['Completed 100 projects', 'Top contributor']
+        });
+        console.log('Updated user:');
+        console.log(updatedUser);
 
-		console.log("Adding user3 as a friend of user2...");
-		const updatedUser2WithFriend = await addFriend(user2._id, user3._id);
-		console.log("Updated user2 with friends:");
-		console.log(updatedUser2WithFriend);
+        console.log('Updating github_profile for user1...');
+        const updatedUserGithub = await updateUser(user1._id, {
+            github_profile: "johndoe123"
+        });
+        console.log('Updated user with new github profile:');
+        console.log(updatedUserGithub);
 
-		console.log("Adding user3 as a friend of user1...");
-		const updatedUser1WithFriend3 = await addFriend(user1._id, user3._id);
-		console.log("Updated user1 with friends:");
-		console.log(updatedUser1WithFriend3);
+        // Test adding friends
+        console.log('Adding user2 as a friend of user1...');
+        const updatedUser1WithFriend = await addFriend(user1._id, user2._id);
+        console.log('Updated user1 with friends:');
+        console.log(updatedUser1WithFriend);
 
-		// Test removeFriend
-		console.log("Removing user2 from user1's friends...");
-		const updatedUser1WithoutFriend = await removeFriend(user1._id, user2._id);
-		console.log("Updated user1 without user2 as a friend:");
-		console.log(updatedUser1WithoutFriend);
+        console.log('Adding user3 as a friend of user2...');
+        const updatedUser2WithFriend = await addFriend(user2._id, user3._id);
+        console.log('Updated user2 with friends:');
+        console.log(updatedUser2WithFriend);
 
-		// Test removeUser
-		console.log("Removing user3...");
-		const removedUser = await removeUser(user3._id);
-		console.log(removedUser);
+        console.log('Adding user3 as a friend of user1...');
+        const updatedUser1WithFriend3 = await addFriend(user1._id, user3._id);
+        console.log('Updated user1 with friends:');
+        console.log(updatedUser1WithFriend3);
 
-		// Verify removal
-		const remainingUsers = await getAllUsers();
-		console.log("Remaining users after removal:");
-		console.log(remainingUsers);
+        // Test removeFriend
+        console.log('Removing user2 from user1\'s friends...');
+        const updatedUser1WithoutFriend = await removeFriend(user1._id, user2._id);
+        console.log('Updated user1 without user2 as a friend:');
+        console.log(updatedUser1WithoutFriend);
 
-		/**
-		 *
-		 *      TESTING POST FUNCTIONS
-		 *
-		 */
+        // Test removeUser
+        console.log('Removing user3...');
+        const removedUser = await removeUser(user3._id);
+        console.log(removedUser);
 
-		// add anna as friend of zakypoo
-		console.log("Adding user5 as a friend of user4...");
-		const updatedUser4WithFriend = await addFriend(user4._id, user5._id);
-		console.log("Updated user4 with friends:");
-		console.log(updatedUser4WithFriend);
+        // Verify removal
+        const remainingUsers = await getAllUsers();
+        console.log('Remaining users after removal:');
+        console.log(remainingUsers);
 
-		// Create sample posts from user4 nd user5
-		console.log("Creating sample posts...");
-		const post1 = await createPost(
-			"Bi-directional LSTM #pride",
-			user4._id,
-			"LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!",
-			"https://github.com/ZakariyyaScavotto/miniStockDash",
-			["MachineLearning", "python"]
-		);
-		const post2 = await createPost(
-			"Web Programming Final Project",
-			user5._id,
-			"Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.",
-			"https://github.com/annahauk/cs-546",
-			["javascript", "web"]
-		);
+        console.log('Adding user5 as a friend of user4...');
+        const updatedUser4WithFriend = await addFriend(user4._id, user5._id);
+        console.log('Updated user4 with friends:');
+        console.log(updatedUser4WithFriend);
 
-		console.log("Created posts:");
-		console.log(post1);
-		console.log(post2);
+        /**
+         * 
+         *      TESTING POST FUNCTIONS
+         * 
+         */
+        
+        // add anna as friend of zakypoo
 
-		// Test getAllPosts
-		const allPosts = await getAllPosts();
-		console.log("All posts in the database:");
-		console.log(allPosts);
+        const db = await dbConnection();
+        const postCollection = await db.collection('projectPosts');
+        console.log('Clearing the posts collection...');
+        await postCollection.deleteMany({});
 
-		// Test getPostById
-		const postById = await getPostById(post1._id);
-		console.log(`Post fetched by ID (${post1._id}):`);
-		console.log(postById);
+        console.log('Seeding database with sample posts...');
 
-		// Test getPostsByUserId
-		const postsByUserId = await getPostsByUserId(user4._id);
-		console.log(`Posts fetched by user ID (${user4._id}):`);
-		console.log(postsByUserId);
 
-		// Test updatePost
-		console.log("Updating content for post1...");
-		const updatedPost = await updatePost(post1._id, {
-			content: "Updated content for post1"
-		});
-		console.log("Updated post:");
-		console.log(updatedPost);
+        // Create sample posts from user4 nd user5
+        console.log('Creating sample posts...');
+        const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/miniStockDash", ["Machine Learning", "Deep Learning"]);
+        const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
 
-		// Test removePost
-		console.log("Removing post2...");
-		const removedPost = await removePost(post2._id);
-		console.log(removedPost);
-		// Verify removal
-		const remainingPosts = await getAllPosts();
-		console.log("Remaining posts after removal:");
-		console.log(remainingPosts);
+        console.log('Created posts:');
+        console.log(post1);
+        console.log(post2);
 
-		// Test grabfilteredPosts
-		console.log("Fetching posts with filters...");
-		const filteredPosts = await grabfilteredPosts({
-			topic_tags: "Machine Learning"
-		});
-		console.log("Filtered posts:");
-		console.log(filteredPosts);
+        // Test getAllPosts
+        const allPosts = await getAllPosts();
+        console.log('All posts in the database:');
+        console.log(allPosts);
 
-		// Test invalid inputs
-		try {
-			console.log("Attempting to create a user with an invalid username...");
-			await createUser("", "InvalidPassword!");
-			console.log("UH OH! Did not catch invalid username!");
-		} catch (error) {
-			console.error("Expected error for invalid username:", error);
-		}
+        // Test getPostById
+        const postById = await getPostById(post1._id);
+        console.log(`Post fetched by ID (${post1._id}):`);
+        console.log(postById);
 
-		try {
-			console.log("Attempting to fetch a user with an invalid ID...");
-			await getUserById("invalidObjectId");
-			console.log("UH OH! Did not catch invalid ID!");
-		} catch (error) {
-			console.error("Expected error for invalid ID:", error);
-		}
-	} catch (error) {
-		console.error("Error during seeding or testing:", error);
-	} finally {
-		console.log("Closing database connection...");
-		await closeConnection();
-	}
+        // Test getPostsByUserId
+        const postsByUserId = await getPostsByUserId(user4._id);
+        console.log(`Posts fetched by user ID (${user4._id}):`);
+        console.log(postsByUserId);
+        
+        // Test updatePost
+        console.log('Updating content for post1...');
+        const updatedPost = await updatePost(post1._id, {
+            content: 'Updated content for post1'
+        });
+        console.log('Updated post:');
+        console.log(updatedPost);
+
+        // Test removePost
+        console.log('Removing post2...');
+        const removedPost = await removePost(post2._id);
+        console.log(removedPost);
+        // Verify removal
+        const remainingPosts = await getAllPosts();
+        console.log('Remaining posts after removal:');
+        console.log(remainingPosts);
+
+        // Test grabfilteredPosts
+        console.log('Fetching posts with filters...');
+        const filteredPosts = await grabfilteredPosts(['Machine Learning']);
+        console.log('Filtered posts:');
+        console.log(filteredPosts);
+
+        
+        /**
+         * 
+         *      TESTING NOTIFICATION FUNCTIONS
+         * 
+         */
+
+        console.log('Testing notification functions...');
+
+        try {
+            // Create sample notifications
+            // async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin)
+            console.log('Creating sample notifications...');
+            const notif1 = await createNotif(user4._id, 'Friend Request', 'User5 has sent you a friend request.', null, null, 'friend_request');
+            const notif2 = await createNotif(user4._id, 'Post Liked', 'User5 liked your post.', post1._id, null, 'like');
+            const notif3 = await createNotif(user5._id, 'Achievement Unlocked', 'You have unlocked the "Top Contributor" badge.', null, null, 'achievement');
+            // we will add the comment reference when we test comments lmao
+            const notif4 = await createNotif(user4._id, 'Commented on your post', 'User5 commented on your post.', post1._id, null, 'comment');
+            const notif5 = await createNotif(user5._id, 'Friend Request', 'User4 has sent you a friend request.', null, null, 'friend_request');
+            // console.log('Created notifications:');
+            // console.log(notif1);
+            // console.log(notif2);
+            // console.log(notif3);
+            // console.log(notif4);
+
+            // Test getAllNotifs
+            console.log('Fetching all notifications...');
+            const allNotifs = await getAllNotifs(user4._id);
+            console.log('All notifications for user4:');
+            console.log(allNotifs);
+
+            // Test getNotif by ID
+            console.log(`Fetching notification by ID (${notif1._id})...`);
+            console.log("notif1 is as follows: ", notif1);
+            const fetchedNotif = await getNotif(notif1._id);
+            console.log('Fetched notification:');
+            console.log(fetchedNotif);
+
+            // Test resolveNotif
+            console.log(`Resolving notification with ID (${notif2._id})...`);
+            const resolvedNotif = await resolveNotif(notif2._id);
+            console.log('Resolved notification:');
+            console.log(resolvedNotif);
+
+            // Test removeNotif
+            console.log(`Removing notification with ID (${notif3._id})...`);
+            const removedNotif = await removeNotif(notif3._id);
+            console.log('Removed notification:');
+            console.log(removedNotif);
+
+            // Verify removal
+            console.log('Fetching all notifications after removal...');
+            const remainingNotifs = await getAllNotifs(user5._id);
+            console.log('Remaining notifications:');
+            console.log(remainingNotifs);
+
+            // Test removeAllNotif for a user
+            console.log(`Removing all notifications for user (${user5._id})...`);
+            const removedAllNotifs = await removeAllNotif(user5._id);
+            console.log('Removed all notifications for user5:');
+            console.log(removedAllNotifs);
+
+            // Verify removal
+            console.log('Fetching all notifications after removing all for user5...');
+            const remainingNotifsAfterAllRemoved = await getAllNotifs(user5._id);
+            console.log('Remaining notifications:');
+            console.log(remainingNotifsAfterAllRemoved);
+
+        } catch (error) {
+        console.error('Error during notification testing:', error);
+        }
+
+
+        // Test invalid inputs
+        try {
+            console.log('Attempting to create a user with an invalid username...');
+            await createUser('', 'InvalidPassword!');
+            console.log("UH OH! Did not catch invalid username!");
+        } catch (error) {
+            console.error('Expected error for invalid username:', error);
+        }
+
+        try {
+            console.log('Attempting to fetch a user with an invalid ID...');
+            await getUserById('invalidObjectId');
+            console.log("UH OH! Did not catch invalid ID!");
+        } catch (error) {
+            console.error('Expected error for invalid ID:', error);
+        }
+    } catch (error) {
+        console.error('Error during seeding or testing:', error);
+    } finally {
+        console.log('Closing database connection...');
+        await closeConnection();
+    }
+
 }
 
 main();

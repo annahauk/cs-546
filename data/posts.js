@@ -50,7 +50,7 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 	topic_tags = arrayVal(topic_tags, "topic_tags", "createPost");
 
 	const postCollection = await projectPosts();
-	let createdTime = new Date().toLocaleTimeString();
+	let createdTime = new Date().toLocaleString();
 
 	// Create new post object
 	let newPost = {
@@ -107,19 +107,16 @@ async function getPostById(postId) {
 
 /**
  * This function retrieves all posts created by a specific user
- * @param {string} ownerId - The ID of the user whose posts are to be retrieved
+ * @param {string} id - The ID of the user whose posts are to be retrieved
  * @returns {Array<Post>} posts - An array of posts created by the user
  * @throws {Error} if no posts are found for the user
  */
-async function getPostsByUserId(ownerId) {
-	ownerId = idVal(ownerId, "ownerId", "getPostsByUserId");
-	const postCollection = await projectPosts();
-	let posts = await postCollection
-		.find({ ownerId: new ObjectId(ownerId) })
-		.toArray();
-	if (!posts || posts.length === 0)
-		throw `No posts found for user with id: ${ownerId}`;
-	posts = posts.map((element) => {
+async function getPostsByUserId(id) {
+  id = idVal(id, 'ownerId', 'getPostsByUserId');
+  const postCollection = await projectPosts();
+  let posts = await postCollection.find({ ownerId: id }).toArray();
+  if (!posts || posts.length === 0) throw `No posts found for user with id: ${id}`;
+  posts = posts.map((element) => {
 		element._id = element._id.toString();
 		return element;
 	});

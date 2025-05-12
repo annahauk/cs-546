@@ -27,7 +27,7 @@ schema
     skill_tags: Array<string>,  List of skills, e.g., ["Web Dev", "JavaScript"]
     friends: Array<ObjectId>,   References to other user documents in the collection
     achievements: Array<String>, 
-    notifications: Array<ObjectId> References to the Notification collection
+    notifications: Array<String> Notification subdocument
 }
 */
 
