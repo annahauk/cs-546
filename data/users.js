@@ -462,7 +462,36 @@ async function getAllAchievementNames(id) {
 		else throw new Error(`Invalid achievement: ${achievement}`);
 	}
 	return achievements;
+}
 
+/**
+ * Gets the number of entries in the users collection
+ * @returns {number} The total number of users in the collection
+ */
+async function getUserCount() {
+    const userCollection = await users();
+    const count = await userCollection.countDocuments();
+    return count;
+}
+
+/**
+ * Gets the top n tags across all users
+ * @param {number} n number of tags to return 
+ * @returns {Array<String>} Array<string> of top n tags
+ */
+async function getTopUserTags(n=3) {
+	n = numberVal(n, "n", "getTopUserTags");
+	const users = await getAllUsers();
+	const tagCount = {};
+	for (let user of users) {
+		for (let tag of user.skill_tags) {
+			if (tagCount[tag]) tagCount[tag]++;
+			else tagCount[tag] = 1;
+		}
+	}
+	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
+	const topTags = sortedTags.slice(0, n).map((tag) => tag[0]);
+	return topTags
 }
 
 export {
@@ -480,5 +509,7 @@ export {
 	getUserById_ObjectId,
 	addAchievement,
 	getAllAchievements,
-	getAllAchievementNames
+	getAllAchievementNames,
+	getUserCount,
+	getTopUserTags
 };
