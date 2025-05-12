@@ -9,8 +9,16 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 	const numUsers = await getUserCount();
 	const topPostTags = await getTopPostTags(3);
 	const topUserTags = await getTopUserTags(3);
-	const oldestPost = await getOldestPost();
-	const newestPost = await getNewestPost();
+	let oldestPost = "";
+	let newestPost = "";
+	try {
+		oldestPost = (await getOldestPost()).createdAt;
+		newestPost = (await getNewestPost()).createdAt;
+	} catch (e) {
+		oldestPost = "No posts yet";
+		newestPost = "No posts yet";
+	}
+	
 	const stats = {
 		numProjects: numProjects,
 		numUsers: numUsers,
