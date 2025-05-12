@@ -81,7 +81,7 @@ function validateProjectData(data) {
 	}
 }
 
-// Handle project selection and form display
+// Handle YES
 document.addEventListener("DOMContentLoaded", function () {
 	const projectSelector = document.getElementById("projectSelector");
 	const projectForms = document.querySelectorAll(".projectForm");
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	let unsavedProjects = new Set();
 	const originalProjectData = {};
 	const projectChoices = {};
-	// Initialize Choices.js for all project to pic tags dropdowns
+	// Initialize Choices.js for all project topic tags dropdowns
 	document.querySelectorAll('[id^="topic_tags-"]').forEach((dropdown) => {
 		const idPart = dropdown.id.split("-")[1];
 		const projectId = `project-${idPart}`; // Form id style
@@ -152,6 +152,9 @@ document.addEventListener("DOMContentLoaded", function () {
 				).map((option) => option.value);
 			} else {
 				originalProjectData[projectId][input.name] = input.value;
+				if (input.name === "title") {
+					input.setAttribute("data-original-title", input.value); // Track the original title
+				}
 			}
 		});
 	});
@@ -286,6 +289,14 @@ document.addEventListener("DOMContentLoaded", function () {
 			// Convert FormData to a plain object
 			const data = Object.fromEntries(formData.entries());
 
+			// Handle multiple select fields (topic_tags)
+			const topicTagsField = form.querySelector("select[name='topic_tags']");
+			if (topicTagsField) {
+				data.topic_tags = Array.from(topicTagsField.selectedOptions).map(
+					(option) => option.value
+				);
+			}
+
 			try {
 				// Validate the data before sending it to the server
 				validateProjectData(data);
@@ -301,7 +312,25 @@ document.addEventListener("DOMContentLoaded", function () {
 				if (response.ok) {
 					const result = await response.json();
 					alert("Project updated successfully!");
-					unsavedProjects.delete(data.title);
+					// Update the project title in the dropdown
+					const projectOption = document.querySelector(
+						`#projectSelector option[value="project-${projectId}"]`
+					);
+					if (projectOption) {
+						projectOption.textContent = data.title; // Update the option text
+					}
+
+					// Update unsavedProjects to reflect the title change
+					const oldTitle = form
+						.querySelector("input[name='title']")
+						.getAttribute("data-original-title");
+					if (oldTitle) {
+						unsavedProjects.delete(oldTitle); // Remove the old title
+					}
+					form
+						.querySelector("input[name='title']")
+						.setAttribute("data-original-title", data.title);
+
 					updateUnsavedChangesWarning();
 				} else {
 					const error = await response.json();
