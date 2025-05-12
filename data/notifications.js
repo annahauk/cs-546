@@ -31,7 +31,6 @@ Notifs from:
 - project requests to join
 */
 
-
 /**
  * This function creates a new notification for a user.
  * @param {string} ownerId 
@@ -44,10 +43,12 @@ Notifs from:
  * @param {boolean} acceptedProject -- whether the notification is for accepting or rejecting a project request
  * @param {ObjectId} senderId -- the user who sent the notification(used for friend requests)
  * @param {ObjectId} projectId -- the project id for project requests
+ * @param {(null|boolean)} requiresApproval -- mark notification as an application (will show approve/deny buttons and a text field in notification)
+ * @param {ObjectId} referenceApplication -- the referance application if requiresApproval is true
  * @returns 
  */
 
-async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null) {
+async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null, requiresApproval = null, referenceApplication = null) {
   // INPUT VALIDATION
   ownerId = idVal(ownerId, 'ownerId', 'createNotif');
   title = stringVal(title, 'title', 'createNotif');
@@ -69,6 +70,17 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
   if (acceptedProject) {
     if (typeof acceptedProject !== 'boolean') {
       throw 'acceptedProject must be a boolean';
+    }
+  }
+  if(requiresApproval) {
+    if(typeof requiresApproval !== 'boolean') {
+      throw 'requiresApproval must be a boolean';
+    }
+    if(typeof referenceApplication === "undefined") {
+      throw 'requiresApproval passed without referenceApplication'
+    }
+    if(typeof referencePost === "undefined") {
+      throw 'requiresApproval passed without referencePost'
     }
   }
   if (senderId) {
@@ -99,9 +111,11 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     resolved: resolved, // Default to false when created
     time: notifDate, // The time the notification was created
     referencePost: referencePost, // Reference to the related post, if applicable
-    referenceComment: referenceComment, // Reference to the related comment, if applicable
+    referenceComment: referenceComment, // Reference to the related comment, if applicable,
+    referenceApplication: referenceApplication, // Reference to related application, if applicable,
     acceptedFriend: acceptedFriend, // A boolean to accept or reject a friend request
     acceptedProject: acceptedProject, // A boolean to accept or reject a project request
+    requiresApproval: requiresApproval, // boolean to indicate if notification is an application (or not),
     senderId: senderId, // Reference to the user who sent the notification
     projectId: projectId // Reference to the project for project requests
   };
