@@ -5,7 +5,8 @@ import { getUserCount, getTopUserTags } from "../data/users.js";
 const router = Router();
 
 router.route("/").get(isLoggedOut, async (req, res) => {
-	const numProjects = await getProjectCount();
+	const numProjectsActive = await getProjectCount("active");
+	const numProjectsCompleted = await getProjectCount("completed");
 	const numUsers = await getUserCount();
 	const topPostTags = await getTopPostTags(10);
 	const topUserTags = await getTopUserTags(10);
@@ -28,7 +29,8 @@ router.route("/").get(isLoggedOut, async (req, res) => {
 	}
 	
 	const stats = {
-		numProjects: numProjects,
+		numProjectsActive: numProjectsActive,
+		numProjectsCompleted: numProjectsCompleted,
 		numUsers: numUsers,
 		oldestPost: oldestPost,
 		newestPost: newestPost

@@ -394,10 +394,23 @@ async function remove_project_member(post, member_id) {
  * Gets the number of entries in the projects collection
  * @returns {number} The total number of projects in the collection
  */
-async function getProjectCount() {
+async function getProjectCount(calibration = "all") {
+	if (!calibration) {
+		throw new Error("Calibration value is required");
+	}
 	const postCollection = await projectPosts();
-	const count = await postCollection.countDocuments();
-	return count;
+	if (calibration === "all") {
+		return (await postCollection.countDocuments());
+	} else if (calibration === "active") {
+		return (await postCollection.countDocuments(
+			{ status: "active" }
+		));
+	} else if (calibration === "completed") {
+		return (await postCollection.countDocuments(
+			{ status: "completed" }
+		));
+	}
+	throw new Error(`Invalid calibration value ${calibration}`);
 }
 
 /**
