@@ -2,6 +2,7 @@
 import { createUser, getAllUsers, getUserById, getUserByUsername, removeUser, updateUser, updateUserTags, getUserTags, create_auth, addFriend, removeFriend } from './users.js';
 import { createPost, getAllPosts, getPostById, getPostsByUserId, removePost, updatePost, grabfilteredPosts } from './posts.js';
 import { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resolveNotif } from './notifications.js';
+import { createComment, getAllCommentsByPostId, getCommentById } from './comments.js';
 import { dbConnection, closeConnection } from '../config/mongoConnection.js';
 
 async function main() {
@@ -136,10 +137,13 @@ async function main() {
         console.log('Creating sample posts...');
         const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/miniStockDash", ["Machine Learning", "Deep Learning"]);
         const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
+        const post3 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
+
 
         console.log('Created posts:');
         console.log(post1);
         console.log(post2);
+        console.log(post3);
 
         // Test getAllPosts
         const allPosts = await getAllPosts();
@@ -175,7 +179,7 @@ async function main() {
 
         // Test grabfilteredPosts
         console.log('Fetching posts with filters...');
-        const filteredPosts = await grabfilteredPosts(['Machine Learning']);
+        const filteredPosts = await grabfilteredPosts(['Machine Learning'], "");
         console.log('Filtered posts:');
         console.log(filteredPosts);
 
@@ -252,21 +256,59 @@ async function main() {
         }
 
 
+        /**
+         * 
+         *      TESTING COMMENT FUNCTIONS
+         * 
+         */
+
+        console.log('Testing comment functions...');
+
+        try {
+            // Create sample comments
+            console.log('Creating sample comments...');
+            const comment1 = await createComment('WOAH zak! THiS IS cuspa cool!', post1._id, user1._id);
+            const comment2 = await createComment('Happy pride 🏳️‍🌈!', post1._id, user2._id);
+            const comment3 = await createComment('I wanna help you with your project! Sending freind request now!', post3._id, user4._id);
+
+            console.log('Created comments:');
+            console.log(comment1);
+            console.log(comment2);
+            console.log(comment3);
+
+            // Test getComment by ID
+            console.log(`Fetching comment by ID (${comment1._id})...`);
+            const fetchedComment = await getCommentById(comment1._id.toString());
+            console.log('Fetched comment:');
+            console.log(fetchedComment);
+
+
+            // Verify removal
+            console.log(`Fetching all comments for post (${post1._id}) after removal...`);
+            const remainingCommentsForPost2 = await getAllCommentsByPostId(post1._id);
+            console.log('Remaining comments for post2:');
+            console.log(remainingCommentsForPost2);
+
+        } catch (error) {
+            console.error('Error during comment testing:', error);
+        }
+
+
         // Test invalid inputs
         try {
-            console.log('Attempting to create a user with an invalid username...');
+            console.log('TRY: Attempting to create a user with an invalid username...');
             await createUser('', 'InvalidPassword!');
-            console.log("UH OH! Did not catch invalid username!");
+            console.log("FAIL: Did not catch invalid username!");
         } catch (error) {
-            console.error('Expected error for invalid username:', error);
+            console.error('PASS: Expected error for invalid username:', error);
         }
 
         try {
-            console.log('Attempting to fetch a user with an invalid ID...');
+            console.log('TRY: Attempting to fetch a user with an invalid ID...');
             await getUserById('invalidObjectId');
-            console.log("UH OH! Did not catch invalid ID!");
+            console.log("FAIL: Did not catch invalid ID!");
         } catch (error) {
-            console.error('Expected error for invalid ID:', error);
+            console.error('PASS: Expected error for invalid ID:', error);
         }
     } catch (error) {
         console.error('Error during seeding or testing:', error);
