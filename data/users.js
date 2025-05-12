@@ -15,6 +15,7 @@ import {
 	ACHIEVEMENTS
 } from "../helpers.js";
 import { create_auth } from "../src/lib/auth.js";
+import { createNotif } from "./notifications.js";
 
 /*
 schema
@@ -106,6 +107,14 @@ async function createUser(userName, password) {
 	// returns the user object
 	const newId = insertInfo.insertedId.toString();
 	const user = await getUserById(newId);
+
+	// give user initial "welcome" notification
+	try {
+		await createNotif(user._id.toString(), "Welcome to GitMatches!", "yay :3", undefined, undefined, "GitMatches");
+	} catch (e) {
+		throw new Error(`Failed to create initial comment ${e}`);
+	}
+
 	return user;
 }
 
