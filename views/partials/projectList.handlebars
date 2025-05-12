@@ -4,6 +4,7 @@
 		{{#each posts}}
 			<li class="project">
 				<a href="/projects/{{this._id}}">{{this.title}}</a>
+				<p>Created on {{this.createdAt}}</p>
 				<ol>
 					{{#each topic_tags}}
 						<li>{{this}}</li>
