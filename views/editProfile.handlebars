@@ -4,6 +4,8 @@
     <h1>Edit Profile</h1>
     <div class="leftSide">
         <h2>Update Skill Tags</h2>
+        <!-- Unsaved changes warning -->
+        <p id="unsavedTagsWarning" hidden>You have unsaved changes!</p>
         <form action="/profile/{{user._id}}/updateTags" method="POST" id="updateTags-form">
             <label for="tags">Skill Tags:</label>
             <select name="tags" id="tags" multiple>
@@ -12,6 +14,7 @@
                 {{/each}}
             </select>
             <button type="submit">Update Tags</button>
+            <button type="button" id="resetTagsButton">Reset</button>
         </form>
     </div>
     <div class="rightSide">
@@ -24,6 +27,9 @@
                     <option value="project-{{this._id}}">{{this.title}}</option>
                 {{/each}}
             </select>
+            <!-- Unsaved changes warning -->
+            <p id="unsavedChangesWarning" hidden>You have unsaved changes!</p>
+
             <div id="projectForms">
                 {{#each userProjects}}
                     <div class="projectForm" id="project-{{this._id}}" style="display: none;">
@@ -49,7 +55,7 @@
                                     <option value="{{this}}" {{#if (includes ../this.topic_tags this)}}selected{{/if}}>{{this}}</option>
                                 {{/each}}
                             </select>
-                            
+
                             <h3>Project Members</h3>
                             {{#if this.members.length}}
                                 <ul>
@@ -64,6 +70,7 @@
                                 <p>No members to manage.</p>
                             {{/if}}
                             <button type="submit">Save Changes</button>
+                            <button type="button" class="resetProjectButton" data-project-id="{{this._id}}">Reset</button>
                         </form>
                     </div>
                 {{/each}}
@@ -76,7 +83,7 @@
 <script src="/public/js/editProfile.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script>
+{{!-- <script>
     // Initialize Choices.js for tags 
     document.addEventListener('DOMContentLoaded', function () {
         const tagsDropdown = new Choices('#tags', {
@@ -93,4 +100,4 @@
             });
         });
     });
-</script>
+</script> --}}
