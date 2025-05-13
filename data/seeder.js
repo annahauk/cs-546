@@ -360,6 +360,8 @@ async function seedDatabase() {
 
     const userCollection = await db.collection('users');
     const authCollection = await db.collection('auth');
+
+    console.log("Seeding our database with Anna + Zak's actual data...");
     await userCollection.insertMany([
         {
             _id: new ObjectId("6823981f54c1776e8dd3ab6f"),

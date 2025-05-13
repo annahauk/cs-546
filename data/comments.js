@@ -25,7 +25,7 @@ async function createComment(content, postId, ownerId) {
 	content = stringVal(content, "content", "createComment");
 	postId = idVal(postId, "postId", "createComment");
 	ownerId = idVal(ownerId, "ownerId", "createComment");
-	console.log("postId", postId, "ownerId", ownerId);
+	//console.log("postId", postId, "ownerId", ownerId);
 	if (content.length < 1 || content.length > 100)
 		throw `Comment must be between 1 and 100 characters`;
 

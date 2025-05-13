@@ -78,7 +78,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		user["Friends"] = [];
 		for (const ii in user.friends) {
 			// get user from member id
-			console.log(user.friends[ii]);
+			//console.log(user.friends[ii]);
 			let user2 = await getUserById(user.friends[ii].id.toString());
 
 			// assign member id/name combination to project member info position
@@ -89,7 +89,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		}
 		// Get the projects created by the user
 		let isFriendVal = await users_are_friends(user, me);
-		console.log(isFriendVal)
+		//console.log(isFriendVal)
 		const notifs = await pendingNotifs(me._id);
 
 		// set boolean if the logged in user matches the profile user (profile is the user's profile)
