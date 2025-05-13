@@ -9,7 +9,11 @@ import {
 	setUserTags,
 	users_are_friends,
 	create_friend_request,
-	user_has_friend_request
+	user_has_friend_request,
+	get_friend_request,
+	approve_friend_request,
+	deny_friend_request,
+	remove_friend
 } from "../data/users.js";
 import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
@@ -73,7 +77,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		user["Friends"] = [];
 		for (const ii in user.friends) {
 			// get user from member id
-			let user2 = await getUserById(user.friends[ii].toString());
+			console.log(user.friends[ii]);
+			let user2 = await getUserById(user.friends[ii].id.toString());
 
 			// assign member id/name combination to project member info position
 			user["Friends"][ii] = {
@@ -82,6 +87,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			};
 		}
 		// Get the projects created by the user
+		let isFriendVal = await users_are_friends(user, me);
+		console.log(isFriendVal)
 		try {
 			const userPosts = await getPostsByUserId(userId);
 			res.render("profile", {
@@ -89,14 +96,17 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				title: user.user_name,
 				userProjects: userPosts,
 				isMyProfile: isMyProfile,
-				hasFriendRequest: await user_has_friend_request(me, user)
+				hasFriendRequest: await user_has_friend_request(me, user),
+				isFriend: await users_are_friends(user, me)
 			});
 		} catch (e) {
 			res.render("profile", {
 				user: user,
 				title: user.user_name,
 				userProjects: [],
-				isMyProfile: isMyProfile
+				isMyProfile: isMyProfile,
+				hasFriendRequest: await user_has_friend_request(me, user),
+				isFriend: await users_are_friends(user, me)
 			});
 		}
 	} catch (error) {
@@ -277,5 +287,116 @@ router.route("/friendRequest/:id")
 
 		return res.redirect(`/profile/${id}`);
 	})
+
+// accept fwiend wequest :3
+router.route("/friendAccept/:requestId")
+	.post(async(req,res) => {
+		let reqId;
+		let username;
+		try {
+			reqId = idVal(req.params.requestId);
+			username = stringVal(req.cookies["username"]);
+		} catch (e) {
+			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+		}
+
+		let user = await getUserByUsername(username);
+		if(!user) {
+			return res.status(500).render(`error`, {error: `User not found.`});
+		}
+		user._id = idVal(user._id.toString());
+
+		// get friend request in user
+		let request = await get_friend_request(user, reqId);
+		if(!request) {
+			return res.status(404).render(`error`, {error: `Friend request not found.`});
+		}
+
+		// approve friend request
+		try {
+			await approve_friend_request(user, reqId);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render(`error`, {'error': `Failed to approve friend request`});
+		}
+
+		return res.redirect(`/notifications`);
+	});
+
+router.route("/friendDeny/:requestId")
+	.post(async (req,res) => {
+		let reqId;
+		let username;
+		try {
+			reqId = idVal(req.params.requestId);
+			username = stringVal(req.cookies["username"]);
+		} catch (e) {
+			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+		}
+
+		let user = await getUserByUsername(username);
+		if(!user) {
+			return res.status(500).render(`error`, {error: `User not found.`});
+		}
+		user._id = idVal(user._id.toString());
+
+		// get friend request in user
+		let request = await get_friend_request(user, reqId);
+		if(!request) {
+			return res.status(404).render(`error`, {error: `Friend request not found.`});
+		}
+
+		try {
+			await deny_friend_request(user, reqId);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render(`error`, {error: `Failed to deny friend request.`});
+		}
+
+		res.redirect(`/notifications`);
+	});
+
+router.route("/friendRemove/:id")
+	.post(async(req,res) => {
+		let id;
+		let username;
+		try {
+			id = idVal(req.params.id);
+			username = stringVal(req.cookies["username"]);
+		} catch (e) {
+			console.error(e);
+			return res.status(400).render(`error`, {error: `bad id or username`});
+		}
+
+		let me = await getUserByUsername(username);
+		me._id = idVal(me._id.toString());
+		if(!me) {
+			return res.status(500).render(`error`, {"error": `me not found?`});
+		}
+
+		let user = await getUserById(id);
+		if(!user) {
+			return res.status(404).render(`error`, {'error': `User not found.`});
+		}
+
+		let friend;
+		for(const f of me.friends) {
+			if(f.id === id) {
+				friend = f;
+			}
+		}
+		if(!friend) {
+			return res.status(404).render(`error`, {error: `Friend not found`});
+		}
+
+		try {
+			await remove_friend(me, friend.id);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render(`error`, {'error': `Failed to remove friend`});
+		}
+
+		return res.redirect(`/profile/${user._id}`);
+	});
 
 export default router;
