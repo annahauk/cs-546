@@ -360,9 +360,6 @@ async function seedDatabase() {
 
     const userCollection = await db.collection('users');
     const authCollection = await db.collection('auth');
-
-    console.log("Seeding our database with Anna + Zak's actual data...");
-
     await userCollection.insertMany([
         {
             _id: new ObjectId("6823981f54c1776e8dd3ab6f"),
@@ -554,8 +551,8 @@ async function seedDatabase() {
   let anna_id = "6823876f2f73c915c03fc4ba";
   try{
         // lets add them as friends
-        await addFriend(zak_id,anna_id);
-        await addFriend(anna_id,zak_id);
+       //await addFriend(zak_id,anna_id);
+       //await addFriend(anna_id,zak_id);
     }catch(e){
         console.error("Error adding friends: ", e);
     }
