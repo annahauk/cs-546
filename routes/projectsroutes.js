@@ -744,8 +744,40 @@ router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 			return res.status(401).json({ error: "Unauthorized" });
 		}
 		projectId = idVal(projectId, "projectId", "like(route)");
+		let post = null;
+		try {
+			post = await getPostById(projectId);
+		} catch (e) {
+			return res
+				.status(404)
+				.render("error", { message: "Project not found", title: "Error" });
+		}
 		userId = idVal(userId, "userId", "like(route)");
 		const updatedPost = await doPostLikeAction(projectId, userId);
+		try {
+			if (updatedPost.likes.includes(userId)) {
+				// Notification to the project owner
+				await createNotif(
+					post.ownerId,
+					`Post Liked`,
+					`${username} liked your project: ${post.title}`,
+					projectId,
+					null,
+					"GitMatches System",
+					null,
+					null,
+					userId, // maybe should be null?
+					projectId, // maybe should be null?
+					null,
+					null
+				);
+			}
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render("error", {
+				error: `Failed to push notifications.`
+			});
+		}
 		// Return updated like count
 		res.json({ likes: updatedPost.likes.length });
 	} catch (error) {
