@@ -679,6 +679,8 @@ async function approve_friend_request(user, request_id) {
 	if(!friend_add.acknowledged) {
 		throw new Error(`Failed to insert friend.`);
 	}
+	const updatedUserDoc = await usersc.findOne({_id: new ObjectId(user._id)});
+	await addAchievement(user._id, "friends", updatedUserDoc.friends.length);
 
 	// add friend to requester
 	let requester_add = await usersc.updateOne({_id: new ObjectId(request.requester)}, {$push: {"friends": {
@@ -689,6 +691,8 @@ async function approve_friend_request(user, request_id) {
 	if(!requester_add.acknowledged) {
 		throw new Error(`Failed to insert friend to requester.`);
 	}
+	const updatedRequesterDoc = await usersc.findOne({_id: new ObjectId(request.requester)});
+	await addAchievement(request.requester, "friends", updatedRequesterDoc.friends.length);
 
 	// remove friend request object from user
 	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": {"_id": new ObjectId(request_id)}}});
