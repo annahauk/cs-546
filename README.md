@@ -6,6 +6,17 @@
 
 **GitMatches** is a platform designed to help developers collaborate on open-source projects by intelligently matching them based on GitHub activity, skills, and experience as well as their resume data. Whether you're looking to join a project, find contributors for your own, or grow your network of fellow programmers, GitMatches makes it easier than ever to build meaningful connections in the dev community.
 
+## Setup
+### General Dependencies
+Please have `nodejs` and `npm` installed. 
+Once you have the code of the project ready, install the nodejs dependencies with `npm i`
+
+### Platform-spesific Dependencies
+If you are using MacOS or Linux, you will need to install poppler before running this project.
+You can install this with the following command(s) depending on your platform:
+- Linux (Ubuntu/Debian): `sudo apt-get install poppler-data poppler-utils`
+- MacOS (Homebrew): `brew install poppler`
+
 ## 🚀 Key Features
 
 - **🔍 GitHub & Resume Matching:**  
