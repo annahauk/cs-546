@@ -48,7 +48,7 @@ Notifs from:
  * @returns 
  */
 
-async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null, requiresApproval = null, referenceApplication = null) {
+async function createNotif(ownerId, title, content, referencePost=null, referenceComment = null, origin, acceptedFriend = null, acceptedProject = null, senderId = null, projectId = null, requiresApproval = null, referenceApplication = null, referenceFriendRequest = null) {
   // INPUT VALIDATION
   ownerId = idVal(ownerId, 'ownerId', 'createNotif');
   title = stringVal(title, 'title', 'createNotif');
@@ -64,6 +64,9 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
   }
   if(referenceApplication) {
     referenceApplication = idVal(referenceApplication);
+  }
+  if(referenceFriendRequest) {
+    referenceFriendRequest = idVal(referenceFriendRequest);
   }
   if (acceptedFriend) {
     if (typeof acceptedFriend !== 'boolean') {
@@ -116,6 +119,7 @@ async function createNotif(ownerId, title, content, referencePost=null, referenc
     referencePost: referencePost, // Reference to the related post, if applicable
     referenceComment: referenceComment, // Reference to the related comment, if applicable,
     referenceApplication: referenceApplication, // Reference to related application, if applicable,
+    referenceFriendRequest: referenceFriendRequest, // Reference to friend request
     acceptedFriend: acceptedFriend, // A boolean to accept or reject a friend request
     acceptedProject: acceptedProject, // A boolean to accept or reject a project request
     requiresApproval: requiresApproval, // boolean to indicate if notification is an application (or not),
