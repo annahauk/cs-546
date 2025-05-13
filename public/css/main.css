@@ -10,6 +10,17 @@ body {
 	min-height: 100vh;
 }
 
+.coolahhbg {
+	position: absolute;
+	z-index: -1;
+	width:100vw;
+	height:100vh;
+
+	background-color: #ffffff;
+	opacity: 0.1;
+	background: repeating-linear-gradient( 45deg, #0072ff, #0072ff 2px, #ffffff 2px, #ffffff 10px );
+}
+
 .message-container {
 	display: flex;
 	justify-content: center;
