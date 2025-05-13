@@ -169,12 +169,18 @@ router
 			if (!title || typeof title !== "string" || title.trim() === "") {
 				errors.push("Title is required.");
 			}
+			if (title.trim().length < 5 || title.trim().length > 50) {
+				errors.push("Title must be between 5 and 50 characters.");
+			}
 			if (
 				!description ||
 				typeof description !== "string" ||
 				description.trim() === ""
 			) {
 				errors.push("Description is required.");
+			}
+			if (description.trim().length < 10 || description.trim().length > 2000) {
+				errors.push("Description must be between 10 and 2000 characters.");
 			}
 			if (
 				!repoLink ||
@@ -297,11 +303,16 @@ router
 
 		// create application
 		let application;
+		let text = req.body["text"];
+		if (text) {
+			text = text.trim();
+			if (text.length > 200) return res.status(400).json({ message: "Message must be up to 200 characters" });
+		}
 		try {
 			application = await create_project_application(
 				project,
 				user,
-				req.body["text"]
+				text
 			);
 		} catch (e) {
 			return await res.status(500).render("error", {
@@ -330,7 +341,7 @@ router
 			);
 
 			// owner notification, requires approval, include reference application and post
-			let message = req.body["text"] ? req.body["text"] : "";
+			let message = req.body["text"] ? text : "";
 			console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
