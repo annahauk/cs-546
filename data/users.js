@@ -304,7 +304,8 @@ async function addFriend(id, friendId) {
 	);
 	if (updateInfo.modifiedCount === 0)
 		throw `Could not add friend with id of ${friendId}`;
-	await addAchievement(id, "friends", updatedUser.friends.length);
+	const updatedUserDoc = await userCollection.findOne({ _id: new ObjectId(id) });
+	await addAchievement(id, "friends", updatedUserDoc.friends.length);
 
 	return await getUserById(id);
 }
@@ -457,7 +458,8 @@ async function addAchievement(id, category, val) {
 			!user.achievements.includes(achievement.name) &&
 			val >= achievement.value
 		) {
-			await updateUser(id, { achievements: user.achievements.push(achievement.name) });
+			user.achievements.push(achievement.name);
+			await updateUser(id, { achievements: user.achievements });
 			await createNotif(
 				id,
 				`Achievement Unlocked: ${achievement.name}`,

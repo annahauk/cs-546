@@ -96,7 +96,7 @@ async function main() {
         // Test updateUser
         console.log('Updating achievements for user2...');
         const updatedUser = await updateUser(user2._id, {
-            achievements: ['Completed 100 projects', 'Top contributor']
+            achievements: ['Checkout', 'Hello World!']
         });
         console.log('Updated user:');
         console.log(updatedUser);

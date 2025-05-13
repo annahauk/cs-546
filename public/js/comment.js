@@ -45,6 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
 					const commentsList = document.querySelector("ul");
 					commentsList.outerHTML = updatedComments;
 					commentTextarea.value = ""; // Clear the textarea
+					const noComments = document.getElementById("no-comments");
+					if (noComments) {
+						noComments.hidden = true;
+					}
 				} else {
 					const error = await response.json();
 					errorElement.hidden = false;

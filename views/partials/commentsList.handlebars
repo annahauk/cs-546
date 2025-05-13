@@ -1,12 +1,11 @@
-{{#if comments}}
-	<ul>
-		{{#each comments}}
-			<li>
-				{{this.author}}:
-				{{this.content}}
-			</li>
-		{{/each}}
-	</ul>
-{{else}}
-	<p>No comments yet.</p>
-{{/if}}
+<ul>
+	{{#each comments}}
+		<li>
+			{{this.author}}:
+			{{this.content}}
+		</li>
+	{{/each}}
+</ul>
+{{#unless comments}}
+	<p id="no-comments">No comments yet.</p>
+{{/unless}}
