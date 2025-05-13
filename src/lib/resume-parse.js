@@ -2,60 +2,8 @@
 import compromise from "compromise";
 import { Poppler } from "node-poppler";
 import path from "path";
-
+import { TERMS_AND_DOMAINS } from "../../helpers.js";
 // List of programming languages (there are 100s): https://en.wikipedia.org/wiki/List_of_programming_languages
-const TERMS_AND_DOMAINS = {
-	// Programming Languages
-	Python: { tag: "ProgrammingLanguage", domain: "MachineLearning" },
-	R: { tag: "ProgrammingLanguage", domain: "MachineLearning" },
-	JavaScript: { tag: "ProgrammingLanguage", domain: "WebDevelopment" },
-	HTML: { tag: "ProgrammingLanguage", domain: "WebDevelopment" },
-	CSS: { tag: "ProgrammingLanguage", domain: "WebDevelopment" },
-	Java: { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
-	C: { tag: "ProgrammingLanguage", domain: "LowLevel" },
-	"C++": { tag: "ProgrammingLanguage", domain: "LowLevel" },
-	Rust: { tag: "ProgrammingLanguage", domain: "LowLevel" },
-	Go: { tag: "ProgrammingLanguage", domain: "SystemsProgramming" },
-	Swift: { tag: "ProgrammingLanguage", domain: "MobileDevelopment" },
-	"C#": { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
-	PHP: { tag: "ProgrammingLanguage", domain: "WebDevelopment" },
-	Ruby: { tag: "ProgrammingLanguage", domain: "WebDevelopment" },
-	Julia: { tag: "ProgrammingLanguage", domain: "DataScience" },
-	SQL: { tag: "ProgrammingLanguage", domain: "DataManagement" },
-	MATLAB: { tag: "ProgrammingLanguage", domain: "ScientificComputing" },
-	Fortran: { tag: "ProgrammingLanguage", domain: "ScientificComputing" },
-	COBOL: { tag: "ProgrammingLanguage", domain: "LegacySystems" },
-	OCaml: { tag: "ProgrammingLanguage", domain: "FunctionalProgramming" },
-	Assembly: { tag: "ProgrammingLanguage", domain: "LowLevel" },
-
-	// Machine Learning Libraries
-	"scikit-learn": { tag: "Library", domain: "MachineLearning" },
-	sklearn: { tag: "Library", domain: "MachineLearning" },
-	TensorFlow: { tag: "Library", domain: "MachineLearning" },
-	PyTorch: { tag: "Library", domain: "MachineLearning" },
-	Keras: { tag: "Library", domain: "MachineLearning" },
-
-	// Web Development Frameworks
-	"Node.js": { tag: "Framework", domain: "WebDevelopment" },
-	Node: { tag: "Framework", domain: "WebDevelopment" },
-	Express: { tag: "Framework", domain: "WebDevelopment" },
-	React: { tag: "Framework", domain: "WebDevelopment" },
-	Angular: { tag: "Framework", domain: "WebDevelopment" },
-	Vue: { tag: "Framework", domain: "WebDevelopment" },
-
-	// Data Tools
-	Pandas: { tag: "Library", domain: "DataAnalysis" },
-	NumPy: { tag: "Library", domain: "DataAnalysis" },
-	Matplotlib: { tag: "Library", domain: "DataVisualization" },
-	Seaborn: { tag: "Library", domain: "DataVisualization" },
-
-	// DevOps / Cloud
-	Docker: { tag: "Tool", domain: "DevOps" },
-	Kubernetes: { tag: "Tool", domain: "DevOps" },
-	AWS: { tag: "CloudPlatform", domain: "Cloud" },
-	Azure: { tag: "CloudPlatform", domain: "Cloud" },
-	GCP: { tag: "CloudPlatform", domain: "Cloud" }
-};
 
 // For setting up our custom tags: https://observablehq.com/@spencermountain/compromise-constructor-methods
 const setupCompromisePlugin = () => {
@@ -169,4 +117,6 @@ const processUploadedResume = async (file) => {
 	return tags;
 };
 
-testMain();
+// testMain();
+
+export { processUploadedResume };

@@ -1,43 +1,84 @@
 {{! Handlebars for the user profile page }}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/main.css">
+</head>
 {{> navbar}}
 <div class="container">
     <div class="leftSide">
-        <img src="" alt="{{user.user_name}}">
+        <img src="{{user.gh_info.data.avatar_url}}" alt="{{user.user_name}}">
         <h1>{{user.user_name}}</h1>
-        <form action="/profile/{{user.id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form">
+        <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form" data-user-id="{{user._id}}">
             <label for="resume">Upload Resume (PDF):</label>
             <input type="file" id="resume" name="resume" accept="application/pdf" required>
             <button type="submit">Upload</button>
         </form>
         <p>Achievements</p>
-        <ol>
-            {{#each user.achievements}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <ul class="achievementsList">
+            {{#if user.achievements.length}}
+                {{#each user.achievements}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>No achievements unlocked yet!</li>
+            {{/if}}
+        </ul>
     </div>
     <div class="centerArea">
-        <ol class="tagsList">
-            {{#each user.skill_tags}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
-        <ol class="projectsList">
-            {{#each user.projects}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <p>Tags</p>
+        <ul class="tagsList">
+            {{#if user.skill_tags.length}}
+                {{#each user.skill_tags}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>No skill tags added yet.</li>
+            {{/if}}
+        </ul>
+        <p>Projects</p>
+        <ul class="projectsList">
+            {{#if userProjects.length}}
+                {{#each userProjects}}
+                    <li class="projectItem">
+                        <h3>{{this.title}}</h3>
+                        <p>{{this.description}}</p>
+                        <p>Status: {{this.status}}</p>
+                        {{#if this.repoLink}}
+                            <a href="{{this.repoLink}}" target="_blank">Repository Link</a>
+                        {{else}}
+                            <p>No repository link provided.</p>
+                        {{/if}}
+                        {{#if this.topic_tags.length}}
+                            <p>Tags:</p>
+                            <ul class="tagsList">
+                                {{#each this.topic_tags}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <p>No tags available.</p>
+                        {{/if}}
+                    </li>
+                {{/each}}
+            {{else}}
+                <li>No projects yet.</li>
+            {{/if}}
+        </ul>
         <div class="manageLinks">
-            <a href="/{{user.id}}/edit">Edit Profile</a>
-            <a href="/{{user.id}}/projects">Manage Projects</a>
+            <a href="/profile/{{user._id}}/edit">Managed Profile & Projects</a>
         </div>
     </div>
     <div class="rightSide">
-        <ol class="friendsList">
-            {{#each user.friends}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ol>
+        <p>Friends</p>
+        <ul class="friendsList">
+            {{#if user.friends.length}}
+                {{#each user.friends}}
+                    <li>{{this}}</li>
+                {{/each}}
+            {{else}}
+                <li>It's a little lonely... no friends</li>
+            {{/if}}
+        </ul>
     </div>
 </div>
 <script src="/public/js/resumeUpload.js"></script>

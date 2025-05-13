@@ -1,6 +1,287 @@
 //You can add and export any helper functions you want here. If you aren't using any, then you can just leave this file as is.
 
 import { ObjectId } from "mongodb";
+
+/**
+ * Constant for all the tags and domains
+ */
+const TERMS_AND_DOMAINS = {
+	python: { tag: "ProgrammingLanguage", domain: "MachineLearning" },
+	r: { tag: "ProgrammingLanguage", domain: "MachineLearning" },
+	javascript: { tag: "ProgrammingLanguage", domain: "Web" },
+	html: { tag: "ProgrammingLanguage", domain: "Web" },
+	css: { tag: "ProgrammingLanguage", domain: "Web" },
+	java: { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
+	c: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	"c++": { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	rust: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	go: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	swift: { tag: "ProgrammingLanguage", domain: "MobileDevelopment" },
+	"c#": { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
+	php: { tag: "ProgrammingLanguage", domain: "Web" },
+	ruby: { tag: "ProgrammingLanguage", domain: "Web" },
+	julia: { tag: "ProgrammingLanguage", domain: "Data" },
+	sql: { tag: "ProgrammingLanguage", domain: "Data" },
+	cobol: { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
+	ocaml: { tag: "ProgrammingLanguage", domain: "GeneralPurpose" },
+	assembly: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	scala: { tag: "ProgrammingLanguage", domain: "Data" },
+	typescript: { tag: "ProgrammingLanguage", domain: "Web" },
+	bash: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	shell: { tag: "ProgrammingLanguage", domain: "LowLevel" },
+	typescript: { tag: "ProgrammingLanguage", domain: "Web" },
+	"scikit-learn": { tag: "Library", domain: "MachineLearning" },
+	sklearn: { tag: "Library", domain: "MachineLearning" },
+	tensorflow: { tag: "Library", domain: "MachineLearning" },
+	pytorch: { tag: "Library", domain: "MachineLearning" },
+	keras: { tag: "Library", domain: "MachineLearning" },
+	xgboost: { tag: "Library", domain: "MachineLearning" },
+	lightgbm: { tag: "Library", domain: "MachineLearning" },
+	catboost: { tag: "Library", domain: "MachineLearning" },
+	pandas: { tag: "Library", domain: "Data" },
+	numpy: { tag: "Library", domain: "Data" },
+	matplotlib: { tag: "Library", domain: "Data" },
+	seaborn: { tag: "Library", domain: "Data" },
+	polars: { tag: "Library", domain: "Data" },
+	plotly: { tag: "Library", domain: "Data" },
+	altair: { tag: "Library", domain: "Data" },
+	huggingface: { tag: "Library", domain: "MachineLearning" },
+	langchain: { tag: "Library", domain: "MachineLearning" },
+	jquery: { tag: "Library", domain: "Web" },
+	redux: { tag: "Library", domain: "Web" },
+	opencv: { tag: "Library", domain: "AI" },
+	nltk: { tag: "Library", domain: "NaturalLanguageProcessing" },
+	spacy: { tag: "Library", domain: "NaturalLanguageProcessing" },
+	"hugging face": { tag: "Library", domain: "NaturalLanguageProcessing" },
+	langchain: { tag: "Library", domain: "NaturalLanguageProcessing" },
+	"web3.js": { tag: "Library", domain: "Blockchain" },
+	"node.js": { tag: "Framework", domain: "Web" },
+	node: { tag: "Framework", domain: "Web" },
+	express: { tag: "Framework", domain: "Web" },
+	react: { tag: "Framework", domain: "Web" },
+	angular: { tag: "Framework", domain: "Web" },
+	vue: { tag: "Framework", domain: "Web" },
+	"next.js": { tag: "Framework", domain: "Web" },
+	flask: { tag: "Framework", domain: "Web" },
+	django: { tag: "Framework", domain: "Web" },
+	duckdb: { tag: "Tool", domain: "Data" },
+	dbt: { tag: "Tool", domain: "Data" },
+	powerbi: { tag: "Tool", domain: "Data" },
+	tableau: { tag: "Tool", domain: "Data" },
+	looker: { tag: "Tool", domain: "Data" },
+	superset: { tag: "Tool", domain: "Data" },
+	excel: { tag: "Tool", domain: "Data" },
+	docker: { tag: "Tool", domain: "DevOps" },
+	kubernetes: { tag: "Tool", domain: "DevOps" },
+	aws: { tag: "CloudPlatform", domain: "Cloud" },
+	azure: { tag: "CloudPlatform", domain: "Cloud" },
+	gcp: { tag: "CloudPlatform", domain: "Cloud" },
+	firebase: { tag: "CloudPlatform", domain: "Cloud" },
+	snowflake: { tag: "Tool", domain: "Data" },
+	databricks: { tag: "Tool", domain: "Data" },
+	bigquery: { tag: "Tool", domain: "Data" },
+	hadoop: { tag: "Tool", domain: "Data" },
+	spark: { tag: "Tool", domain: "Data" },
+	airflow: { tag: "Tool", domain: "Data" },
+	mlflow: { tag: "Tool", domain: "MachineLearning" },
+	openai: { tag: "Tool", domain: "MachineLearning" },
+	jupyter: { tag: "Tool", domain: "Data" },
+	"jupyter notebook": { tag: "Tool", domain: "Data" },
+	vscode: { tag: "Tool", domain: "DevOps" },
+	git: { tag: "Tool", domain: "DevOps" },
+	github: { tag: "Tool", domain: "DevOps" },
+	gitlab: { tag: "Tool", domain: "DevOps" },
+	bitbucket: { tag: "Tool", domain: "DevOps" },
+	jira: { tag: "Tool", domain: "DevOps" },
+	postman: { tag: "Tool", domain: "Web" },
+	mysql: { tag: "Tool", domain: "Data" },
+	postgresql: { tag: "Tool", domain: "Data" },
+	sqlite: { tag: "Tool", domain: "Data" },
+	mongodb: { tag: "Tool", domain: "Data" },
+	neo4j: { tag: "Tool", domain: "Data" },
+	redis: { tag: "Tool", domain: "LowLevel" },
+	sass: { tag: "Tool", domain: "Web" },
+	less: { tag: "Tool", domain: "Web" },
+	tailwind: { tag: "Framework", domain: "Web" },
+	bootstrap: { tag: "Framework", domain: "Web" },
+	"next.js": { tag: "Framework", domain: "Web" },
+	django: { tag: "Framework", domain: "Web" },
+	flask: { tag: "Framework", domain: "Web" },
+	fastapi: { tag: "Framework", domain: "Web" },
+	mongodb: { tag: "Database", domain: "Data" },
+	postgresql: { tag: "Database", domain: "Data" },
+	mysql: { tag: "Database", domain: "Data" },
+	redis: { tag: "Tool", domain: "Data" },
+	"power bi": { tag: "Tool", domain: "Data" },
+	colab: { tag: "Tool", domain: "Data" },
+	terraform: { tag: "Tool", domain: "DevOps" },
+	ansible: { tag: "Tool", domain: "DevOps" },
+	jenkins: { tag: "Tool", domain: "DevOps" },
+	git: { tag: "Tool", domain: "DevOps" },
+	"github actions": { tag: "Tool", domain: "DevOps" },
+	circleci: { tag: "Tool", domain: "DevOps" },
+	heroku: { tag: "CloudPlatform", domain: "Cloud" },
+	netlify: { tag: "CloudPlatform", domain: "Cloud" },
+	vercel: { tag: "CloudPlatform", domain: "Cloud" },
+	unity: { tag: "Engine", domain: "GameDevelopment" },
+	unreal: { tag: "Engine", domain: "GameDevelopment" },
+	godot: { tag: "Engine", domain: "GameDevelopment" },
+	blender: { tag: "Tool", domain: "GameDevelopment" },
+	pinecone: { tag: "Tool", domain: "NaturalLanguageProcessing" },
+	streamlit: { tag: "Tool", domain: "Web" },
+	gradio: { tag: "Tool", domain: "Web" },
+	kotlin: { tag: "ProgrammingLanguage", domain: "MobileDevelopment" },
+	"react native": { tag: "Framework", domain: "MobileDevelopment" },
+	flutter: { tag: "Framework", domain: "MobileDevelopment" },
+	xamarin: { tag: "Framework", domain: "MobileDevelopment" },
+	"objective-c": { tag: "ProgrammingLanguage", domain: "MobileDevelopment" },
+	solidity: { tag: "ProgrammingLanguage", domain: "Blockchain" },
+	ethereum: { tag: "Platform", domain: "Blockchain" },
+	hyperledger: { tag: "Platform", domain: "Blockchain" },
+	metamask: { tag: "Tool", domain: "Blockchain" },
+	truffle: { tag: "Tool", domain: "Blockchain" },
+	ganache: { tag: "Tool", domain: "Blockchain" },
+	hardhat: { tag: "Tool", domain: "Blockchain" },
+	wireshark: { tag: "Tool", domain: "Cybersecurity" },
+	nmap: { tag: "Tool", domain: "Cybersecurity" },
+	metasploit: { tag: "Tool", domain: "Cybersecurity" },
+	"burp suite": { tag: "Tool", domain: "Cybersecurity" },
+	"kali linux": { tag: "Tool", domain: "Cybersecurity" },
+	snort: { tag: "Tool", domain: "Cybersecurity" },
+	splunk: { tag: "Tool", domain: "Cybersecurity" },
+	osint: { tag: "Concept", domain: "Cybersecurity" },
+	soc: { tag: "Concept", domain: "Cybersecurity" },
+	siem: { tag: "Tool", domain: "Cybersecurity" },
+	zap: { tag: "Tool", domain: "Cybersecurity" },
+	prometheus: { tag: "Tool", domain: "DevOps" },
+	grafana: { tag: "Tool", domain: "DevOps" },
+	datadog: { tag: "Tool", domain: "DevOps" },
+	"new relic": { tag: "Tool", domain: "DevOps" },
+	postman: { tag: "Tool", domain: "Web" },
+	swagger: { tag: "Tool", domain: "Web" },
+	openapi: { tag: "Standard", domain: "Web" },
+	redshift: { tag: "Tool", domain: "Data" },
+	etl: { tag: "Concept", domain: "Data" },
+	elt: { tag: "Concept", domain: "Data" },
+	olap: { tag: "Concept", domain: "Data" },
+	oltp: { tag: "Concept", domain: "Data" },
+	"data lake": { tag: "Concept", domain: "Data" },
+	"data warehouse": { tag: "Concept", domain: "Data" },
+	"feature store": { tag: "Tool", domain: "Data" },
+	"data governance": { tag: "Concept", domain: "Data" },
+	"data engineering": { tag: "Concept", domain: "Data" },
+	"data science": { tag: "Concept", domain: "Data" },
+	"machine learning": { tag: "Concept", domain: "AI" },
+	"deep learning": { tag: "Concept", domain: "AI" },
+	"reinforcement learning": { tag: "Concept", domain: "AI" },
+	nlp: { tag: "Concept", domain: "AI" },
+	llm: { tag: "Concept", domain: "AI" },
+	chatgpt: { tag: "Tool", domain: "AI" },
+	bert: { tag: "Model", domain: "AI" },
+	gpt: { tag: "Model", domain: "AI" },
+	langchain: { tag: "Tool", domain: "AI" },
+	"hugging face": { tag: "Platform", domain: "AI" },
+	mlflow: { tag: "Tool", domain: "AI" },
+	dvc: { tag: "Tool", domain: "AI" },
+	"vertex ai": { tag: "Tool", domain: "Cloud" },
+	sagemaker: { tag: "Tool", domain: "Cloud" },
+	"azure ml": { tag: "Tool", domain: "Cloud" },
+	"ci/cd": { tag: "Concept", domain: "DevOps" },
+	chef: { tag: "Tool", domain: "DevOps" },
+	puppet: { tag: "Tool", domain: "DevOps" },
+	linux: { tag: "OperatingSystem", domain: "GeneralPurpose" },
+	unix: { tag: "OperatingSystem", domain: "GeneralPurpose" },
+	bash: { tag: "Shell", domain: "GeneralPurpose" },
+	zsh: { tag: "Shell", domain: "GeneralPurpose" },
+	powershell: { tag: "Shell", domain: "GeneralPurpose" },
+	regex: { tag: "Concept", domain: "GeneralPurpose" },
+	agile: { tag: "Concept", domain: "GeneralPurpose" },
+	scrum: { tag: "Concept", domain: "GeneralPurpose" },
+	kanban: { tag: "Concept", domain: "GeneralPurpose" }
+};
+
+const ACHIEVEMENTS = {
+	created: [
+		{
+			name: "GitInit",
+			description: "Linked a GitHub account with your profile",
+			value: 1
+		}
+	],
+	post: [
+		{ name: "Coder", description: "Created your first post", value: 1 },
+		{ name: "Hard at Work", description: "Created 10 posts", value: 10 },
+		{ name: "Elite Developer", description: "Created 50 posts", value: 50 },
+		{ name: "Git Master", description: "Created 100 posts", value: 100 }
+	],
+	comment: [
+		{
+			name: "Hello World!",
+			description: "Left your first commented on another user's post",
+			value: 1
+		},
+		{
+			name: "Chatterbox",
+			description: "Left 10 comments on other users' posts",
+			value: 10
+		},
+		{
+			name: "Master of Yap",
+			description: "Left 50 comments on other users' posts",
+			value: 50
+		},
+		{
+			name: "It's me, Gossip Girl",
+			description: "Left 100 comments on other users' posts",
+			value: 100
+		}
+	],
+	join: [
+		{
+			name: "Checkout",
+			description: "Joined your first project as a contributor",
+			value: 1
+		},
+		{
+			name: "The Ol' Reliable",
+			description: "Joined 10 projects as a contributor",
+			value: 10
+		},
+		{
+			name: "Git MVP",
+			description: "Joined 50 projects as a contributor",
+			value: 50
+		}
+	],
+	othersJoined: [
+		{
+			name: "Project Leader",
+			description:
+				"Have another user join one of your projects for the first time",
+			value: 1
+		},
+		{
+			name: "Head of Ops",
+			description: "Have 10 users join your projects",
+			value: 10
+		},
+		{ name: "CEO", description: "Have 50 users join your projects", value: 50 }
+	],
+	friends: [
+		{ name: "Best Buds", description: "Added your first friend", value: 1 },
+		{
+			name: "We should start a podcast!",
+			description: "Added 10 friends",
+			value: 10
+		},
+		{ name: "Squad Goals", description: "Added 50 friends", value: 50 },
+		{ name: "Popular", description: "Added 100 friends", value: 100 },
+		{ name: "Class President", description: "Added 200 friends", value: 200 },
+		{ name: "Infleuncer", description: "Added 500 friends", value: 500 },
+		{ name: "Celebrity", description: "Added 1000 friends", value: 1000 }
+	]
+};
+
 /**
  * Validates that the input is a non-empty string.
  * @param {string} val - The value to validate.
@@ -75,10 +356,10 @@ function arrayVal(val, varName = "value", funcName = "arrayVal") {
  */
 function idVal(val, varName = "value", funcName = "idVal") {
 	if (typeof val !== "string" || val.trim().length === 0) {
-		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
+		throw new Error(`Error in ${funcName}: ${varName} must be a non-empty string.`);
 	}
 	if (!ObjectId.isValid(val)) {
-		throw `Error in ${funcName}: ${varName} is not a valid ObjectId.`;
+		throw new Error(`Error in ${funcName}: ${varName} is not a valid ObjectId.`);
 	}
 	return val.trim();
 }
@@ -242,10 +523,39 @@ const validatePassword = (val, varName, funcName) => {
  * throw error if not a valid object id
  * @param {ObjectId} objid
  */
-async function validObjectId(objid) {
+function validObjectId(objid) {
 	if (!ObjectId.isValid(objid)) {
 		throw new Error(`Invalid ObjectId.`);
 	}
+}
+
+/**
+ * Validates that the input is a number.
+ * @param {number} val - The value to validate.
+ * @param {string} varName - The variable name for error messages.
+ * @param {string} funcName - The function name for error messages.
+ * @returns {number} - The number if valid.
+ */
+function numberVal(val, varName = "value", funcName = "stringVal") {
+	if (typeof val !== "number") {
+		throw `Error in ${funcName}: ${varName} must be a number`;
+	}
+	return val;
+}
+
+/**
+ * Gets an achievement object given its name
+ * @param {string} name Achievement name
+ * @returns Achievement object
+ * @throws {Error} if achievement not found
+ */
+function getAchievementByName(name) {
+	name = stringVal(name, "name", "getAchievementByName");
+	const achievement = ACHIEVEMENTS.find((ach) => ach.name === name);
+	if (!achievement) {
+		throw new Error(`Achievement with name ${name} not found`);
+	}
+	return achievement;
 }
 
 export {
@@ -257,5 +567,9 @@ export {
 	validateArray,
 	validatePassword,
 	validateUserID,
-	validObjectId
+	validObjectId,
+	numberVal,
+	getAchievementByName,
+	TERMS_AND_DOMAINS,
+	ACHIEVEMENTS
 };

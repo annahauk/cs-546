@@ -1,0 +1,66 @@
+{{! Handlebars for the page for users to create a project }}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/projects.css">
+</head>
+{{> navbar}}
+{{#if error}}
+	<p class="error" id="error">{{error}}</p>
+{{else}}
+	<p class="error" id="error"></p>
+{{/if}}
+<div class="container">
+    <h1>New Project</h1>
+    <form action="/projects/projectcreate" method="POST" id="projectcreate-form" name="projectcreate-form">
+        <label for="title">Project Title:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        <label for="repoLink">Repository Link:</label>
+        <input type="url" id="repoLink" name="repoLink" required>
+        
+        <label for="tags">Domains:</label>
+            <select name="tags" id="tags" multiple>
+                {{!-- <option value="Web">Web</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Mobile">Mobile</option> --}}
+                {{#each termsAndDomains}}
+                    {{#unless (isDuplicate this.domain)}}
+                        <option value="{{this.domain}}">{{this.domain}}</option>
+                    {{/unless}}
+                {{/each}}
+            </select>
+            <!-- Filter by language/domain TODO: NEED TO FIGURE OUT HOW TO GET ALL OUR TAGS IN HERE(maybe so don't need to hardcode?)  -->
+            <label for="languages">Languages:</label>
+            <select name="languages" id="languages" multiple>
+                {{!-- <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option> --}}
+                {{#each termsAndDomains}}
+                    {{#if (eq this.tag "ProgrammingLanguage")}}
+                        <option value="{{@key}}">{{@key}}</option>
+                    {{/if}}
+                {{/each}}
+            </select>
+        <button type="submit">Create Project</button>
+    </form>
+</div>
+<script src="/public/js/createProject.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+    // Initialize Choices.js for tags and languages
+    document.addEventListener('DOMContentLoaded', function () {
+        const tagsDropdown = new Choices('#tags', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select tags'
+        });
+
+        const languagesDropdown = new Choices('#languages', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select languages'
+        });
+    });
+</script>

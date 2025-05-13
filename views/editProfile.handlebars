@@ -1,0 +1,103 @@
+{{! Handlebars for editing user profile and projects }}
+{{> navbar}}
+<div class="container">
+    <h1>Edit Profile</h1>
+    <div class="leftSide">
+        <h2>Update Skill Tags</h2>
+        <!-- Unsaved changes warning -->
+        <p id="unsavedTagsWarning" hidden>You have unsaved changes!</p>
+        <form action="/profile/{{user._id}}/updateTags" method="POST" id="updateTags-form">
+            <label for="tags">Skill Tags:</label>
+            <select name="tags" id="tags" multiple>
+                {{#each allTags}}
+                    <option value="{{this}}" {{#if (includes ../user.skill_tags this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
+            <button type="submit">Update Tags</button>
+            <button type="button" id="resetTagsButton">Reset</button>
+        </form>
+    </div>
+    <div class="rightSide">
+        <h2>Edit Projects</h2>
+        {{#if userProjects.length}}
+            <label for="projectSelector">Select a Project:</label>
+            <select id="projectSelector">
+                <option value="" disabled selected>Select a project</option>
+                {{#each userProjects}}
+                    <option value="project-{{this._id}}">{{this.title}}</option>
+                {{/each}}
+            </select>
+            <!-- Unsaved changes warning -->
+            <p id="unsavedChangesWarning" hidden>You have unsaved changes!</p>
+
+            <div id="projectForms">
+                {{#each userProjects}}
+                    <div class="projectForm" id="project-{{this._id}}" style="display: none;">
+                        <form action="/projects/{{this._id}}/edit" method="POST" class="editProject-form">
+                            <label for="title-{{this._id}}">Title:</label>
+                            <input type="text" id="title-{{this._id}}" name="title" value="{{this.title}}" required>
+                            
+                            <label for="content-{{this._id}}">Content:</label>
+                            <textarea id="content-{{this._id}}" name="content" rows="4" required>{{this.content}}</textarea>
+                            
+                            <label for="repoLink-{{this._id}}">Repository Link:</label>
+                            <input type="url" id="repoLink-{{this._id}}" name="repoLink" value="{{this.repoLink}}" required>
+                            
+                            <label for="status-{{this._id}}">Status:</label>
+                            <select name="status" id="status-{{this._id}}">
+                                <option value="active" {{#if (eq this.status "active")}}selected{{/if}}>Active</option>
+                                <option value="completed" {{#if (eq this.status "completed")}}selected{{/if}}>Completed</option>
+                            </select>
+                            
+                            <label for="topic_tags-{{this._id}}">Topic Tags:</label>
+                            <select name="topic_tags" id="topic_tags-{{this._id}}" multiple>
+                                {{#each ../allTags}}
+                                    <option value="{{this}}" {{#if (includes ../this.topic_tags this)}}selected{{/if}}>{{this}}</option>
+                                {{/each}}
+                            </select>
+
+                            <h3>Project Members</h3>
+                            {{#if this.memberInfo.length}}
+                                <ul>
+                                    {{#each this.memberInfo}}
+                                        <li>
+                                            {{this.name}}
+                                            <button type="button" class="memberRemoveButton" referenceProject="{{../this._id}}" referenceMember="{{this.id}}" formaction="/projects/{{../this._id}}/removeMember/{{this.id}}" formmethod="POST">Remove</button>
+                                        </li>
+                                    {{/each}}
+                                </ul>
+                            {{else}}
+                                <p>No members to manage.</p>
+                            {{/if}}
+                            <button type="submit">Save Changes</button>
+                            <button type="button" class="resetProjectButton" data-project-id="{{this._id}}">Reset</button>
+                        </form>
+                    </div>
+                {{/each}}
+            </div>
+        {{else}}
+            <p>No projects to edit.</p>
+        {{/if}}
+    </div>
+</div>
+<script src="/public/js/editProfile.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+{{!-- <script>
+    // Initialize Choices.js for tags 
+    document.addEventListener('DOMContentLoaded', function () {
+        const tagsDropdown = new Choices('#tags', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select tags'
+        });
+        // Initialize Choices.js for all topic tags dropdowns
+        document.querySelectorAll('[id^="topic_tags-"]').forEach(function (dropdown) {
+            new Choices(dropdown, {
+                removeItemButton: true,
+                placeholder: true,
+                placeholderValue: 'Select topic tags'
+            });
+        });
+    });
+</script> --}}

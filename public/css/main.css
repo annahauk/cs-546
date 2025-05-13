@@ -1,5 +1,4 @@
-/* Updated styles for GitMatches - Minimalist Clean */
-
+/* LANDING PAGE */
 body {
     font-family: 'Helvetica Neue', sans-serif;
     background-color: #ffffff;
@@ -45,6 +44,12 @@ body {
 	}
 }
 
+/* header background image */
+.headerbg {
+    background-image: url("/public/headerbg.jpg");
+    background-size: cover;
+}
+
 header h1 {
 	font-size: 4rem;
 	margin-bottom: 0.5rem;
@@ -61,7 +66,6 @@ header h1 {
 		transform: translateY(0);
 	}
 }
-
 
 .navbar {
 	background-color: #ffffff;
@@ -210,140 +214,6 @@ a:hover {
     font-weight: 500;
 }
 
-/* Projects Page Styling */
-
-/* Projects Page Styles */
-
-.container h1 {
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
-    color: #1a73e8;
-    text-align: center;
-}
-
-.container > a {
-    display: block;
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #0073e6;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.container > a:hover {
-    text-decoration: underline;
-}
-
-/* Filter Section */
-
-.filterSelection {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.filterSelection form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.filterSelection input[type="text"],
-.filterSelection select {
-    padding: 0.6rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    min-width: 180px;
-}
-
-.filterSelection label {
-    font-weight: 500;
-    color: #444;
-}
-
-.filterSelection button {
-    padding: 0.6rem 1rem;
-    background-color: #1a73e8;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.filterSelection button:hover {
-    background-color: #155ab6;
-}
-
-/* Project Listings */
-
-.projectsArea {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 2rem;
-}
-
-.projectsArea ol {
-    list-style-type: none;
-    padding-left: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.project {
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    transition: box-shadow 0.2s ease;
-}
-
-.project:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.project > a {
-    font-size: 1.3rem;
-    color: #1a73e8;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.project > a:hover {
-    text-decoration: underline;
-}
-
-.project ol {
-    margin-top: 0.5rem;
-    padding-left: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.project ol li {
-    background-color: #e9f0fb;
-    color: #1a73e8;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-/* Not Found Message */
-
 .not-found {
     text-align: center;
     color: #888;
@@ -351,16 +221,7 @@ a:hover {
     margin-top: 2rem;
 }
 
-
-.navbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background-color: #ffffff;
-	border-bottom: 1px solid #e0e0e0;
-	padding: 1rem 2rem;
-}
-
+/* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
 .nav-left {
 	display: flex;
 	align-items: center;
@@ -377,5 +238,27 @@ a:hover {
 	font-size: 1.3rem;
 	color: #1a73e8;
 	text-decoration: none;
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between links */
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
+.logout, .joinlogin {
+    display: inline-block; /* Makes the link behave like a button */
+    padding: 10px 20px; /* Adds space inside the button */
+    color: black; /* Default text color */
+    text-decoration: none; /* Removes underline */
+    border-radius: 25px; /* Rounds the corners */
+    transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.logout:hover, .joinlogin:hover {
+    background-color: #0073e6; /* Blue background on hover */
+    color: white; /* White text on hover */
 }
 

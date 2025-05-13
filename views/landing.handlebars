@@ -1,13 +1,17 @@
 {{! Handlebars specifically for the landing page for new users }}
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/public/css/main.css">
+</head>
 <div class="navbar">
 	<div class="nav-left">
-		<img src="../public/LogoB.png" class="logo" />
-		<span class="brand-text">GitMatches</span>
+		<a href="/"><img src="../public/LogoB.png" class="logo" /></a>
+		<a href="/" class="brand-text">GitMatches</a>
 	</div>
-	<a href="/auth/login">Join or Login</a>
+	<a href="/auth/login" class="joinlogin" >Join or Login</a>
 </div>
 
-<header>
+<header class="headerbg">
 	<h1>GitMatches</h1>
 	<div class="message-container">
 		<div class="messageleft">Connecting Developers to </div>
@@ -16,11 +20,16 @@
 </header>
 <div class="container">
 	<div class="leftStats">
-		<ol>
-			<li>Stat1: Need to figure out stats and connect to db!</li>
-			<li>Stat2</li>
-			<li>Stat3</li>
-		</ol>
+		<p>Add completed projects stats</p>
+		<p>As well as possibly some more stats in general</p>
+		<P>And make it look pretty - add a graph, perchance</P>
+		<ul>
+			<li>{{stats.numProjectsActive}} active projects</li>
+			<li>{{stats.numProjectsCompleted}} completed projects</li>
+			<li>{{stats.numUsers}} users</li>
+			<li>Oldest active post: {{stats.oldestPost}}</li>
+			<li>Newest active post: {{stats.newestPost}}</li>
+		</ul>
 	</div>
 	<div class="centerInfo">
 		<p>Welcome to GitMatches, your source for finding high quality, open source
@@ -28,6 +37,9 @@
 
 	</div>
 	<div class="rightStats">
-		<p>Need to get active/completed project stats here</p>
+		<div class="userTagsChart" id="userTagsChart" data-chart-data='{{json userChartData}}'></div>
+		<div class="postTagsChart" id="postTagsChart" data-chart-data='{{json postChartData}}'></div>
 	</div>
 </div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="/public/js/renderCharts.js"></script>

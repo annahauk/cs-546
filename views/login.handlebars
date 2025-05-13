@@ -1,8 +1,11 @@
 {{! Handlebars for the login page }}
+<head>
+	<link rel="stylesheet" href="/public/css/main.css">
+</head>
 <div class="navbar">
 	<div class="nav-left">
-		<img src="../public/LogoB.png" class="logo" />
-		<span class="brand-text">GitMatches</span>
+		<a href="/"><img src="../public/LogoB.png" class="logo" /></a>
+		<a href="/" class="brand-text">GitMatches</a>
 	</div>
 	<a href="/">Home</a>
 </div>
@@ -17,7 +20,7 @@
 	<label for="username">Username:</label>
 	<input type="text" id="username" name="username" />
 	<label for="password">Password:</label>
-	<input type="text" id="password" name="password" />
+	<input type="password" id="password" name="password" />
 	<input type="submit" value="Login" />
 </form>
 

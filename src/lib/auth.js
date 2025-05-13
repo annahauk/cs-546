@@ -8,6 +8,7 @@ import { getUserByUsername } from "../../data/users.js";
 import { stringVal, validObjectId } from "../../helpers.js";
 import { TokenCache } from "./token_cache.js";
 import { ObjectId } from "mongodb";
+import { destroy_gh_token } from "../../data/oauth.js";
 
 const TOKEN_CACHE = new TokenCache();
 
@@ -21,7 +22,7 @@ const TOKEN_CACHE = new TokenCache();
 export async function create_auth(userid, passphrase) {
     try {
         validObjectId(userid);
-        stringVal(passphrase);
+        passphrase = stringVal(passphrase, "passphrase", "create_auth");
     } catch (e) {
         throw new Error(`create_auth invalid input: ${e}`);
     }
@@ -79,7 +80,7 @@ export async function create_auth(userid, passphrase) {
 export async function try_auth(authId, passphrase) {
     try {
         validObjectId(authId);
-        stringVal(passphrase);
+        passphrase = stringVal(passphrase, "passphrase", "try_auth");
     } catch (e) {
         throw new Error(`try_auth invalid input: ${e}`);
     }
@@ -98,8 +99,8 @@ export async function try_auth(authId, passphrase) {
  * @param {string} password 
  */
 export async function login(username, password) {
-    stringVal(username);
-    stringVal(password);
+    username = stringVal(username, "username", "login");
+    password = stringVal(password, "password", "login");
 
     /**
      * get user
@@ -155,6 +156,45 @@ export async function generate_token(length) {
 }
 
 /**
+ * 
+ * @param {string} username 
+ * @param {string} token_content 
+ * @returns {void}
+ */
+export async function logout(username, token_content) {
+    username = stringVal(username, "username", "logout");
+    token_content = stringVal(token_content, "token", "logout");
+
+    const authd = await get_auth_by_username(username);
+    if(!authd) {
+        throw new Error(`Auth document not found.`);
+    }
+
+    // remove user token from cache and collecton
+    let token = await TOKEN_CACHE.has_token(username, token_content);
+    // if token found in cache, remove from cache
+    if(token) {
+        // token found in cahce
+        await TOKEN_CACHE.remove_token(username, token_content);
+    } else {
+        // else pull from db
+        token = await find_token(authd, token_content);
+    }
+    
+    // remove token from db
+    await remove_token(authd._id, token);
+
+    // remove user github token
+    try {
+        await destroy_gh_token(username);
+    } catch (e) {
+        throw new Error(`Failed to destroy github token (it's too powerful).`);
+    }
+
+    return;
+}
+
+/**
  * The auth middleware
  * Checks token from user cookie against cache
  * if not in cache, fall through to database
@@ -177,8 +217,9 @@ export async function Auth(req, res, next) {
     const USER = req.cookies["username"];
     const USER_TOKEN = req.cookies["token"];
     try {
-        await stringVal(USER);
-        await stringVal(USER_TOKEN);
+        // Not reassigning here
+        stringVal(USER, "USER", "Auth");
+        stringVal(USER_TOKEN, "USER_TOKEN", "Auth");
     } catch (e) {
         return next();
     }

@@ -2,8 +2,8 @@ import axios from "axios";
 import { ObjectId } from "mongodb";
 import { auth, users } from "../config/mongoCollections.js";
 import { validObjectId } from "../helpers.js";
-import { get_auth_by_id } from "./authdata.js";
-import { getUserById_ObjectId } from "./users.js";
+import { get_auth_by_id, get_auth_by_username } from "./authdata.js";
+import { getUserById_ObjectId, getUserByUsername } from "./users.js";
 
 /**
  * given github authorization code (from oauth callback), log in and retrieve access token. Store in database.
@@ -17,7 +17,7 @@ export async function github_oauth_login(userid, code) {
     let access_token;
 
     // validate
-    await validObjectId(userid);
+    validObjectId(userid);
 
     if(!gh_client_id || !gh_client_secret) {
         throw new Error("Github credentials not defined.");
@@ -65,12 +65,31 @@ export async function github_oauth_login(userid, code) {
 }
 
 /**
+ * Delete gh_token from user auth document
+ * @param {string} username 
+ * @returns {string} gh_token
+ */
+export async function destroy_gh_token(username) {
+    let authc = await auth();
+    let authd = await get_auth_by_username(username);
+    if(!authd) {
+        throw new Error("No user auth");
+    }
+    let res = await authc.updateOne({_id: authd._id}, {$set: {"gh_token": ""}});
+    if(!res.acknowledged) {
+        throw new Error(`Failed to clear user github token`);
+    }
+
+    return auth.gh_token;
+}
+
+/**
  * Get user gh_token by user id
  * @param {ObjectId} userid 
  * @returns {(string|null)} gh_token
  */
 export async function get_user_gh_token(userid) {
-    await validObjectId(userid);
+    validObjectId(userid);
 
     let user = await getUserById_ObjectId(userid);
     if(!user) {

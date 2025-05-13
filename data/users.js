@@ -9,9 +9,13 @@ import {
 	idVal,
 	validatePassword,
 	validateUserID,
-	validObjectId
+	validObjectId,
+	numberVal,
+	getAchievementByName,
+	ACHIEVEMENTS
 } from "../helpers.js";
 import { create_auth } from "../src/lib/auth.js";
+import { createNotif } from "./notifications.js";
 
 /*
 schema
@@ -24,19 +28,19 @@ schema
     skill_tags: Array<string>,  List of skills, e.g., ["Web Dev", "JavaScript"]
     friends: Array<ObjectId>,   References to other user documents in the collection
     achievements: Array<String>, 
-    notifications: Array<ObjectId> References to the Notification collection
+    notifications: Array<String> Notification subdocument
 }
 */
 
 /**
  * Creates a new user
  * @param {string} userName
- * @param {string} password
- * @param {string} githubProfile
+ * @param {string} gh_info
  * @param {Array<string>} skillTags
  * @param {Array<ObjectId>} friends
  * @param {Array<string>} achievements
  * @param {Array<ObjectId>} notifications
+ * @param {(null|ObjectId)} Auth
  * @returns {ObjectId} userId
  * @throws Will throw an error if userName not unique
  * @throws Will throw an error if user creation fails
@@ -48,10 +52,9 @@ async function createUser(userName, password) {
 	userName = validateUserID(userName, "userName", "createUser");
 	userName = userName.trim().toLowerCase();
 	password = validatePassword(password, "password", "createUser");
-	let githubProfile = "";
 	let skillTags = [];
 	let friends = [];
-	let achievements = ["Welcome!"];
+	let achievements = [];
 	let notifications = [];
 
 	// check if userName are unique and not an existing user
@@ -64,13 +67,11 @@ async function createUser(userName, password) {
 	// HASHED IN AUTH
 	// const saltRounds = 10;
 	// const hashedPassword = await bcrypt.hash(password, saltRounds);
-	const hashedPassword = "";
 	// create new user
 	let newUser = {
 		user_name: userName,
-		password: hashedPassword,
-		Auth: undefined,
-		github_profile: githubProfile,
+		Auth: null,
+		gh_info: null,
 		skill_tags: skillTags,
 		friends: friends,
 		achievements: achievements,
@@ -106,6 +107,21 @@ async function createUser(userName, password) {
 	// returns the user object
 	const newId = insertInfo.insertedId.toString();
 	const user = await getUserById(newId);
+
+	// give user initial "welcome" notification
+	try {
+		await createNotif(
+			user._id.toString(),
+			"Welcome to GitMatches!",
+			"yay :3",
+			undefined,
+			undefined,
+			"GitMatches"
+		);
+	} catch (e) {
+		throw new Error(`Failed to create initial comment ${e}`);
+	}
+
 	return user;
 }
 
@@ -177,6 +193,42 @@ async function updateUserTags(id, skillTags) {
 	return updateInfo;
 }
 
+/**
+ * Replaces the user's skill tags with the provided tags.
+ * @param {string} id - The ID of the user whose tags are to be updated.
+ * @param {Array<string>} skillTags - The new set of skill tags to replace the user's current tags.
+ * @returns {ObjectId} userId - The ID of the updated user.
+ * @throws Will throw an error if the user ID is not found or if the update fails.
+ */
+async function setUserTags(id, skillTags) {
+	id = idVal(id, "id", "setUserTags");
+	skillTags = arrayVal(skillTags, "skillTags", "setUserTags");
+
+	const userCollection = await users();
+	const user = await userCollection.findOne({ _id: new ObjectId(id) });
+	if (user === null) {
+		throw "No user with that id";
+	}
+
+	// Update the user's skill tags in the database
+	const updatedUser = {
+		skill_tags: skillTags.map((tag) => tag.trim()) // Ensure all tags are trimmed
+	};
+
+	const updateInfo = await userCollection.findOneAndUpdate(
+		{ _id: new ObjectId(id) },
+		{ $set: updatedUser },
+		{ returnDocument: "after" }
+	);
+
+	if (!updateInfo) {
+		throw "Could not update user successfully";
+	}
+
+	updateInfo._id = updateInfo._id.toString();
+	return updateInfo;
+}
+
 async function getUserById(id) {
 	id = idVal(id, "id", "getUserById");
 	// get a reference to the collection
@@ -184,7 +236,7 @@ async function getUserById(id) {
 
 	const user = await userCollection.findOne({ _id: new ObjectId(id) }); // new ObjectId(id) converts the string to ObjectId
 	if (user === null) {
-		throw "No user with that id";
+		throw `No user with id ${id}`;
 	}
 	// have to convert back to string, servers will do this for us in the future
 	user._id = user._id.toString();
@@ -197,7 +249,7 @@ async function getUserById(id) {
  * @returns {(Object|null)} user
  */
 async function getUserById_ObjectId(id) {
-	await validObjectId(id);
+	validObjectId(id);
 	const usersc = await users();
 
 	const user = await usersc.findOne({ _id: id });
@@ -380,6 +432,139 @@ async function updateUser(id, updateData) {
 	return await getUserById(id);
 }
 
+/**
+ * Adds an achievement to a user's achievements list
+ * @param {string} id ID of user to update
+ * @param {string} category achievement category
+ * @param {number} val number associated with the achievement
+ * @returns id
+ */
+async function addAchievement(id, category, val) {
+	id = idVal(id, "id", "addAchievement");
+	category = stringVal(category, "category", "addAchievement");
+	val = numberVal(val, "val", "addAchievement");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	if (!ACHIEVEMENTS[category]) {
+		throw new Error(`Invalid category: ${category}`);
+	}
+
+	let pushed = false;
+	for (let achievement of ACHIEVEMENTS[category]) {
+		if (
+			!user.achievements.includes(achievement.name) &&
+			val >= achievement.value
+		) {
+			user.achievements.push(achievement.name);
+			pushed = true;
+		}
+	}
+
+	if (pushed) await updateUser(id, { achievements: user.achievements });
+
+	return id;
+}
+
+/**
+ * Returns the achievement objects for a user
+ * @param {string} id user ID
+ * @returns Array<Achievement object>
+ */
+async function getAllAchievements(id) {
+	id = idVal(id, "id", "getAllAchievements");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	let achievements = [];
+	for (let achievement of user.achievements) {
+		if (ACHIEVEMENTS[achievement]) {
+			achievements.push(getAchievementByName(achievement));
+		} else throw new Error(`Invalid achievement: ${achievement}`);
+	}
+	return achievements;
+}
+
+/**
+ * Returns the achievement names for a user
+ * @param {*} id used IF
+ * @returns Array<string>
+ */
+async function getAllAchievementNames(id) {
+	id = idVal(id, "id", "getAllAchievementNames");
+	const user = await getUserById(id);
+	if (!user || !user.achievements) {
+		throw new Error("User not found or does not have achievements.");
+	}
+	let achievements = [];
+	for (let achievement of user.achievements) {
+		if (ACHIEVEMENTS[achievement]) {
+			achievements.push(achievement);
+		} else throw new Error(`Invalid achievement: ${achievement}`);
+	}
+	return achievements;
+}
+
+/**
+ * Gets the number of entries in the users collection
+ * @returns {number} The total number of users in the collection
+ */
+async function getUserCount() {
+	const userCollection = await users();
+	const count = await userCollection.countDocuments();
+	return count;
+}
+
+/**
+ * Gets the top n tags across all users
+ * @param {number} n number of tags to return
+ * @returns {Array<String>} Array<string> of top n tags
+ */
+async function getTopUserTags(n = 3) {
+	n = numberVal(n, "n", "getTopUserTags");
+	const users = await getAllUsers();
+	const tagCount = {};
+	for (let user of users) {
+		for (let tag of user.skill_tags) {
+			if (tagCount[tag]) tagCount[tag]++;
+			else tagCount[tag] = 1;
+		}
+	}
+	const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
+	const topTags = sortedTags.slice(0, n);
+	return topTags
+}
+
+/**
+ * Gets the number of pending notifications for a user and formats it as a string for navbar display
+ * @param {string} userId user ID
+ * @returns {string} The number of pending notifications, formatted as a navbar string
+ * @throws if userId is not found
+ */
+async function pendingNotifs(userId) {
+	userId = idVal(userId, "userId", "pendingNotifs");
+	const user = await getUserById(userId);
+	if (!user || !user.notifications) {
+		throw new Error("User not found or does not have notifications.");
+	}
+	let pending = 0;
+	for (let notif of user.notifications) {
+		if (!notif.resolved) {
+			pending++;
+		}
+	}
+
+	if (pending ===0) {
+		return "";
+	} else if (pending > 9) {
+		return " (9+)";
+	}
+	return ` (${pending})`;
+
+}
+
 export {
 	createUser,
 	getAllUsers,
@@ -392,5 +577,12 @@ export {
 	getUserTags,
 	create_auth,
 	addFriend,
-	getUserById_ObjectId
+	getUserById_ObjectId,
+	addAchievement,
+	getAllAchievements,
+	getAllAchievementNames,
+	getUserCount,
+	getTopUserTags,
+	setUserTags,
+	pendingNotifs
 };

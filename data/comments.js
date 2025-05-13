@@ -1,8 +1,8 @@
 //Export the following functions using ES6 Syntax
 import { projectPosts } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
-
-import {} from "./posts.js";
+import { getPostById } from "./posts.js";
+import { getUserById } from "./users.js";
 // helper imports
 import { stringVal, idVal } from "../helpers.js";
 
@@ -11,9 +11,7 @@ Comment Schema:
 _id: ObjectId,
 ownerId: ObjectId,       Reference to the user who created the post
 postId: ObjectId,        Reference to the post this comment belongs to
-content: String,
-comments: Array<string>, List of comments associated with the post if applicable
-likes: Number 
+content: String
 */
 
 /**
@@ -21,46 +19,77 @@ likes: Number
  * @param {string} content
  * @param {string} postId
  * @param {string} ownerId
- * Should this return anything?
- * The max a comment can be is length 100 and the min is 1.
+ * @returns post object
  */
 async function createComment(content, postId, ownerId) {
-	// TODO: Implement this function
-	//Should this also take in a postId?
-	exists(content);
-	stringVal(content);
-	content = content.trim();
-	validLength(content, 1, 100);
+	content = stringVal(content, "content", "createComment");
+	postId = idVal(postId, "postId", "createComment");
+	ownerId = idVal(ownerId, "ownerId", "createComment");
+	console.log("postId", postId, "ownerId", ownerId);
+	if (content.length < 1 || content.length > 100)
+		throw `Comment must be between 1 and 100 characters`;
 
-	exists(postId);
-	stringVal(postId);
+	const postIdObj = new ObjectId(postId);
 
-	exists(ownerId);
-	stringVal(ownerId);
-
-	const postIdObj = new Object(postId);
+	// Get the author username
+	let user = await getUserById(ownerId);
 
 	let newComment = {
 		_id: new ObjectId(),
 		ownerId: new ObjectId(ownerId),
+		author: user.user_name,
 		postId: postIdObj,
 		content: content,
-		comments: [],
-		likes: 0
+		comments: []
 	};
 
 	const postCollection = await projectPosts();
-	const post = await postCollection.findOneAndUpdate(
+	let post = await postCollection.findOneAndUpdate(
 		{ _id: postIdObj },
 		{ $push: { comments: newComment } }
 	);
-	if (post === null) throw `No post with that id: ${postId}`;
-	return;
+	if (post === null) throw `No post with id ${postId}`;
+	post = await getPostById(post._id.toString());
+	// Logic here to confirm that the comment exists in the retrieved post
+
+	return newComment;
 }
 
-// dunno if we'll need this
-async function getAllComments() {
-	// TODO: Implement this function
+/**
+ * Returns all comments for a given post id
+ * @param {string} postId
+ * @returns Array<CommentIds>
+ */
+async function getAllCommentsByPostId(postId) {
+	postId = idVal(postId, "postId", "getAllCommentsByPostId");
+	const postCollection = await projectPosts();
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
+	if (post === null) throw `No post with id ${postId}`;
+	let comments = post.comments;
+	comments = comments.map((element) => {
+		element._id = element._id.toString();
+		return element;
+	});
+	return comments;
+}
+
+/**
+ * Returns all comment IDs for a given user ID
+ * @param {string} userId 
+ * @returns Array<CommentIds>
+ */
+async function getAllCommentsByUserId(userId) {
+	userId = idVal(userId, "userId", "getAllCommentsByUserId");
+	const postCollection = await projectPosts();
+	// All posts with comments
+	const posts = await postCollection.find(
+		{ comments: { $exists: true, $ne: [] } }
+	).toArray();
+	if (!posts || posts.length === 0) return [];
+	// Only belonging to userId
+	let comments = posts.flatMap(post => post.comments);
+	comments.filter(c => c.ownerId.toString() === userId);
+	return comments;
 }
 
 /**
@@ -69,11 +98,10 @@ async function getAllComments() {
  * @returns comment Object correlated with commentId
  */
 async function getCommentById(commentId) {
-	// TODO: Implement this function
-	idVal(commentId);
+	commentId = idVal(commentId, "commentId", "getCommentById");
 	const postCollection = await projectPosts();
-	const foundComment = await postCollection.findOne(
-		{ "comments._id": new Object(commentId) },
+	let foundComment = await postCollection.findOne(
+		{ "comments._id": new ObjectId(commentId) },
 		{ projection: { _id: 0, "comments.$": 1 } }
 	);
 	//Returns the matched comment instead of the whole post.
@@ -82,15 +110,18 @@ async function getCommentById(commentId) {
 	// {
 	// comments: [{_id: ..., ..., ...}]
 	// }
-	return foundComment.comments[0];
+	foundComment = foundComment.comments[0];
+	foundComment._id = foundComment._id.toString();
+	return foundComment;
 }
+
 /**
  * Returns a comment given the id
  * @param {string} commentId
+ * @return The updated post of the given commentId without the comment
  */
 async function removeComment(commentId) {
-	// TODO: Implement this function
-	idVal(commentId);
+	commentId = idVal(commentId, "commentId", "removeComment");
 	const commentIdObj = new ObjectId(commentId);
 	const postCollection = await projectPosts();
 	const foundPost = await postCollection.findOne({
@@ -101,23 +132,35 @@ async function removeComment(commentId) {
 		{ _id: foundPost._id },
 		{ $pull: { comments: { commentIdObj } } }
 	);
-	const foundPostRtrn = await postCollection.findOne({ _id: foundPost._id });
+	const foundPostRtrn = await getPostById(foundPost._id.toString());
 	return foundPostRtrn;
 }
 
-async function updateComment() {
-	// TODO: Implement this function
-}
+/**
+ * This function updates a comment by its ID
+ * @param {string} commentId
+ * @param {Object} updateData
+ * @returns {ObjectId} commenttId
+ * @throws {Error} if post or comment is not found
+ */
 
-async function addComment() {
-	// TODO: Implement this function
+async function updateComment(commentId, updateData) {
+	commentId = idVal(commentId, "commentId", "updateComment");
+	const postCollection = await projectPosts();
+	const updateInfo = await postCollection.updateOne(
+		{ "comments._id": new ObjectId(commentId) },
+		{ $set: updateData }
+	);
+	if (updateInfo.modifiedCount === 0)
+		throw `Could not update comment with id of ${commentId}`;
+	return commentId;
 }
 
 export {
 	createComment,
-	getAllComments,
+	getAllCommentsByPostId,
 	getCommentById,
 	removeComment,
 	updateComment,
-	addComment
+	getAllCommentsByUserId
 };
