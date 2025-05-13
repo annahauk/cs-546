@@ -59,6 +59,11 @@ async function main() {
         console.log('Updated skill tags:');
         console.log(updatedTags);
 
+        console.log('Updating skill tags for user2...');
+        const updatedTags2 = await updateUserTags(user2._id, ['JavaScript', 'Python']);
+        console.log('Updated skill tags:');
+        console.log(updatedTags2);
+
         // get skill tags of user1
         console.log('Fetching skill tags for user1...');
         const userTags = await getUserTags(user1._id);
@@ -137,13 +142,18 @@ async function main() {
         console.log('Creating sample posts...');
         const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/miniStockDash", ["Machine Learning", "Deep Learning"]);
         const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
-        const post3 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
+        const post3 = await createPost('Convolutional Image Classifier', user5._id, "I don't understand ML - someone help me please!", 'https://github.com/annahauk/cs-546-2', ['Machine Learning', 'Deep Learning', 'Python']);
 
+        try {
+            const post4 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
+            console.log("UH OH! Did not catch duplicate post!");
+        } catch (error) {
+            console.error('Expected error for duplicate post:', error);
+        }
 
         console.log('Created posts:');
         console.log(post1);
         console.log(post2);
-        console.log(post3);
 
         // Test getAllPosts
         const allPosts = await getAllPosts();
@@ -179,7 +189,7 @@ async function main() {
 
         // Test grabfilteredPosts
         console.log('Fetching posts with filters...');
-        const filteredPosts = await grabfilteredPosts(['Machine Learning'], "");
+        const filteredPosts = await grabfilteredPosts(['Machine Learning'], "", "active");
         console.log('Filtered posts:');
         console.log(filteredPosts);
 
