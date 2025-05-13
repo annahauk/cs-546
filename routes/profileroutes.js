@@ -42,11 +42,30 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 	// Display a user profile
 	try {
 		const userId = idVal(req.params.id);
-		const user = await getUserById(userId);
+		let user = await getUserById(userId);
 		if (!user) {
 			return res
 				.status(404)
 				.render("error", { message: "User not found", title: "Error" });
+		}
+		// Figure out if you're looking at your profile or not
+		let isMyProfile = false;
+		let myUsername = req.cookies["username"];
+		let myUserObj = await getUserByUsername(myUsername);
+		if (myUserObj._id.toString() === userId) {
+			isMyProfile = true;
+		}
+		// Get the user friends
+		user["Friends"] = [];
+		for (const ii in user.friends) {
+			// get user from member id
+			let user2 = await getUserById(user.friends[ii].toString());
+
+			// assign member id/name combination to project member info position
+			user["Friends"][ii] = {
+				id: user2._id,
+				name: user2.user_name
+			};
 		}
 		// Get the projects created by the user
 		try {
@@ -54,13 +73,15 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			res.render("profile", {
 				user: user,
 				title: user.user_name,
-				userProjects: userPosts
+				userProjects: userPosts,
+				isMyProfile: isMyProfile
 			});
 		} catch (e) {
 			res.render("profile", {
 				user: user,
 				title: user.user_name,
-				userProjects: []
+				userProjects: [],
+				isMyProfile: isMyProfile
 			});
 		}
 	} catch (error) {
@@ -99,20 +120,20 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 		// add user id/combination to user projects... mein gott
 		// fuckass algorithm #2!!!
 		// for each of user's projects
-		for(const i in userProjects) {
+		for (const i in userProjects) {
 			userProjects[i]["memberInfo"] = new Array(userProjects[i].members.length);
 
 			// for each member of project
-			for(const ii in userProjects[i].members) {
+			for (const ii in userProjects[i].members) {
 				// get user from member id
 				let user = await getUserById(userProjects[i].members[ii].toString());
 
 				// assign member id/name combination to project member info position
 				userProjects[i]["memberInfo"][ii] = {
 					id: userProjects[i].members[ii].toString(),
-					name: user.user_name,
+					name: user.user_name
 				};
-			};
+			}
 		}
 
 		res.render("editProfile", {

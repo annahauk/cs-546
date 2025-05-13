@@ -64,19 +64,21 @@
                 <li>No projects yet.</li>
             {{/if}}
         </ul>
+        {{#if isMyProfile}}
         <div class="manageLinks">
             <a href="/profile/{{user._id}}/edit">Managed Profile & Projects</a>
         </div>
+        {{/if}}
     </div>
     <div class="rightSide">
         <p>Friends</p>
         <ul class="friendsList">
-            {{#if user.friends.length}}
-                {{#each user.friends}}
-                    <li>{{this}}</li>
+            {{#if user.Friends.length}}
+                {{#each user.Friends}}
+                    <a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a>
                 {{/each}}
             {{else}}
-                <li>It's a little lonely... no friends</li>
+                <li>It's a little lonely... no friends :(</li>
             {{/if}}
         </ul>
     </div>
