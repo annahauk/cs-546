@@ -1,11 +1,210 @@
 /* Profile */
 body {
-    font-family: 'Helvetica Neue', sans-serif;
-    background-color: #ffffff;
-    color: #333;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+	font-family: "Helvetica Neue", sans-serif;
+	background-color: #ffffff;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+footer {
+	text-align: center;
+	padding: 1.5rem;
+	background-color: #ffffff;
+	border-top: 1px solid #e0e0e0;
+	font-size: 0.9rem;
+	color: #888;
+}
+
+.nav-left {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo {
+	height: 32px;
+	width: auto;
+}
+
+.brand-text {
+	font-weight: 600;
+	font-size: 1.3rem;
+	color: #1a73e8;
+	text-decoration: none;
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
+.logout,
+.joinlogin {
+	display: inline-block;
+	padding: 10px 20px;
+	color: black;
+	text-decoration: none;
+	border-radius: 25px;
+	transition: all 0.3s ease;
+}
+
+.logout:hover,
+.joinlogin:hover {
+	background-color: #0073e6; /* Blue background on hover */
+	color: white; /* White text on hover */
+}
+
+.centered-link {
+	display: block;
+	text-align: center;
+	margin-top: 1rem;
+	color: #0073e6;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.navbar {
+	background-color: #ffffff;
+	border-bottom: 1px solid #e0e0e0;
+	padding: 1rem 2rem;
+	text-align: right;
+	font-size: 1.25rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.navbar a {
+	text-decoration: none;
+	color: #0073e6;
+	font-weight: 600;
+}
+
+header {
+	text-align: center;
+	padding: 3rem 1rem;
+	background: #e9f0fb;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+header h1 {
+	font-size: 4rem;
+	margin-bottom: 0.5rem;
+	color: #1a73e8;
+}
+
+header h2 {
+	font-size: 2rem;
+	margin-top: 15px;
+	color: #555;
+	font-weight: 400;
+}
+
+/* Specific to the profile page */
+.container {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	gap: 1rem;
+	padding: 1rem;
+}
+
+.leftSide,
+.centerArea,
+.rightSide {
+	background-color: #f9f9f9;
+	padding: 1rem;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.leftSide img {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	object-fit: cover;
+	align-self: center;
+}
+
+#resume-form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+#resume-form label {
+	font-size: 1rem;
+	color: #333;
+	margin-bottom: 0.5rem;
+}
+
+#resume-form input[type="file"] {
+	font-size: 0.9rem;
+	padding: 0.5rem;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+#resume-form button {
+	background-color: #0073e6;
+	color: white;
+	padding: 0.7rem 1.5rem;
+	border: none;
+	border-radius: 25px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+#resume-form button:hover {
+	background-color: #005bb5;
+}
+
+.achievementsList,
+.tagsList {
+	list-style-type: disc;
+	margin-top: 1rem;
+	color: #333;
+	font-size: 1rem;
+}
+
+.achievementsList li,
+.tagsList li {
+	margin-bottom: 0.5rem;
+}
+
+.projectItem {
+	background-color: #f9f9f9;
+	padding: 1rem;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1rem;
+	font-size: 1rem;
+	color: #333;
+	text-decoration: none;
+	display: block;
+}
+
+li {
+	list-style-type: none;
+	padding-left: 0;
+	align-items: center;
+	text-align: center;
+}
+
+ul {
+	padding-inline-start: 0;
+}
