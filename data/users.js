@@ -582,9 +582,9 @@ async function create_friend_request(requester, requestee) {
 
 	// create notification for requestee
 	await createNotif(
-		user._id,
+		requestee._id,
 		`${requester.user_name} wants to be your friend.`,
-		"",
+		"yay :3",
 		null,
 		null,
 		"GitMatches System",
@@ -679,7 +679,7 @@ async function approve_friend_request(user, request_id) {
 	await createNotif(
 		request.requester,
 		`${user.user_name} has accepted your friend request!`,
-		"",
+		"yippeee ^w^",
 		null,null,
 		"GitMatches System",
 		true,
@@ -726,7 +726,7 @@ async function deny_friend_request(user, request_id) {
 	await createNotif(
 		request.requester,
 		`${user.user_name} denied your friend request :(`,
-		"",
+		"aw TwT",
 		null,
 		null,
 		"GitMatches System",
@@ -819,5 +819,6 @@ export {
 	create_friend_request,
 	approve_friend_request,
 	deny_friend_request,
-	remove_friend
+	remove_friend,
+	user_has_friend_request
 };

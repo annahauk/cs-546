@@ -8,7 +8,8 @@ import {
 	updateUserTags,
 	setUserTags,
 	users_are_friends,
-	create_friend_request
+	create_friend_request,
+	user_has_friend_request
 } from "../data/users.js";
 import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
@@ -44,6 +45,17 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 	// Display a user profile
 	try {
 		const userId = idVal(req.params.id);
+
+		// get signed in user
+		let me;
+		try {
+			me = await getUserByUsername(req.cookies["username"]);
+			me._id = idVal(me._id.toString());
+		} catch (e) {
+			console.error(e);
+			return res.status(400).render(`error`, {error: `cant get signed in user`});
+		}
+
 		let user = await getUserById(userId);
 		if (!user) {
 			return res
@@ -76,7 +88,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				user: user,
 				title: user.user_name,
 				userProjects: userPosts,
-				isMyProfile: isMyProfile
+				isMyProfile: isMyProfile,
+				hasFriendRequest: await user_has_friend_request(me, user)
 			});
 		} catch (e) {
 			res.render("profile", {
@@ -232,6 +245,7 @@ router.route("/friendRequest/:id")
 			id = idVal(req.params.id);
 			username = stringVal(req.cookies["username"]);
 		} catch (e) {
+			console.error(e);
 			return res.status(400).render(`error`, {error: `Malformed id or username.`});
 		}
 
@@ -240,7 +254,7 @@ router.route("/friendRequest/:id")
 		if(!user) {
 			return res.status(404).render(`error`, {error: `User not found.`});
 		}
-		user._id = idVal(user._id);
+		user._id = idVal(user._id.toString());
 
 		// get requested user
 		let newfriend = await getUserById(id);
@@ -254,9 +268,14 @@ router.route("/friendRequest/:id")
 		}
 
 		// create friend request
-		await create_friend_request(user, newfriend);
+		try {
+			await create_friend_request(user, newfriend);
+		} catch (e) {
+			console.error(e);
+			return res.status(400).render(`error`, {error: `Y'all friends already`});
+		}
 
-		return res.status(200).redirect(`/profile/${id}`);
+		return res.redirect(`/profile/${id}`);
 	})
 
 export default router;
