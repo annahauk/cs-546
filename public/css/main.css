@@ -262,3 +262,9 @@ a:hover {
     color: white; /* White text on hover */
 }
 
+/* FOR ANNA - STYLING FOR PROJECT and NOTIFS*/
+.leftSide, .rightSide {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+}

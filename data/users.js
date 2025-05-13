@@ -817,6 +817,33 @@ async function get_friend_request(user, request_id) {
 
 	return null;
 }
+/**
+ * Gets the number of pending notifications for a user and formats it as a string for navbar display
+ * @param {string} userId user ID
+ * @returns {string} The number of pending notifications, formatted as a navbar string
+ * @throws if userId is not found
+ */
+async function pendingNotifs(userId) {
+	userId = idVal(userId, "userId", "pendingNotifs");
+	const user = await getUserById(userId);
+	if (!user || !user.notifications) {
+		throw new Error("User not found or does not have notifications.");
+	}
+	let pending = 0;
+	for (let notif of user.notifications) {
+		if (!notif.resolved) {
+			pending++;
+		}
+	}
+
+	if (pending ===0) {
+		return "";
+	} else if (pending > 9) {
+		return " (9+)";
+	}
+	return ` (${pending})`;
+
+}
 
 export {
 	createUser,
@@ -843,5 +870,6 @@ export {
 	deny_friend_request,
 	remove_friend,
 	user_has_friend_request,
-	get_friend_request
+	get_friend_request,
+	pendingNotifs
 };

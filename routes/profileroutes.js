@@ -13,7 +13,8 @@ import {
 	get_friend_request,
 	approve_friend_request,
 	deny_friend_request,
-	remove_friend
+	remove_friend,
+	pendingNotifs
 } from "../data/users.js";
 import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
@@ -89,6 +90,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		// Get the projects created by the user
 		let isFriendVal = await users_are_friends(user, me);
 		console.log(isFriendVal)
+		const notifs = await pendingNotifs(userId);
 		try {
 			const userPosts = await getPostsByUserId(userId);
 			res.render("profile", {
@@ -97,7 +99,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				userProjects: userPosts,
 				isMyProfile: isMyProfile,
 				hasFriendRequest: await user_has_friend_request(me, user),
-				isFriend: await users_are_friends(user, me)
+				isFriend: await users_are_friends(user, me),
+				notifs: notifs
 			});
 		} catch (e) {
 			res.render("profile", {
@@ -106,7 +109,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				userProjects: [],
 				isMyProfile: isMyProfile,
 				hasFriendRequest: await user_has_friend_request(me, user),
-				isFriend: await users_are_friends(user, me)
+				isFriend: await users_are_friends(user, me),
+				notifs: notifs
 			});
 		}
 	} catch (error) {
@@ -160,12 +164,13 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 				};
 			}
 		}
-
+		const notifs = await pendingNotifs(userId);
 		res.render("editProfile", {
 			user: user,
 			title: "Edit Profile",
 			allTags: allTags,
-			userProjects: userProjects
+			userProjects: userProjects,
+			notifs: notifs
 		});
 	} catch (error) {
 		res
@@ -216,7 +221,8 @@ router
 				])
 			];
 			await updateUserTags(userId, newTags);
-			res.render("profile", { user: user, title: user.user_name });
+			const notifs = await pendingNotifs(userId);
+			res.render("profile", { user: user, title: user.user_name, notifs:notifs  });
 		} catch (error) {
 			res
 				.status(500)

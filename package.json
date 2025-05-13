@@ -30,7 +30,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "npx nodemon --signal SIGINT",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node /data/db_seed.js"
   },
   "dependencies": {
     "axios": "^1.8.4",

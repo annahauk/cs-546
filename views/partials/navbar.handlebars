@@ -1,12 +1,12 @@
 {{! General navbar used on all pages once someone is logged in }}
 <div class="navbar">
   <div class="nav-left">
-    <img src= "../../public/LogoB.png" alt="Logo" class="logo" />
-    <span class="brand-text">GitMatches</span>
+    <a href="/projects"><img src= "../../public/LogoB.png" alt="Logo" class="logo" /></a>
+    <a href= "/projects" class="brand-text" >GitMatches</a>
   </div>
   <div class="nav-right">
     <a href="/projects" class="projectsnav">Projects</a>
-    <a href="/notifications" class="notifnav">Notifications</a>
+    <a href="/notifications" class="notifnav">Notifications{{notifs}}</a>
     <a href="/profile" class="profilenav">Profile</a>
     <a href="/auth/logout" class="logout">Logout</a>
     </div>

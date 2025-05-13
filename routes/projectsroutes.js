@@ -20,7 +20,8 @@ import {
 	getUserByUsername,
 	getUserById,
 	getUserTags,
-	addAchievement
+	addAchievement,
+	pendingNotifs
 } from "../data/users.js";
 import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
@@ -54,11 +55,13 @@ router
 				});
 				// console.log("All posts (sorted):");
 				// console.log(allPosts);
+				const notifs = await pendingNotifs(userId);
 				res.render("projects", {
 					posts: allPosts,
 					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
 					termsAndDomains: TERMS_AND_DOMAINS,
-					title: "Projects"
+					title: "Projects",
+					notifs: notifs
 				});
 			} else {
 				return res.redirect("/login");
@@ -127,9 +130,18 @@ router
 	.route("/projectcreate")
 	.get(isLoggedIn, async (req, res) => {
 		try {
+			if (!req.authorized) {
+				return res.redirect("/login");
+			}
+			let user = await getUserByUsername(req.cookies["username"]);
+			if (!user) {
+				return res.status(500).render("error", { error: `No user found.` });
+			}
+			const notifs = await pendingNotifs(user._id.toString());
 			res.render("projectcreate", {
 				title: "New Project",
-				termsAndDomains: TERMS_AND_DOMAINS
+				termsAndDomains: TERMS_AND_DOMAINS,
+				notifs: notifs
 			});
 		} catch (error) {
 			console.error(error);
@@ -158,12 +170,18 @@ router
 			if (!title || typeof title !== "string" || title.trim() === "") {
 				errors.push("Title is required.");
 			}
+			if (title.trim().length < 5 || title.trim().length > 50) {
+				errors.push("Title must be between 5 and 50 characters.");
+			}
 			if (
 				!description ||
 				typeof description !== "string" ||
 				description.trim() === ""
 			) {
 				errors.push("Description is required.");
+			}
+			if (description.trim().length < 10 || description.trim().length > 2000) {
+				errors.push("Description must be between 10 and 2000 characters.");
 			}
 			if (
 				!repoLink ||
@@ -226,6 +244,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return await res.status(500).render("error", { error: `No user found.` });
 		}
+
 		post["memberInfo"] = [];
 		// for each member of project
 		for (const ii in post.members) {
@@ -239,13 +258,17 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			};
 		}
 
+
+		const notifs = await pendingNotifs(user._id.toString());
+
 		res.render("project", {
 			project: post,
 			creatorUsername: username,
 			title: post.title,
 			isMember: await post_has_member(post, user._id),
-			hasApplication: await user_has_application(post, user._id.toString())
-		});
+			hasApplication: await user_has_application(post, user._id.toString()),
+			notifs: notifs
+});
 	} catch (error) {
 		console.error(error);
 		res
@@ -303,11 +326,16 @@ router
 
 		// create application
 		let application;
+		let text = req.body["text"];
+		if (text) {
+			text = text.trim();
+			if (text.length > 200) return res.status(400).json({ message: "Message must be up to 200 characters" });
+		}
 		try {
 			application = await create_project_application(
 				project,
 				user,
-				req.body["text"]
+				text
 			);
 		} catch (e) {
 			return await res.status(500).render("error", {
@@ -336,7 +364,7 @@ router
 			);
 
 			// owner notification, requires approval, include reference application and post
-			let message = req.body["text"] ? req.body["text"] : "";
+			let message = req.body["text"] ? text : "";
 			console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
@@ -609,10 +637,11 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 		if (!comment || typeof comment !== "string" || comment.trim() === "") {
 			return res.status(400).json({ message: "Invalid comment." });
 		}
-		let ownerId = await getUserByUsername(req.cookies["username"]);
+		const username = req.cookies["username"]
+		let ownerId = await getUserByUsername(username);
 		ownerId = ownerId._id.toString();
 		// Add the comment to the database
-		await createComment(comment, projectId, ownerId);
+		const newComment = await createComment(comment, projectId, ownerId);
 
 		// Fetch the updated project and its comments
 		const updatedProject = await getPostById(projectId);
@@ -624,6 +653,28 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 		}));
 		const numComments = (await getAllCommentsByUserId(ownerId)).length;
 		await addAchievement(ownerId, "comment", numComments);
+		try {
+			// Notification to the project owner
+			await createNotif(
+				updatedProject.ownerId,
+				`${username} commented on your project ${updatedProject.title}`,
+				`"${comment}"`,
+				projectId,
+				newComment._id.toString(),
+				"GitMatches System",
+				null,
+				null,
+				ownerId, // maybe should be null?
+				projectId, // maybe should be null?
+				null,
+				null
+			);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render("error", {
+				error: `Failed to push notifications.`
+			});
+		}
 		res.render("partials/commentsList", {
 			comments,
 			layout: false
@@ -776,8 +827,40 @@ router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 			return res.status(401).json({ error: "Unauthorized" });
 		}
 		projectId = idVal(projectId, "projectId", "like(route)");
+		let post = null;
+		try {
+			post = await getPostById(projectId);
+		} catch (e) {
+			return res
+				.status(404)
+				.render("error", { message: "Project not found", title: "Error" });
+		}
 		userId = idVal(userId, "userId", "like(route)");
 		const updatedPost = await doPostLikeAction(projectId, userId);
+		try {
+			if (updatedPost.likes.includes(userId)) {
+				// Notification to the project owner
+				await createNotif(
+					post.ownerId,
+					`${username} liked your project ${post.title}`,
+					`Your post now has ${updatedPost.likes.length} like${updatedPost.likes.length === 1 ? "" : "s"}.`,
+					projectId,
+					null,
+					"GitMatches System",
+					null,
+					null,
+					userId, // maybe should be null?
+					projectId, // maybe should be null?
+					null,
+					null
+				);
+			}
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render("error", {
+				error: `Failed to push notifications.`
+			});
+		}
 		// Return updated like count
 		res.json({ likes: updatedPost.likes.length });
 	} catch (error) {

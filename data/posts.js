@@ -50,6 +50,13 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 	ownerId = idVal(ownerId, "ownerId", "createPost");
 	topic_tags = arrayVal(topic_tags, "topic_tags", "createPost");
 
+	if (title.length < 5 || title.length > 50) {
+		throw `Title must be between 5 and 50 characters`;
+	}
+	if (content.length < 10 || content.length > 2000) {
+		throw `Content must be between 10 and 2000 characters`;
+	}
+
 	const postCollection = await projectPosts();
 	let createdTime = new Date().toLocaleString();
 
