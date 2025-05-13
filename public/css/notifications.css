@@ -9,6 +9,160 @@ body {
     min-height: 100vh;
   }
 
+header h1 {
+	font-size: 4rem;
+	margin-bottom: 0.5rem;
+	color: #1a73e8;
+	opacity: 0;
+	animation: fadeInTitle 1s ease-out forwards;
+	animation-delay: 0.1s;
+	transform: translateY(-20px);
+}
+
+@keyframes fadeInTitle {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+
+.navbar a {
+	text-decoration: none;
+	color: #1a73e8;
+	font-weight: 600;
+}
+/* 
+header h1 {
+	font-size: 4rem;
+	margin-bottom: 0.5rem;
+	color: #1a73e8;
+} */
+
+/* Main content should grow to fill available space */
+main {
+    flex: 1;
+}
+
+footer {
+	text-align: center;
+	padding: 1.5rem;
+	background-color: #ffffff;
+	border-top: 1px solid #e0e0e0;
+	font-size: 0.9rem;
+	color: #888;
+}
+
+
+/* Notification layout */
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 2rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Shared panel styles */
+.leftSide, .rightSide {
+    flex: 1 1 400px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.leftSide h2, .rightSide h2 {
+    color: #1A73E8;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #1A73E8;
+    padding-bottom: 0.5rem;
+}
+
+/* Notification item */
+.notif {
+    background: #f5f9ff;
+    border-left: 6px solid #1A73E8;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+}
+
+.notif h3 {
+    margin: 0;
+    color: #1A73E8;
+    font-size: 1.5rem;
+}
+
+.notif p {
+    margin: 0.5rem 0;
+    color: #444;
+    font-size: 1.1rem;
+}
+
+/* Status labels */
+.unresolved {
+    font-weight: bold;
+    color: #d93025;
+}
+
+.resolved {
+    font-weight: bold;
+    color: #34A853;
+}
+
+/* Form buttons */
+button {
+    padding: 0.6rem 1.2rem;
+    margin-right: 0.5rem;
+    background-color: #1A73E8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #155ab6;
+    transform: scale(1.05);
+}
+
+input[type="text"] {
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Resolve button with different styling */
+.resolve-btn {
+    background-color: #34A853;
+    margin-top: 0.75rem;
+}
+
+.resolve-btn:hover {
+    background-color: #2a8b40;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .leftSide, .rightSide {
+        flex: 1 1 100%;
+    }
+}
+
 
 .navbar .notifnav {
     font-weight: 600; /* Bold text */
