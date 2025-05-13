@@ -239,11 +239,14 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			};
 		}
 
+		console.log(post, user._id, await user_has_application(post, user._id.toString()));
+
 		res.render("project", {
 			project: post,
 			creatorUsername: username,
 			title: post.title,
-			isMember: await post_has_member(post, user._id)
+			isMember: await post_has_member(post, user._id),
+			hasApplication: await user_has_application(post, user._id.toString())
 		});
 	} catch (error) {
 		console.error(error);

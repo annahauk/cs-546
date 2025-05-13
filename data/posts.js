@@ -417,10 +417,10 @@ async function user_has_application(project, userId) {
 	userId = idVal(userId);
 
 	// project has no pending applications
-	if(project.members.length < 1) {
+	if(project.applications.length < 1) {
 		return false;
 	}
-	for(const app of project.members) {
+	for(const app of project.applications) {
 		if(app.applicant_id.toString() === userId) {
 			return true;
 		}

@@ -55,10 +55,14 @@
             </form>
         {{else}}
             <!-- join button -->
-            <form method="POST" action="/projects/{{project._id}}/join">
-                <button type="submit">Apply to join {{project.title}}</button><br>
-                <textarea name="text" placeholder="Add an additional message..."></textarea>
-            </form>
+            {{#if hasApplication}}
+                <p>Application pending...</p>
+            {{else}}
+                <form method="POST" action="/projects/{{project._id}}/join">
+                    <button type="submit">Apply to join {{project.title}}</button><br>
+                    <textarea name="text" placeholder="Add an additional message..."></textarea>
+                </form>
+            {{/if}}
         {{/if}}
     </div>
 </div>
