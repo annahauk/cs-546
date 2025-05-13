@@ -2,6 +2,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="/public/css/main.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <div class="navbar">
 	<div class="nav-left">
@@ -20,21 +21,26 @@
 </header>
 <div class="container">
 	<div class="leftStats">
-		<p>Add completed projects stats</p>
-		<p>As well as possibly some more stats in general</p>
-		<P>And make it look pretty - add a graph, perchance</P>
 		<ul>
 			<li>{{stats.numProjectsActive}} active projects</li>
 			<li>{{stats.numProjectsCompleted}} completed projects</li>
 			<li>{{stats.numUsers}} users</li>
 			<li>Oldest active post: {{stats.oldestPost}}</li>
 			<li>Newest active post: {{stats.newestPost}}</li>
+			<div class="chart">
+  			<canvas id="projectChart"></canvas>
+			</div>
 		</ul>
 	</div>
 	<div class="centerInfo">
-		<p>Welcome to GitMatches, your source for finding high quality, open source
-			projects for you to collaborate on with other developers.</p>
-
+		<div class="centerInfo">
+			<h2 class="headline">Welcome to GitMatches</h2>
+			<p>Your source for finding high-quality, open-source projects to collaborate on with fellow developers.</p>
+			<p>GitMatches intelligently matches you with open-source projects based on GitHub activity, skills, and resume data, making collaboration seamless.</p>
+			<p>Whether you're looking to join a project, find contributors, or expand your developer network, GitMatches is here to help you build meaningful connections.</p>
+			<br>
+			<a href="/join" class="cta-button">Join Now</a>
+		</div>
 	</div>
 	<div class="rightStats">
 		<div class="userTagsChart" id="userTagsChart" data-chart-data='{{json userChartData}}'></div>
@@ -43,3 +49,25 @@
 </div>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="/public/js/renderCharts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+    const ctx = document.getElementById('projectChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Active Projects', 'Completed Projects'],
+        datasets: [{
+          data: [{{stats.numProjectsActive}}, {{stats.numProjectsCompleted}}],
+          backgroundColor: ['#1A73E8', '#8A6BF8'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  </script>

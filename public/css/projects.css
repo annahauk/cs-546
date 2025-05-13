@@ -10,40 +10,6 @@ body {
     min-height: 100vh;
   }
 
-  .message-container {
-	display: flex;
-	justify-content: center;
-	gap: 0.5rem;
-	overflow: hidden;
-	position: relative;
-	margin-top: 1rem;
-}
-
-.messageleft, .messageright {
-	font-size: 2rem;
-	color: #555;
-	font-weight: 400;
-	opacity: 0;
-	animation: slideIn 1s ease-out forwards;
-}
-
-.messageleft {
-	transform: translateX(-100%);
-	animation-delay: 0.2s;
-}
-
-.messageright {
-	transform: translateX(100%);
-	animation-delay: 0.4s;
-}
-
-@keyframes slideIn {
-	to {
-		transform: translateX(0);
-		opacity: 1;
-	}
-}
-
 header h1 {
 	font-size: 4rem;
 	margin-bottom: 0.5rem;
@@ -110,24 +76,23 @@ footer {
 /* box holding projects */
 
 .projectsArea {
-    background-color: #fff;
+    background: linear-gradient(180deg, #2780da, rgb(139, 81, 247));
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
+    color: white; /* Ensure text is readable on the gradient */
 }
-
 .projectsArea ol {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr); /* Maximum of 3 projects per row */
+    gap: 1.5rem; /* Space between grid items */
     list-style-type: none;
     padding: 0;
 }
-
 /* in projectList.Handlebars */
 .project {
-    padding: 1rem;
+    padding: 1.25rem;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f9f9f9;
@@ -139,7 +104,7 @@ footer {
 }
 
 .project > a {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #1a73e8;
     font-weight: 600;
     text-decoration: none;
@@ -150,7 +115,7 @@ footer {
 }
 
 .project > p {
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: #1863c6;
     margin-top: 0.5rem;
     font-style: italic;
@@ -167,7 +132,7 @@ footer {
     color: #1a73e8;
     padding: 0.3rem 0.6rem;
     border-radius: 4px;
-    font-size: 1.5rem;
+    font-size: 1rem;
     float: left ;
     display: inline;
     width: fit-content; /* Ensures the background wraps tightly around the text */
@@ -218,7 +183,7 @@ footer {
 }
 
 .sidebar h1 {
-    font-size: 5rem;
+    font-size: 4rem;
     color: #1a73e8;
     margin-bottom: 1rem;
 }
