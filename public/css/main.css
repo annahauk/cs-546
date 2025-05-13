@@ -1,14 +1,14 @@
 /* LANDING PAGE */
 body {
-    font-family: 'Helvetica Neue', sans-serif;
-    background-color: #ffffff;
-    color: #333;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+	font-family: "Helvetica Neue", sans-serif;
+	background-color: #ffffff;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
 
 .message-container {
 	display: flex;
@@ -19,7 +19,8 @@ body {
 	margin-top: 1rem;
 }
 
-.messageleft, .messageright {
+.messageleft,
+.messageright {
 	font-size: 2rem;
 	color: #555;
 	font-weight: 400;
@@ -46,8 +47,8 @@ body {
 
 /* header background image */
 .headerbg {
-    background-image: url("/public/headerbg.jpg");
-    background-size: cover;
+	background-image: url("/public/headerbg.jpg");
+	background-size: cover;
 }
 
 header h1 {
@@ -72,10 +73,10 @@ header h1 {
 	border-bottom: 1px solid #e0e0e0;
 	padding: 1rem 2rem;
 	text-align: right;
-    font-size: 1.25rem ;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	font-size: 1.25rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .navbar a {
@@ -87,7 +88,7 @@ header h1 {
 header {
 	text-align: center;
 	padding: 3rem 1rem;
-    background: #e9f0fb;
+	background: #e9f0fb;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
@@ -99,7 +100,7 @@ header h1 {
 
 header h2 {
 	font-size: 2rem;
-    margin-top: 15px;
+	margin-top: 15px;
 	color: #555;
 	font-weight: 400;
 }
@@ -112,7 +113,9 @@ header h2 {
 	gap: 1rem;
 }
 
-.leftStats, .centerInfo, .rightStats {
+.leftStats,
+.centerInfo,
+.rightStats {
 	background-color: #ffffff;
 	padding: 2rem;
 	flex: 1 1 250px;
@@ -122,10 +125,9 @@ header h2 {
 	transition: transform 0.2s ease;
 }
 
-
 /* Main content should grow to fill available space */
 main {
-    flex: 1;
+	flex: 1;
 }
 
 footer {
@@ -204,16 +206,16 @@ a:hover {
 	text-decoration: underline;
 }
 .error {
-    color: #d93025;
-    text-align: center;
-    font-weight: 500;
+	color: #d93025;
+	text-align: center;
+	font-weight: 500;
 }
 
 .not-found {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    margin-top: 2rem;
+	text-align: center;
+	color: #888;
+	font-style: italic;
+	margin-top: 2rem;
 }
 
 /* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
@@ -243,63 +245,64 @@ a:hover {
 
 /* This adds a button over the logout and join/login buttons when hovered */
 
-.logout, .joinlogin {
-    display: inline-block; /* Makes the link behave like a button */
-    padding: 10px 20px; /* Adds space inside the button */
-    color: black; /* Default text color */
-    text-decoration: none; /* Removes underline */
-    border-radius: 25px; /* Rounds the corners */
-    transition: all 0.3s ease; /* Smooth transition for hover effect */
+.logout,
+.joinlogin {
+	display: inline-block; /* Makes the link behave like a button */
+	padding: 10px 20px; /* Adds space inside the button */
+	color: black; /* Default text color */
+	text-decoration: none; /* Removes underline */
+	border-radius: 25px; /* Rounds the corners */
+	transition: all 0.3s ease; /* Smooth transition for hover effect */
 }
 
-.logout:hover, .joinlogin:hover {
-    background-color: #0073e6; /* Blue background on hover */
-    color: white; /* White text on hover */
+.logout:hover,
+.joinlogin:hover {
+	background-color: #0073e6; /* Blue background on hover */
+	color: white; /* White text on hover */
 }
 /* 
 
 
 /* THE STATS */
 
-
 .leftStats p {
-    font-size: 1.5rem;
-    margin: 0.5rem 0;
-    color: #555;
+	font-size: 1.5rem;
+	margin: 0.5rem 0;
+	color: #555;
 }
 
 .leftStats ul {
-    list-style: none;
-    padding-left: 0;
-    margin-top: 1rem;
+	list-style: none;
+	padding-left: 0;
+	margin-top: 1rem;
 	margin-bottom: 1.2rem;
 }
 
 .leftStats li {
-    background: #e9f0fc;
-    margin-bottom: 0.5rem;
-    padding: 0.75rem 1rem;
-	margin-bottom:5%;
-    border-radius: 8px;
-    font-weight: 500;
+	background: #e9f0fc;
+	margin-bottom: 0.5rem;
+	padding: 0.75rem 1rem;
+	margin-bottom: 5%;
+	border-radius: 8px;
+	font-weight: 500;
 	font-size: 1.5rem;
-    color: #1A73E8;
-    position: relative;
+	color: #1a73e8;
+	position: relative;
 }
 
 .leftStats li::before {
-    content: '📊';
-    margin-right: 0.5rem;
+	content: "📊";
+	margin-right: 0.5rem;
 }
 
 .chart {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 canvas {
-    max-width: 100%;
+	max-width: 100%;
 }
 /* make the headerbg class the same gradient */
 /* .headerbg {
@@ -319,51 +322,52 @@ canvas {
 } */
 
 .centerInfo {
-    background: linear-gradient(180deg, #1A73E8, #a48ef4);
-    color: #fff;
-    padding: 50px;
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
+	background: linear-gradient(180deg, #1a73e8, #a48ef4);
+	color: #fff;
+	padding: 50px;
+	text-align: center;
+	max-width: 800px;
+	margin: 0 auto;
 }
 
 .centerInfo .headline {
-    font-size: 2.75rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+	font-size: 2.75rem;
+	font-weight: bold;
+	margin-bottom: 20px;
+	color: #ffffff;
+	text-transform: uppercase;
+	letter-spacing: 2px;
 }
 
 .centerInfo p {
-    font-size: 1.5rem;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    color: #f1f1f1;
+	font-size: 1.5rem;
+	line-height: 1.6;
+	margin-bottom: 20px;
+	color: #f1f1f1;
 }
 
 .centerInfo .cta-button {
-    background-color: #4285F4;
-    color: #fff;
-    padding: 15px 30px;
-    border-radius: 25px;
-    font-size: 1.5rem;
-    text-decoration: none;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+	background-color: #4285f4;
+	color: #fff;
+	padding: 15px 30px;
+	border-radius: 25px;
+	font-size: 1.5rem;
+	text-decoration: none;
+	transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .centerInfo .cta-button:hover {
-    background-color: #0F5BDC;
-    transform: scale(1.1);
+	background-color: #0f5bdc;
+	transform: scale(1.1);
 }
 
 .centerInfo .cta-button:active {
-    background-color: #185ABC;
+	background-color: #185abc;
 }
 /* FOR ANNA - STYLING FOR PROJECT and NOTIFS*/
-.leftSide, .rightSide {
-    flex: 1;
-    min-width: 0;
-    overflow-wrap: break-word;
+.leftSide,
+.rightSide {
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: break-word;
 }

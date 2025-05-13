@@ -9,9 +9,11 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
+
 main {
 	flex: 1;
 }
+
 footer {
 	text-align: center;
 	padding: 1.5rem;
@@ -210,6 +212,23 @@ li {
 	color: #333;
 	text-align: left;
 	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+li:hover {
+	background-color: #e9f0fb;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	color: #0073e6;
+}
+
+li::before {
+	/* content: "•"; */
+	color: #0073e6;
+	font-size: 1.2rem;
+	margin-right: 0.5rem;
+	padding-left: 0;
 	align-items: center;
 	gap: 0.5rem;
 	transition: background-color 0.3s ease, box-shadow 0.3s ease;
