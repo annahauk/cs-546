@@ -6,3 +6,5 @@ node_modules/
 .env.bat
 notes/
 .prettierignore
+
+data/db_seed_two.js

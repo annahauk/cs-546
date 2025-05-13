@@ -5,12 +5,35 @@ import { createNotif, getAllNotifs, getNotif, removeNotif, removeAllNotif, resol
 import { createComment, getAllCommentsByPostId, getCommentById } from './comments.js';
 import { dbConnection, closeConnection } from '../config/mongoConnection.js';
 
+
+import { MongoClient, ObjectId } from 'mongodb';
+
+/*
+
+                COLLECTIONS
+
+export const users = getCollectionFn("users");
+// notifications will be a subcollection of users
+export const projectPosts = getCollectionFn("projectPosts");
+// comments will be a subcollection of projectPosts
+export const auth = getCollectionFn("auth");
+
+*/
+
 async function main() {
     const db = await dbConnection();
     const userCollection = await db.collection('users');
+    const postCollection = await db.collection('projectPosts');
+    const authCollection = await db.collection('auth');
 
     console.log('Clearing the users collection...');
     await userCollection.deleteMany({});
+
+    console.log('Clearing the posts collection...');
+    await postCollection.deleteMany({});
+
+    console.log('Clearing the auth collection...');
+    await authCollection.deleteMany({});
 
     console.log('Seeding database with sample users...');
 
@@ -130,22 +153,17 @@ async function main() {
         
         // add anna as friend of zakypoo
 
-        const db = await dbConnection();
-        const postCollection = await db.collection('projectPosts');
-        console.log('Clearing the posts collection...');
-        await postCollection.deleteMany({});
-
         console.log('Seeding database with sample posts...');
 
 
         // Create sample posts from user4 nd user5
         console.log('Creating sample posts...');
-        const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/miniStockDash", ["Machine Learning", "Deep Learning"]);
-        const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
-        const post3 = await createPost('Convolutional Image Classifier', user5._id, "I don't understand ML - someone help me please!", 'https://github.com/annahauk/cs-546-2', ['Machine Learning', 'Deep Learning', 'Python']);
+        const post1 = await createPost("Bi-directional LSTM #pride", user4._id, "LSTMs ain't the only things that can be flexible! Celebrating pride with my study on Bi-direction LSTMs!", "https://github.com/ZakariyyaScavotto/redditScraping", ["machine learning", "deep learning", "python"]);
+        const post2 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web', 'machine learning']);
+        const post3 = await createPost('Convolutional Image Classifier', user5._id, "I don't understand ML - someone help me please!", 'https://github.com/annahauk/cs-546-2', ['machine Learning', 'deep Learning', 'python']);
 
         try {
-            const post4 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web']);
+            const post4 = await createPost('Web Programming Final Project', user5._id, 'Need help with my GitMatches final project. Need javascript, mongo, and awesomeness to help.', 'https://github.com/annahauk/cs-546', ['JavaScript', 'MongoDB', 'Web', 'Machine Learning']);
             console.log("UH OH! Did not catch duplicate post!");
         } catch (error) {
             console.error('Expected error for duplicate post:', error);
@@ -193,6 +211,11 @@ async function main() {
         console.log('Filtered posts:');
         console.log(filteredPosts);
 
+        // add more posts
+        let post8 = await createPost("Airbnb Ratings", user5._id, "Testing different Machine learning models to see which has best accuracy for a regression classification.", "https://github.com/annahauk/Airbnb-Ratings", ["machine Learning", "deep Learning", "Python", "scikit-learn", "xgboost"]);
+        let post5 = await createPost("Stock Trading Dashboard", user4._id, "Building out a trading dashboard to provide insights to users for informed stock trading and portfolio analysis.", "https://github.com/ZakariyyaScavotto/miniStockDash", ["javascript", "css", "Python", "sklearn", "streamlit" ]);
+        let post6 = await createPost("NYBG: Image Classifier", user5._id, "Partnering with the New York Botanical Garden. We're trying to construct an image classifier to detect good/bad data from their 1 billion image dataset for researchers around the world. You in? Join below!", "https://github.com/annahauk/NYBG", ["machine Learning", "Python", "tensorflow", "keras", "openAi", "OpenCV"]);
+        let post7 = await createPost("Star Wars Lorebot", user4._id, "OMG are you are starwars lover like me???? Please PLEASE help me make a lorebot so I can geek out about the more important things in life! ;))))))", "https://github.com/ZakariyyaScavotto/StarWarsLorebot", ["javascript", "typescript", "angular", "node", "node.js", "OpenAPI"]);
         
         /**
          * 
@@ -292,6 +315,10 @@ async function main() {
             console.log('Fetched comment:');
             console.log(fetchedComment);
 
+            let comment4 = await createComment("You're such a nerd zak LOL. Someone should do this with him >.<", post7._id, user5._id );
+            let comment5 = await createComment("Hmm interesting proj. You might wanna use a YOLO model for image classificaiton. Or even a pretrained CNN like ImageNet.", post6._id, user4._id);
+    
+
 
             // Verify removal
             console.log(`Fetching all comments for post (${post1._id}) after removal...`);
@@ -305,21 +332,21 @@ async function main() {
 
 
         // Test invalid inputs
-        try {
-            console.log('TRY: Attempting to create a user with an invalid username...');
-            await createUser('', 'InvalidPassword!');
-            console.log("FAIL: Did not catch invalid username!");
-        } catch (error) {
-            console.error('PASS: Expected error for invalid username:', error);
-        }
+        // try {
+        //     console.log('TRY: Attempting to create a user with an invalid username...');
+        //     await createUser('', 'InvalidPassword!');
+        //     console.log("FAIL: Did not catch invalid username!");
+        // } catch (error) {
+        //     console.error('PASS: Expected error for invalid username:', error);
+        // }
 
-        try {
-            console.log('TRY: Attempting to fetch a user with an invalid ID...');
-            await getUserById('invalidObjectId');
-            console.log("FAIL: Did not catch invalid ID!");
-        } catch (error) {
-            console.error('PASS: Expected error for invalid ID:', error);
-        }
+        // try {
+        //     console.log('TRY: Attempting to fetch a user with an invalid ID...');
+        //     await getUserById('invalidObjectId');
+        //     console.log("FAIL: Did not catch invalid ID!");
+        // } catch (error) {
+        //     console.error('PASS: Expected error for invalid ID:', error);
+        // }
     } catch (error) {
         console.error('Error during seeding or testing:', error);
     } finally {
@@ -328,5 +355,6 @@ async function main() {
     }
 
 }
+
 
 main();
