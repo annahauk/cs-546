@@ -6,7 +6,9 @@ import {
 	getUserById,
 	getUserByUsername,
 	updateUserTags,
-	setUserTags
+	setUserTags,
+	users_are_friends,
+	create_friend_request
 } from "../data/users.js";
 import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
@@ -224,7 +226,37 @@ router.route("/friendRequest/:id")
 	// add friend request object to their document
 	// check if they already have a friend request pending
 	.post(async(req,res) => {
-			
+		let id;
+		let username;
+		try {
+			id = idVal(req.params.id);
+			username = stringVal(req.cookies["username"]);
+		} catch (e) {
+			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+		}
+
+		// get current user
+		let user = await getUserByUsername(username);
+		if(!user) {
+			return res.status(404).render(`error`, {error: `User not found.`});
+		}
+		user._id = idVal(user._id);
+
+		// get requested user
+		let newfriend = await getUserById(id);
+		if(!newfriend) {
+			return res.status(404).render(`error`, {error: `Requested user not found. You need to find real friends pookie.`});
+		}
+
+		// make sure users are not friends already
+		if(await users_are_friends(user, newfriend)) {
+			return res.status(400).render(`error`, {error: `Y'all are friends already, chill.`});
+		}
+
+		// create friend request
+		await create_friend_request(user, newfriend);
+
+		return res.status(200).redirect(`/profile/${id}`);
 	})
 
 export default router;
