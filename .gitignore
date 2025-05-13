@@ -7,4 +7,5 @@ node_modules/
 notes/
 .prettierignore
 
-data/db_seed_two.js
+.DS_Store
+
