@@ -74,6 +74,7 @@ async function createUser(userName, password) {
 		gh_info: null,
 		skill_tags: skillTags,
 		friends: friends,
+		friendRequests: [],
 		achievements: achievements,
 		notifications: notifications
 	};
@@ -555,6 +556,285 @@ async function getTopUserTags(n = 3) {
 }
 
 /**
+ * Check if requester has a pending request in requestees friend requests
+ * @param {User} requester 
+ * @param {User} requestee 
+ * @returns {boolean}
+ */
+async function user_has_friend_request(requester, requestee) {
+	for(const req of requestee.friendRequests) {
+		if(req.requester === requester._id) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * 
+ * @param {User} requester 
+ * @param {User} requestee 
+ * @returns {FriendRequest}
+ */
+async function create_friend_request(requester, requestee) {
+	if(await user_has_friend_request(requester, requestee)) {
+		throw new Error(`User has pending friend request.`);
+	}
+
+	idVal(requester._id);
+	idVal(requestee._id);
+
+	const usersc = await users();
+	let request = {
+		_id: new ObjectId(),
+		name: requester.user_name,
+		requester: requester._id
+	};
+
+	let upsert = await usersc.updateOne({_id: new ObjectId(requestee._id)}, {$push: {"friendRequests": request}});
+	if(!upsert.acknowledged) {
+		throw new Error(`Failed to create friend request`);
+	}
+
+	// create notification for requestee
+	await createNotif(
+		requestee._id,
+		`${requester.user_name} wants to be your friend.`,
+		"yay :3",
+		null,
+		null,
+		"GitMatches System",
+		true,
+		false,
+		requester._id,
+		null,
+		true,
+		null,
+		request._id.toString()
+	);
+
+	return request;
+}
+
+/**
+ * return true if users are friends
+ * @param {User} u1 
+ * @param {User} u2
+ * @returns {boolean} 
+ */
+async function users_are_friends(u1, u2) {
+	let u1friendu2 = false;
+	let u2friendu1 = false;
+
+	idVal(u1._id);
+	idVal(u2._id);
+
+	for(const friend of u1.friends) {
+		if(friend.id === u2._id) {
+			u1friendu2 = true;
+		}
+	}
+
+	for(const friend of u2.friends) {
+		if(friend.id === u1._id) {
+			u2friendu1 = true;
+		}
+	}
+
+	return (u1friendu2 && u2friendu1);
+}
+
+/**
+ * friend request approve action
+ * @param {User} user 
+ * @param {string} request_id 
+ * @returns {void}
+ */
+async function approve_friend_request(user, request_id) {
+	// add requestee to user friends and remove request
+	// add user to requester friends
+	// send requestee the acceptance notification
+	idVal(user._id);
+	idVal(request_id);
+
+	let request;
+	for(const req of user.friendRequests) {
+		if(req._id.toString() === request_id) {
+			request = req;
+		}
+	}
+	if(!request) {
+		throw new Error(`Friend request not found.`);
+	}
+
+	const usersc = await users();
+
+	// add friend to user
+	let friend_add = await usersc.updateOne({_id: new ObjectId(user._id)}, {$push: {"friends": {
+		_id: new ObjectId(),
+		id: request.requester,
+		name: request.name
+	}}});
+	if(!friend_add.acknowledged) {
+		throw new Error(`Failed to insert friend.`);
+	}
+
+	// add friend to requester
+	let requester_add = await usersc.updateOne({_id: new ObjectId(request.requester)}, {$push: {"friends": {
+		_id: new ObjectId(),
+		id: user._id,
+		name: user.user_name
+	}}});
+	if(!requester_add.acknowledged) {
+		throw new Error(`Failed to insert friend to requester.`);
+	}
+
+	// remove friend request object from user
+	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": {"_id": new ObjectId(request_id)}}});
+	if(!remove_request) {
+		throw new Error(`Failed to remove friend request from user.`);
+	}
+
+	// send requester notification
+	await createNotif(
+		request.requester,
+		`${user.user_name} has accepted your friend request!`,
+		"yippeee ^w^",
+		null,null,
+		"GitMatches System",
+		true,
+		false,
+		user._id,
+		null,
+		false,
+		null,
+		request_id
+	);
+
+	return;
+}
+
+/**
+ * 
+ * @param {User} user 
+ * @param {User} request_id 
+ * @returns {void}
+ */
+async function deny_friend_request(user, request_id) {
+	// remove friend request document from user
+	// send notif to requester
+	idVal(user._id);
+	idVal(request_id);
+
+	let request;
+	for(const req of user.friendRequests) {
+		if(req._id.toString() === request_id) {
+			request = req;
+		}
+	}
+	if(!request) {
+		throw new Error(`Friend request not found.`);
+	}
+
+	const usersc = await users();
+
+	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": new ObjectId(request_id)}});
+	if(!remove_request.acknowledged) {
+		throw new Error(`Failed to remove friend request from user.`);
+	}
+
+	// send notif to requester
+	await createNotif(
+		request.requester,
+		`${user.user_name} denied your friend request :(`,
+		"aw TwT",
+		null,
+		null,
+		"GitMatches System",
+		false,
+		null,
+		user._id,
+		null,
+		false,
+		null,
+		request_id
+	);
+
+	return;
+}
+
+/**
+ * 
+ * @param {User} user 
+ * @param {string} friend_id 
+ * @return {void}
+ */
+async function remove_friend(user, friend_id) {
+	// remove friend from user friends
+	// remove user from ex's friends
+	// send notif to ex
+	idVal(user._id);
+	idVal(friend_id);
+
+	const usersc = await users();
+
+	// get friend object
+	let ex;
+	for(const friend of user.friends) {
+		if(friend.id === friend_id) {
+			ex = friend; // </3
+		}
+	}
+	if(!ex) {
+		throw new Error(`Could not find friend.`);
+	}
+
+	// remove friend from user
+	let remove_fr = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friends": {"_id": ex._id}}});
+	if(!remove_fr.acknowledged) {
+		throw new Error(`Could not remove friend from user.`);
+	}
+
+	// remove user from ex's friends
+	let remove_ex = await usersc.updateOne({_id: new ObjectId(ex.id)}, {$pull: {"friends": {"id": user._id}}});
+	if(!remove_ex.acknowledged) {
+		throw new Error(`Failed to remove user from friend friends`);
+	}
+
+	// send notif
+	await createNotif(
+		ex.id,
+		`${user.user_name} broke up with you </3`,
+		`Y'all aint friends no more. TwT`,
+		null,
+		null,
+		"GitMatches System",
+		false,
+		false,
+		user._id,
+		null,
+		false,
+		null
+	);
+}
+
+/**
+ * 
+ * @param {User} user 
+ * @param {string} request_id 
+ * @returns {(null|FriendRequest)}
+ */
+async function get_friend_request(user, request_id) {
+	for(const req of user.friendRequests) {
+		if(req._id.toString() === request_id) {
+			return req;
+		}
+	}
+
+	return null;
+}
+/**
  * Gets the number of pending notifications for a user and formats it as a string for navbar display
  * @param {string} userId user ID
  * @returns {string} The number of pending notifications, formatted as a navbar string
@@ -601,5 +881,12 @@ export {
 	getUserCount,
 	getTopUserTags,
 	setUserTags,
+	users_are_friends,
+	create_friend_request,
+	approve_friend_request,
+	deny_friend_request,
+	remove_friend,
+	user_has_friend_request,
+	get_friend_request,
 	pendingNotifs
 };

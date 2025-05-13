@@ -40,7 +40,7 @@
             {{#if userProjects.length}}
                 {{#each userProjects}}
                     <li class="projectItem">
-                        <h3>{{this.title}}</h3>
+                        <h3><a href="/projects/{{this._id}}" target="_blank">{{this.title}}</a></h3>
                         <p>{{this.description}}</p>
                         <p>Status: {{this.status}}</p>
                         {{#if this.repoLink}}
@@ -64,21 +64,39 @@
                 <li>No projects yet.</li>
             {{/if}}
         </ul>
+        {{#if isMyProfile}}
         <div class="manageLinks">
             <a href="/profile/{{user._id}}/edit">Managed Profile & Projects</a>
         </div>
+        {{/if}}
     </div>
     <div class="rightSide">
         <p>Friends</p>
         <ul class="friendsList">
-            {{#if user.friends.length}}
-                {{#each user.friends}}
-                    <li>{{this}}</li>
+            {{#if user.Friends.length}}
+                {{#each user.Friends}}
+                    <a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a>
                 {{/each}}
             {{else}}
-                <li>It's a little lonely... no friends</li>
+                <li>It's a little lonely... no friends :(</li>
             {{/if}}
         </ul>
+        {{!-- https://stackoverflow.com/questions/10540176/how-to-implement-not-with-if-statement-in-ember-handlebars --}}
+        {{#if isFriend}}
+            <form method="POST" action="/profile/friendRemove/{{user._id}}">
+                <button type="submit">Remove Friend</button>
+            </form>
+        {{else}}
+            {{#if hasFriendRequest}}
+                <p>Friend Request pending...</p>
+            {{else}}
+                {{#unless isMyProfile}}
+                    <form method="POST" action="/profile/friendRequest/{{user._id}}">
+                        <button type="submit">Send Friend Request</button><br>
+                    </form>
+                {{/unless}}
+            {{/if}}
+        {{/if}}
     </div>
 </div>
 <script src="/public/js/resumeUpload.js"></script>

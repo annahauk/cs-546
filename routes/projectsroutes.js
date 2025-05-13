@@ -13,7 +13,8 @@ import {
 	remove_project_member,
 	getPostsByUserId,
 	updatePost,
-	doPostLikeAction
+	doPostLikeAction,
+	user_has_application
 } from "../data/posts.js";
 import {
 	getUserByUsername,
@@ -52,8 +53,8 @@ router
 					).length;
 					return bMatchCount - aMatchCount;
 				});
-				console.log("All posts (sorted):");
-				console.log(allPosts);
+				// console.log("All posts (sorted):");
+				// console.log(allPosts);
 				const notifs = await pendingNotifs(userId);
 				res.render("projects", {
 					posts: allPosts,
@@ -243,14 +244,31 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return await res.status(500).render("error", { error: `No user found.` });
 		}
+
+		post["memberInfo"] = [];
+		// for each member of project
+		for (const ii in post.members) {
+			// get user from member id
+			let user = await getUserById(post.members[ii].toString());
+
+			// assign member id/name combination to project member info position
+			post["memberInfo"][ii] = {
+				id: post.members[ii].toString(),
+				name: user.user_name
+			};
+		}
+
+
 		const notifs = await pendingNotifs(user._id.toString());
+
 		res.render("project", {
 			project: post,
 			creatorUsername: username,
 			title: post.title,
 			isMember: await post_has_member(post, user._id),
-			notifs: notifs,
-		});
+			hasApplication: await user_has_application(post, user._id.toString()),
+			notifs: notifs
+});
 	} catch (error) {
 		console.error(error);
 		res
@@ -299,6 +317,11 @@ router
 		if (await post_has_member(project, user._id)) {
 			// user is member
 			return await res.redirect(`/projects/${project._id.toString()}`);
+		}
+
+		// make sure user doesnt have a pending application
+		if(await user_has_application(project, user._id.toString())) {
+			return res.status(400).render("error", {error: `User already has an application for this project.`});
 		}
 
 		// create application
@@ -713,73 +736,86 @@ router.post("/:id/edit", isLoggedIn, async (req, res) => {
 });
 
 // Route for removing user from project
-router.route("/:id/removeMember/:memberId")
-	.post(async (req,res) => {
-		let project;
-		let user;
-		let memberId;
+router.route("/:id/removeMember/:memberId").post(async (req, res) => {
+	let project;
+	let user;
+	let memberId;
 
-		try {
-			memberId = idVal(req.params.memberId);
-		} catch (e) {
-			console.error(e);
-			return await res.status(400).render("error", {error: `Bad member id`});
-		}
+	try {
+		memberId = idVal(req.params.memberId);
+	} catch (e) {
+		console.error(e);
+		return await res.status(400).render("error", { error: `Bad member id` });
+	}
 
-		try {
-			let projId = idVal(req.params.id, "projId", "removeMember_route");
-			project = await getPostById(projId);
-		} catch (e) {
-			console.error(e);
-			console.log(`404 project`);
-			return await res.status(404).render("error", {error: `No project with Id: ${req.params.id}`});
-		}
+	try {
+		let projId = idVal(req.params.id, "projId", "removeMember_route");
+		project = await getPostById(projId);
+	} catch (e) {
+		console.error(e);
+		console.log(`404 project`);
+		return await res
+			.status(404)
+			.render("error", { error: `No project with Id: ${req.params.id}` });
+	}
 
-		try {
-			let usrname = stringVal(req.cookies["username"]);
-			user = await getUserByUsername(usrname);
-		} catch (e) {
-			console.error(e);
-			return await res.status(500).render("error", {error: `No user found.`});
-		}
+	try {
+		let usrname = stringVal(req.cookies["username"]);
+		user = await getUserByUsername(usrname);
+	} catch (e) {
+		console.error(e);
+		return await res.status(500).render("error", { error: `No user found.` });
+	}
 
-		// make sure user is owner of project
-		if(user._id.toString() !== project.ownerId) {
-			res.status(401).render("error", {error: `Only project owners can remove members.`});
-		}
+	// make sure user is owner of project
+	if (user._id.toString() !== project.ownerId) {
+		res
+			.status(401)
+			.render("error", { error: `Only project owners can remove members.` });
+	}
 
-		// check if member of project
-		if(!await project.members.map((id) => {return id.toString()}).includes(memberId)) {
-			console.log("404 user not in project");
-			return await res.status(404).render("error", {error: `Member not found in project.`});
-		}
+	// check if member of project
+	if (
+		!(await project.members
+			.map((id) => {
+				return id.toString();
+			})
+			.includes(memberId))
+	) {
+		console.log("404 user not in project");
+		return await res
+			.status(404)
+			.render("error", { error: `Member not found in project.` });
+	}
 
-		// remove user and send them a notif
-		try {
-			await remove_project_member(project, new ObjectId(memberId));
-		} catch (e) {
-			console.error(e);
-			return await res.status(500).render("error", {error: `Failed to remove member from project,`});
-		}
+	// remove user and send them a notif
+	try {
+		await remove_project_member(project, new ObjectId(memberId));
+	} catch (e) {
+		console.error(e);
+		return await res
+			.status(500)
+			.render("error", { error: `Failed to remove member from project,` });
+	}
 
-		// send user notification
-		await createNotif(
-			memberId,
-			`You have been removed from ${project.title}.`,
-			`The owner of ${project.title} has removed you from the project.`,
-			project._id,
-			null,
-			`GitMatches System`,
-			false,
-			false,
-			project.ownerId,
-			project._id,
-			false,
-			null
-		);
+	// send user notification
+	await createNotif(
+		memberId,
+		`You have been removed from ${project.title}.`,
+		`The owner of ${project.title} has removed you from the project.`,
+		project._id,
+		null,
+		`GitMatches System`,
+		false,
+		false,
+		project.ownerId,
+		project._id,
+		false,
+		null
+	);
 
-		res.redirect(`/profile/${user._id.toString()}/edit`);
-	})
+	res.redirect(`/profile/${user._id.toString()}/edit`);
+});
 
 router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 	try {

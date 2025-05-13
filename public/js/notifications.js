@@ -8,16 +8,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         const referenceNotification = formElement.getAttribute("referenceNotification");
         const referenceProject = formElement.getAttribute("referenceProject");
         const referenceApplication = formElement.getAttribute("referenceApplication");
+        const referenceFriendRequest = formElement.getAttribute("referenceFriendRequest");
+        const isFriendRequest = formElement.getAttribute("isFriendRequest");
         const approveButton = formElement.children[0];
         const denyButton = formElement.children[1];
         const text = formElement.children[2];
-
-        if(!approveButton || !denyButton || !text) {
+        console.log("text ", text)
+        let textval = (text)? text.value.trim() : "No message provided.";
+        console.log("textVal ", textval)
+        if(!approveButton || !denyButton) {
             console.error(approveButton, denyButton, text);
             throw new Error(`Descision form missing elements`);
         }
 
         console.log(`register application form: ref project ==> ${referenceProject}, ref app ==> ${referenceApplication}`);
+        console.log(`is friend request: ${isFriendRequest}`, referenceFriendRequest);
 
         // prevent default behavior of form
         formElement.addEventListener("submit", async (e) => {
@@ -27,42 +32,59 @@ document.addEventListener("DOMContentLoaded", async () => {
         // register buttons
         // approve
         approveButton.addEventListener("click", async(e) => {
-            console.log(`Approved application: ${referenceApplication}, message: ${text.value.trim()}`);
+            console.log(`Approved application: ${referenceApplication}, message: ${textval}`);
+            e.preventDefault();
+            // diff between application types
+            let url;
+            if(isFriendRequest) {
+                url = `/profile/friendAccept/${referenceFriendRequest}`;
+            } else {
+                url = `/projects/${referenceProject}/join/${referenceApplication}/approve`;
+            }
+
             const res = await fetch(
-                `/projects/${referenceProject}/join/${referenceApplication}/approve`,
+                url,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     "body": JSON.stringify({
-                        "text": text.value.trim()
+                        "text": textval
                     })
                 }
             );
             if(res.status !== 200) {
-                throw new Error(`Approve route returned bad response code: /projects/${referenceProject}/join/${referenceApplication}/approve`);
+                throw new Error(`Approve route returned bad response code: ${url}`);
             }
             await _resolve();
         });
 
         // deny
         denyButton.addEventListener("click", async(e) => {
-            console.log(`Denied application: ${referenceApplication}, message: ${text.value.trim()}`);
+            console.log(`Denied application: ${referenceApplication}, message: ${textval}`);
+
+            let url;
+            if(isFriendRequest) {
+                url = `/profile/friendDeny/${referenceFriendRequest}`
+            } else {
+                url = `/projects/${referenceProject}/join/${referenceApplication}/deny`;
+            }
+
             const res = await fetch(
-                `/projects/${referenceProject}/join/${referenceApplication}/deny`,
+                url,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     "body": JSON.stringify({
-                        "text": text.value.trim()
+                        "text": textval
                     })
                 }
             );
             if(res.status !== 200) {
-                throw new Error(`Approve route returned bad response code: /projects/${referenceProject}/join/${referenceApplication}/deny`);
+                throw new Error(`Approve route returned bad response code: ${url}`);
             }
             await _resolve();
         });
