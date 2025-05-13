@@ -31,13 +31,6 @@ header h1 {
 	color: #1a73e8;
 	font-weight: 600;
 }
-/* 
-header h1 {
-	font-size: 4rem;
-	margin-bottom: 0.5rem;
-	color: #1a73e8;
-} */
-
 /* Main content should grow to fill available space */
 main {
 	flex: 1;
@@ -82,6 +75,9 @@ footer {
 }
 
 /* Notification item */
+li {
+	font-size: 1.5rem; /* Increase the font size */
+}
 .notif {
 	background: #f5f9ff;
 	border-left: 6px solid #1a73e8;
@@ -93,13 +89,13 @@ footer {
 .notif h3 {
 	margin: 0;
 	color: #1a73e8;
-	font-size: 1.5rem;
+	font-size: 1.75rem;
 }
 
 .notif p {
 	margin: 0.5rem 0;
 	color: #444;
-	font-size: 1.1rem;
+	font-size: 1.25rem;
 }
 
 /* Status labels */
@@ -121,7 +117,7 @@ button {
 	color: white;
 	border: none;
 	border-radius: 8px;
-	font-size: 1rem;
+	font-size: 1.25rem;
 	cursor: pointer;
 	transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -131,17 +127,6 @@ button:hover {
 	transform: scale(1.05);
 }
 
-input[type="text"] {
-	margin-top: 0.5rem;
-	padding: 0.6rem;
-	width: 100%;
-	border-radius: 6px;
-	border: 1px solid #ccc;
-	font-size: 1rem;
-	box-sizing: border-box;
-}
-
-/* Resolve button with different styling */
 .resolve-btn {
 	background-color: #34a853;
 	margin-top: 0.75rem;
@@ -163,6 +148,9 @@ input[type="text"] {
 		flex: 1 1 100%;
 	}
 }
+
+
+/* STUFF FOR NAV BAR */
 
 .navbar .notifnav {
 	font-weight: 600; /* Bold text */

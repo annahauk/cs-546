@@ -314,3 +314,10 @@ footer {
 	display: inline-block; /* Ensure it behaves like a button */
 	transition: background-color 0.3s ease; /* Smooth hover effect */
 }
+
+.not-found{
+	text-align: center;
+	color: white;
+	font-style: italic;
+	margin-top: 2rem;
+}
