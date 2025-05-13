@@ -282,33 +282,44 @@ async function getUserByUsername(username) {
  * @param {string} friendId
  * @returns {ObjectId} userId
  */
-async function addFriend(id, friendId) {
-	id = idVal(id, "id", "addFriend");
-	friendId = idVal(friendId, "friendId", "addFriend");
+async function addFriend(u1id, u2id) {
+	let u1 = await getUserById(u1id);
+	let u2 = await getUserById(u2id);
 
-	const userCollection = await users();
-	const user = await userCollection.findOne({ _id: new ObjectId(id) });
-	if (user === null) {
-		throw "No user with that id";
+	if(await user_has_friend_request(u1, u2)) {
+		throw new Error(`User has pending friend request.`);
 	}
-	// check if the friend is already in the user's friends list
-	if (user.friends.includes(friendId)) {
-		throw "User is already a friend";
-	}
-	// add the friend to the user's friends list
-	const updatedUser = {
-		$push: { friends: new ObjectId(friendId) }
-	};
-	const updateInfo = await userCollection.updateOne(
-		{ _id: new ObjectId(id) },
-		updatedUser
-	);
-	if (updateInfo.modifiedCount === 0)
-		throw `Could not add friend with id of ${friendId}`;
-	const updatedUserDoc = await userCollection.findOne({ _id: new ObjectId(id) });
-	await addAchievement(id, "friends", updatedUserDoc.friends.length);
 
-	return await getUserById(id);
+	idVal(u1._id);
+	idVal(u2._id);
+
+	const usersc = await users();
+
+	// add friend to user
+	let friend_add = await usersc.updateOne({_id: new ObjectId(u1._id)}, {$push: {"friends": {
+		_id: new ObjectId(),
+		id: u2._id,
+		name: u2.user_name
+	}}});
+	if(!friend_add.acknowledged) {
+		throw new Error(`Failed to insert friend.`);
+	}
+	const updatedUserDoc = await usersc.findOne({_id: new ObjectId(u1._id)});
+	await addAchievement(u1._id, "friends", updatedUserDoc.friends.length);
+
+	// add friend to requester
+	let requester_add = await usersc.updateOne({_id: new ObjectId(u2._id)}, {$push: {"friends": {
+		_id: new ObjectId(),
+		id: u1._id,
+		name: u1.user_name
+	}}});
+	if(!requester_add.acknowledged) {
+		throw new Error(`Failed to insert friend to requester.`);
+	}
+	const updatedRequesterDoc = await usersc.findOne({_id: new ObjectId(u2._id)});
+	await addAchievement(u2._id, "friends", updatedRequesterDoc.friends.length);
+
+	return await getUserById(u1._id);
 }
 
 /**
@@ -317,45 +328,37 @@ async function addFriend(id, friendId) {
  * @param {string} friendIdToRemove
  * @returns {ObjectId} userId
  */
-async function removeFriend(id, friendIdToRemove) {
-	id = idVal(id, "id", "removeFriend");
-	friendIdToRemove = idVal(
-		friendIdToRemove,
-		"friendIdToRemove",
-		"removeFriend"
-	);
+async function removeFriend(u1id, u2id) {
+	let u1 = await getUserById(u1id);
+	let u2 = await getUserById(u2id);
 
-	const userCollection = await users();
-	const user = await userCollection.findOne({ _id: new ObjectId(id) });
-	if (user === null) {
-		throw new Error("No user with that id");
-	}
-	// check if the friend is in the user's friends list
-	let toRemoveInFriends = false;
-	// if (!user.friends.includes(friendIdToRemove)){
-	//   throw 'User is not a friend';
-	// }
-	for (const friend of user.friends) {
-		if (friend.toString() === friendIdToRemove.toString()) {
-			toRemoveInFriends = true;
-			break;
+	const usersc = await users();
+
+	// get friend object
+	let ex;
+	console.log(u1.friends, u2.friends);
+	for(const friend of u1.friends) {
+		if(friend.id === u2._id) {
+			ex = friend; // </3
 		}
 	}
-	if (!toRemoveInFriends) {
-		throw new Error("User is not a friend");
+	if(!ex) {
+		throw new Error(`Could not find friend.`);
 	}
-	// remove the friend from the user's friends list
-	const updatedUser = {
-		$pull: { friends: new ObjectId(friendIdToRemove) }
-	};
-	const updateInfo = await userCollection.updateOne(
-		{ _id: new ObjectId(id) },
-		updatedUser
-	);
-	if (updateInfo.modifiedCount === 0)
-		throw `Could not remove friend with id of ${friendIdToRemove}`;
 
-	return await getUserById(id);
+	// remove friend from user
+	let remove_fr = await usersc.updateOne({_id: new ObjectId(u1._id)}, {$pull: {"friends": {"_id": ex._id}}});
+	if(!remove_fr.acknowledged) {
+		throw new Error(`Could not remove friend from user.`);
+	}
+
+	// remove user from ex's friends
+	let remove_ex = await usersc.updateOne({_id: new ObjectId(ex.id)}, {$pull: {"friends": {"id": u1._id}}});
+	if(!remove_ex.acknowledged) {
+		throw new Error(`Failed to remove user from friend friends`);
+	}
+
+	return await getUserById(u1._id);
 }
 /**
  * This function removes a user by its ID and any friends
@@ -471,7 +474,7 @@ async function addAchievement(id, category, val) {
 			);
 			for (let friend of user.friends) {
 				await createNotif(
-					friend.toString(),
+					friend.id.toString(),
 					`${user.user_name} unlocked an achievement: ${achievement.name}`,
 					`${achievement.description}`,
 					undefined,
