@@ -385,7 +385,7 @@ async function removeUser(removalId) {
 		try {
 			let toRemoveInFriends = false;
 			for (const friend of currUser.friends) {
-				if (friend.toString() === removalId) {
+				if (friend.id === removalId) {
 					toRemoveInFriends = true;
 					break;
 				}
@@ -395,7 +395,7 @@ async function removeUser(removalId) {
 			}
 			// remove the friend from the user's friends list
 			const updatedUser = {
-				$pull: { friends: new ObjectId(removalId) }
+				$pull: { friends: {"id": removalId} }
 			};
 			const updateInfo = await userCollection.updateOne(
 				{ _id: new ObjectId(currUser._id.toString()) },
