@@ -25,7 +25,7 @@ content: String,
 repoLink: String,            URL to the related GitHub repository
 comments: Array<Comments>	 Comments associated with the post
 createdAt: String,
-likes: Number,
+likes: Array<String>,		 STRING of user IDs
 topic_tags: Array<String> 
 members: Array<ObjectId>,    User IDs of members in the project
 applications: Array<Applications>
@@ -62,7 +62,7 @@ async function createPost(title, ownerId, content, repoLink, topic_tags) {
 		repoLink: repoLink,
 		comments: [],
 		createdAt: createdTime,
-		likes: 0,
+		likes: [],
 		topic_tags: topic_tags,
 		members: [],
 		applications: [],
@@ -472,6 +472,46 @@ async function getNewestActivePost() {
 	return newestPost[0];
 }
 
+/**
+ * This function does the like/remove like action.
+ * @param {string} postId
+ * @param {string} userId
+ * @returns {Promise<Post>} postId
+ * @throws {Error} if post is not found
+ */
+async function doPostLikeAction(postId, userId) {
+	postId = idVal(postId, "postId", "doPostLikeAction");
+	userId = idVal(userId, "userId", "doPostLikeAction");
+
+	const postCollection = await projectPosts();
+	const post = await postCollection.findOne({ _id: new ObjectId(postId) });
+
+	if (!post) {
+		throw new Error(`Post with ID ${postId} not found`);
+	}
+
+	const userIndex = post.likes.indexOf(userId);
+
+	if (userIndex === -1) {
+		// User has not liked the post, add their ID
+		post.likes.push(userId);
+	} else {
+		// User has already liked the post, remove their ID
+		post.likes.splice(userIndex, 1);
+	}
+
+	const updateInfo = await postCollection.updateOne(
+		{ _id: new ObjectId(postId) },
+		{ $set: { likes: post.likes } }
+	);
+
+	if (!updateInfo.modifiedCount) {
+		throw new Error(`Failed to update likes for post with ID ${postId}`);
+	}
+
+	return post;
+}
+
 export {
 	createPost,
 	getAllPosts,
@@ -488,6 +528,7 @@ export {
 	remove_project_member,
 	getProjectCount,
 	getTopPostTags,
+	doPostLikeAction,
 	getOldestActivePost,
 	getNewestActivePost
 };
