@@ -150,7 +150,13 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 			])
 		];
 		// Get the projects created by the user
-		const userProjects = await getPostsByUserId(userId);
+		let userProjects;
+		try {
+			userProjects = await getPostsByUserId(userId);
+		} catch (e) {
+			// user has no projects
+			userProjects = [];
+		}
 
 		// add user id/combination to user projects... mein gott
 		// fuckass algorithm #2!!!
