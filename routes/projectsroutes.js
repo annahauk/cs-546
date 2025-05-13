@@ -590,10 +590,11 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 		if (!comment || typeof comment !== "string" || comment.trim() === "") {
 			return res.status(400).json({ message: "Invalid comment." });
 		}
-		let ownerId = await getUserByUsername(req.cookies["username"]);
+		const username = req.cookies["username"]
+		let ownerId = await getUserByUsername(username);
 		ownerId = ownerId._id.toString();
 		// Add the comment to the database
-		await createComment(comment, projectId, ownerId);
+		const newComment = await createComment(comment, projectId, ownerId);
 
 		// Fetch the updated project and its comments
 		const updatedProject = await getPostById(projectId);
@@ -605,6 +606,28 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 		}));
 		const numComments = (await getAllCommentsByUserId(ownerId)).length;
 		await addAchievement(ownerId, "comment", numComments);
+		try {
+			// Notification to the project owner
+			await createNotif(
+				updatedProject.ownerId,
+				`${username} commented on your project ${updatedProject.title}`,
+				`"${comment}"`,
+				projectId,
+				newComment._id.toString(),
+				"GitMatches System",
+				null,
+				null,
+				ownerId, // maybe should be null?
+				projectId, // maybe should be null?
+				null,
+				null
+			);
+		} catch (e) {
+			console.error(e);
+			return res.status(500).render("error", {
+				error: `Failed to push notifications.`
+			});
+		}
 		res.render("partials/commentsList", {
 			comments,
 			layout: false
@@ -759,8 +782,8 @@ router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 				// Notification to the project owner
 				await createNotif(
 					post.ownerId,
-					`Post Liked`,
-					`${username} liked your project: ${post.title}`,
+					`${username} liked your project ${post.title}`,
+					`Your post now has ${updatedPost.likes.length} like${updatedPost.likes.length === 1 ? "" : "s"}.`,
 					projectId,
 					null,
 					"GitMatches System",
