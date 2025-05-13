@@ -96,7 +96,7 @@ async function main() {
         // Test updateUser
         console.log('Updating achievements for user2...');
         const updatedUser = await updateUser(user2._id, {
-            achievements: ['Completed 100 projects', 'Top contributor']
+            achievements: ['Checkout', 'Hello World!']
         });
         console.log('Updated user:');
         console.log(updatedUser);
@@ -316,7 +316,7 @@ async function main() {
             console.log(fetchedComment);
 
             let comment4 = await createComment("You're such a nerd zak LOL. Someone should do this with him >.<", post7._id, user5._id );
-            let comment5 = await createComment("Hmm interesting proj. You might wanna use a YOLO model for image classificaiton. Or even a pretrained CNN like ImageNet.", post6._id, user4._id);
+            let comment5 = await createComment("Interesting proj. You might wanna use a YOLO model for image class or a pretrained CNN like ImageNet", post6._id, user4._id);
     
 
 
