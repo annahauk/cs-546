@@ -226,3 +226,48 @@ button:hover {
 a:hover {
 	text-decoration: underline;
 }
+
+
+.leftSide,
+.rightSide {
+	/* Existing styles... */
+	opacity: 0;
+	transform: translateY(20px);
+	animation: fadeInSection 0.8s ease-out forwards;
+}
+
+.leftSide {
+	animation-delay: 0.3s;
+}
+.rightSide {
+	animation-delay: 0.5s;
+}
+
+@keyframes fadeInSection {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.notif {
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.notif:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+li {
+	opacity: 0;
+	transform: translateX(-10px);
+	animation: fadeInList 0.5s forwards;
+	animation-delay: 0.6s;
+}
+
+@keyframes fadeInList {
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
