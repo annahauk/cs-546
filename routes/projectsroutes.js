@@ -163,7 +163,8 @@ router
 		}
 		try {
 			// Accept JSON data from AJAX
-			const { title, description, repoLink, combinedTags } = req.body;
+			let { title, description, repoLink, combinedTags } = req.body;
+			combinedTags = stringVal(combinedTags).split(',');
 			const errors = [];
 
 			// Validate inputs (server-side, always!)
