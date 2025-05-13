@@ -6,3 +6,5 @@ node_modules/
 .env.bat
 notes/
 .prettierignore
+
+.DS_Store
