@@ -8,11 +8,13 @@
     <div class="leftSide">
         <img src="{{user.gh_info.data.avatar_url}}" alt="{{user.user_name}}">
         <h1>{{user.user_name}}</h1>
+        {{#if isProfileOwner}}
         <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form" data-user-id="{{user._id}}">
             <label for="resume">Upload Resume (PDF):</label>
             <input type="file" id="resume" name="resume" accept="application/pdf" required>
             <button type="submit">Upload</button>
         </form>
+        {{/if}}
         <p>Achievements</p>
         <ul class="achievementsList">
             {{#if user.achievements.length}}

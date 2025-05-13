@@ -91,6 +91,10 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		let isFriendVal = await users_are_friends(user, me);
 		console.log(isFriendVal)
 		const notifs = await pendingNotifs(userId);
+
+		// set boolean if the logged in user matches the profile user (profile is the user's profile)
+		let isProfileOwner = (me._id === user._id);
+
 		try {
 			const userPosts = await getPostsByUserId(userId);
 			res.render("profile", {
@@ -100,7 +104,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				isMyProfile: isMyProfile,
 				hasFriendRequest: await user_has_friend_request(me, user),
 				isFriend: await users_are_friends(user, me),
-				notifs: notifs
+				notifs: notifs,
+				isProfileOwner: isProfileOwner
 			});
 		} catch (e) {
 			res.render("profile", {
@@ -110,7 +115,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				isMyProfile: isMyProfile,
 				hasFriendRequest: await user_has_friend_request(me, user),
 				isFriend: await users_are_friends(user, me),
-				notifs: notifs
+				notifs: notifs,
+				isProfileOwner: isProfileOwner
 			});
 		}
 	} catch (error) {
@@ -183,6 +189,16 @@ router
 	.route("/:id/resume")
 	.post(isLoggedIn, upload.single("resume"), async (req, res) => {
 		try {
+		// get signed in user
+			let me;
+			try {
+				me = await getUserByUsername(req.cookies["username"]);
+				me._id = idVal(me._id.toString());
+			} catch (e) {
+				console.error(e);
+				return res.status(400).render(`error`, {error: `cant get signed in user`});
+			}
+
 			const userId = idVal(req.params.id);
 			const user = await getUserById(userId);
 			if (!user) {
@@ -222,7 +238,8 @@ router
 			];
 			await updateUserTags(userId, newTags);
 			const notifs = await pendingNotifs(userId);
-			res.render("profile", { user: user, title: user.user_name, notifs:notifs  });
+			let isProfileOwner = (me._id === user._id);
+			res.render("profile", { user: user, title: user.user_name, notifs:notifs, isProfileOwner: isProfileOwner });
 		} catch (error) {
 			res
 				.status(500)
