@@ -532,7 +532,6 @@ export {
 	remove_project_member,
 	getProjectCount,
 	getTopPostTags,
-  project-remove-user,
 	doPostLikeAction,
 	getOldestActivePost,
 	getNewestActivePost
