@@ -40,7 +40,7 @@
             {{#if userProjects.length}}
                 {{#each userProjects}}
                     <li class="projectItem">
-                        <h3>{{this.title}}</h3>
+                        <h3><a href="/projects/{{this._id}}" target="_blank">{{this.title}}</a></h3>
                         <p>{{this.description}}</p>
                         <p>Status: {{this.status}}</p>
                         {{#if this.repoLink}}
