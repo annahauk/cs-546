@@ -91,6 +91,38 @@ document.addEventListener("DOMContentLoaded", function () {
 	const unsavedTagsWarning = document.getElementById("unsavedTagsWarning");
 	const tagsDropdown = document.getElementById("tags");
 	const resetTagsButton = document.getElementById("resetTagsButton");
+	const removeMemberButtons = [].slice.call(document.getElementsByClassName("memberRemoveButton"));
+
+	// initialize remove member buttons
+	// POST ==> /projects/{{../this._id}}/removeMember/{{this}}
+	for(const rButton of removeMemberButtons) {
+		const postRef = rButton.getAttribute("referenceProject");
+		const memberRef = rButton.getAttribute("referenceMember");
+
+		rButton.addEventListener("click", async(e) => {
+			e.preventDefault();
+			try {
+				const res = await fetch(
+					`/projects/${postRef}/removeMember/${memberRef}`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+					}
+				);
+				if(res.status !== 200) {
+					console.error(`Failed to remove user (code ${res.status})`);
+					alert(`Failed to remove user (code ${res.status})`);
+				} else {
+					window.location.reload();
+				}
+			} catch (e) {
+				console.error(`Failed to remove user`, e);
+				alert("Failed to remove user")
+			}
+		})
+	}
 
 	// Initialize Choices.js for the user tags dropdown
 	const tagsChoices = new Choices(tagsDropdown, {
