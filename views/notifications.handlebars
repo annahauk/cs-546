@@ -20,7 +20,7 @@
                             {{#if this.requiresApproval}}
                                 <p>Approve or Deny this application</p>
                                 <!-- approve | posts to /projects/:id/join/:appId/approve -->
-                                <form method="POST" class="notif-application-descision" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" referenceNotification="{{this._id}}" action="">
+                                <form method="POST" isFriendRequest="{{this.acceptedFriend}}" class="notif-application-descision" referenceFriendRequest="{{this.referenceFriendRequest}}" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" referenceNotification="{{this._id}}" action="">
                                     <button type="submit">Approve</button>
                                     <button type="submit">Deny</button>
                                     <input type="text">

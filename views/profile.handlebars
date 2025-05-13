@@ -83,7 +83,7 @@
         </ul>
         {{!-- https://stackoverflow.com/questions/10540176/how-to-implement-not-with-if-statement-in-ember-handlebars --}}
         {{#if isFriend}}
-            <form method="POST" action="/profile/TODO">
+            <form method="POST" action="/profile/friendRemove/{{user._id}}">
                 <button type="submit">Remove Friend</button>
             </form>
         {{else}}
