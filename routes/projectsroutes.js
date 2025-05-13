@@ -13,7 +13,8 @@ import {
 	remove_project_member,
 	getPostsByUserId,
 	updatePost,
-	doPostLikeAction
+	doPostLikeAction,
+	user_has_application
 } from "../data/posts.js";
 import {
 	getUserByUsername,
@@ -292,6 +293,11 @@ router
 		if (await post_has_member(project, user._id)) {
 			// user is member
 			return await res.redirect(`/projects/${project._id.toString()}`);
+		}
+
+		// make sure user doesnt have a pending application
+		if(await user_has_application(project, user._id.toString())) {
+			return res.status(400).render("error", {error: `User already has an application for this project.`});
 		}
 
 		// create application
