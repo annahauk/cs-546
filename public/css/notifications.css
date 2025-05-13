@@ -174,3 +174,67 @@ input[type="text"] {
 	display: inline-block; /* Ensure it behaves like a button */
 	transition: background-color 0.3s ease; /* Smooth hover effect */
 }
+
+
+.navbar {
+	background-color: #ffffff;
+	border-bottom: 1px solid #e0e0e0;
+	padding: 1rem 2rem;
+	text-align: right;
+	font-size: 1.25rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.navbar a {
+	text-decoration: none;
+	color: #1a73e8;
+	font-weight: 600;
+}
+
+/* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
+.nav-left {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo {
+	height: 32px;
+	width: auto;
+}
+
+.brand-text {
+	font-weight: 600;
+	font-size: 1.3rem;
+	color: hsl(214, 82%, 51%);
+	text-decoration: none;
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between links */
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
+.logout,
+.joinlogin {
+	display: inline-block; /* Makes the link behave like a button */
+	padding: 10px 20px; /* Adds space inside the button */
+	color: black; /* Default text color */
+	text-decoration: none; /* Removes underline */
+	border-radius: 25px; /* Rounds the corners */
+	transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.logout:hover,
+.joinlogin:hover {
+	background-color: #0073e6; /* Blue background on hover */
+	color: white; /* White text on hover */
+}
+a:hover {
+	text-decoration: underline;
+}
