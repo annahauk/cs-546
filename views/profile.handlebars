@@ -6,7 +6,9 @@
 {{> navbar}}
 <div class="container">
     <div class="leftSide">
+        <div class="avatar-wrapper">
         <img src="{{user.gh_info.data.avatar_url}}" alt="{{user.user_name}}">
+        </div>
         <h1>{{user.user_name}}</h1>
         {{#if isProfileOwner}}
         <form action="/profile/{{user._id}}/resume" method="POST" enctype="multipart/form-data" name="resume-form" id="resume-form" data-user-id="{{user._id}}">
