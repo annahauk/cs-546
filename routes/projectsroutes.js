@@ -19,7 +19,8 @@ import {
 	getUserByUsername,
 	getUserById,
 	getUserTags,
-	addAchievement
+	addAchievement,
+	pendingNotifs
 } from "../data/users.js";
 import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
@@ -53,11 +54,13 @@ router
 				});
 				console.log("All posts (sorted):");
 				console.log(allPosts);
+				const notifs = await pendingNotifs(userId);
 				res.render("projects", {
 					posts: allPosts,
 					hasPosts: Array.isArray(allPosts) && allPosts.length > 0,
 					termsAndDomains: TERMS_AND_DOMAINS,
-					title: "Projects"
+					title: "Projects",
+					notifs: notifs
 				});
 			} else {
 				return res.redirect("/login");
@@ -126,9 +129,18 @@ router
 	.route("/projectcreate")
 	.get(isLoggedIn, async (req, res) => {
 		try {
+			if (!req.authorized) {
+				return res.redirect("/login");
+			}
+			let user = await getUserByUsername(req.cookies["username"]);
+			if (!user) {
+				return res.status(500).render("error", { error: `No user found.` });
+			}
+			const notifs = await pendingNotifs(user._id.toString());
 			res.render("projectcreate", {
 				title: "New Project",
-				termsAndDomains: TERMS_AND_DOMAINS
+				termsAndDomains: TERMS_AND_DOMAINS,
+				notifs: notifs
 			});
 		} catch (error) {
 			console.error(error);
@@ -225,12 +237,13 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return await res.status(500).render("error", { error: `No user found.` });
 		}
-
+		const notifs = await pendingNotifs(user._id.toString());
 		res.render("project", {
 			project: post,
 			creatorUsername: username,
 			title: post.title,
-			isMember: await post_has_member(post, user._id)
+			isMember: await post_has_member(post, user._id),
+			notifs: notifs,
 		});
 	} catch (error) {
 		console.error(error);
