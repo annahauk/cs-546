@@ -45,7 +45,7 @@ router
 
 		// validate username and password
 		let username = req.body["username"];
-		let password = req.body["password"];
+		let password = req.body.UNSANITIZED["password"];
 
 		try {
 			stringVal(username);
@@ -140,8 +140,8 @@ router
 
 		// validate username and password(s)
 		let userId = req.body["username"];
-		let password = req.body["password"];
-		let confirmPassword = req.body["password"];
+		let password = req.body.UNSANITIZED["password"];
+		let confirmPassword = req.body.UNSANITIZED["password"];
 		// check they exist
 		const missingFields = [];
 		if (!userId) missingFields.push("User ID");
