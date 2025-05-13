@@ -1,0 +1,417 @@
+/* LANDING PAGE */
+body {
+	font-family: "Helvetica Neue", sans-serif;
+	background-color: #ffffff;
+	color: #333;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+header h1 {
+	font-size: 4rem;
+	margin-bottom: 0.5rem;
+	color: #1a73e8;
+	opacity: 0;
+	animation: fadeInTitle 1s ease-out forwards;
+	animation-delay: 0.1s;
+	transform: translateY(-20px);
+}
+
+@keyframes fadeInTitle {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.navbar {
+	background-color: #ffffff;
+	border-bottom: 1px solid #e0e0e0;
+	padding: 1rem 2rem;
+	text-align: right;
+	font-size: 1.25rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.navbar a {
+	text-decoration: none;
+	color: #0073e6;
+	font-weight: 600;
+}
+
+.navbar a:hover {
+	text-decoration: underline;
+}
+
+/* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
+.nav-left {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo {
+	height: 32px;
+	width: auto;
+}
+
+.brand-text {
+	font-weight: 600;
+	font-size: 1.3rem;
+	color: #1a73e8;
+	text-decoration: none;
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between links */
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
+.logout,
+.joinlogin {
+	display: inline-block; /* Makes the link behave like a button */
+	padding: 10px 20px; /* Adds space inside the button */
+	color: black; /* Default text color */
+	text-decoration: none; /* Removes underline */
+	border-radius: 25px; /* Rounds the corners */
+	transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.logout:hover,
+.joinlogin:hover {
+	background-color: #0073e6; /* Blue background on hover */
+	color: white; /* White text on hover */
+}
+
+/* And this has the projects highlighted when on page */
+
+.navbar .projectsnav {
+	font-weight: 600; /* Bold text */
+	color: white; /* White text */
+	background-color: #0073e6; /* Blue background */
+	padding: 0.5rem 1rem; /* Add padding for button-like appearance */
+	border-radius: 25px; /* Rounded corners */
+	text-decoration: none; /* Remove underline */
+	display: inline-block; /* Ensure it behaves like a button */
+	transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+
+/* Main content should grow to fill available space */
+main {
+	flex: 1;
+}
+
+footer {
+	text-align: center;
+	padding: 1.5rem;
+	background-color: #ffffff;
+	border-top: 1px solid #e0e0e0;
+	font-size: 0.9rem;
+	color: #888;
+}
+
+.error {
+	color: #d93025;
+	text-align: center;
+	font-weight: 500;
+}
+
+/* INDIVIDUAL PROJECT STYLING */
+
+
+/* Container layout */
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 100%;
+    margin: auto;
+}
+
+/* Left side (project content) */
+.leftSide {
+    flex: 2;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.leftSide h1 {
+    font-size: 2.25rem;
+    color: #1a73e8;
+    margin-bottom: 1rem;
+}
+
+.leftSide h2{
+    font-size: 1.5rem;
+    color: #333;
+    margin: 1rem 0 0.5rem;
+}
+
+.leftSide h3 {
+	font-size: 1.25rem;
+	color: #555;
+	margin: 0.5rem 0;
+}
+
+.leftSide p {
+    font-size: 1.15rem;
+    color: #444;
+    line-height: 1.6;
+}
+
+.leftSide a {
+    color: #1a73e8;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.leftSide a:hover {
+    text-decoration: underline;
+}
+
+#likeButton {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+	font-size: 1.2rem;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+#likeButton:hover {
+    background-color: #34a853;
+}
+
+#likeCount {
+    margin-left: 1rem;
+    font-weight: 600;
+	font-size: 1.2rem;
+	/* center with likebutton */
+	vertical-align: middle;
+    color: #333;
+}
+
+.likeContainer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Comment Section */
+textarea[name="comment"], textarea[name="text"] {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 1rem;
+}
+
+button[type="submit"] {
+    margin-top: 0.5rem;
+    background-color: #1a73e8;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #155ab6;
+}
+
+
+.commentsSection {
+	background-color: #f4f9ff;
+	border: 1px solid #cbe2ff;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin-top: 2rem;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .commentsSection h2 {
+	font-size: 1.5rem;
+	color: #1a73e8;
+	margin-bottom: 1rem;
+	border-bottom: 2px solid #d0e7ff;
+	display: inline-block;
+	padding-bottom: 0.25rem;
+  }
+  
+  .commentForm textarea {
+	width: 100%;
+	min-height: 80px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 0.75rem;
+	font-size: 1rem;
+	margin-bottom: 0.5rem;
+	resize: vertical;
+  }
+  
+  .commentForm button {
+	background-color: #1a73e8;
+	color: white;
+	border: none;
+	padding: 0.25rem 1rem;
+	border-radius: 6px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+  }
+  
+  .commentForm button:hover {
+	background-color: #0c57c0;
+  }
+
+ /* .commentItem {
+	list-style: none;
+	background-color: #ffffff;
+	border: 1px solid #dce9f8;
+	border-radius: 8px;
+	padding: 0.75rem;
+	margin-bottom: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  } */
+
+
+
+  .commentList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+  }
+  
+  .commentItem {
+	background-color: #fff;
+	border: 1px solid #dce9f8;
+	border-radius: 10px;
+	padding: 0.75rem 1rem;
+	margin-bottom: 0.75rem;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+	font-size: 0.95rem;
+	line-height: 1.4;
+  }
+  
+  .commentItem strong {
+	color: #1a73e8;
+	overflow-wrap: break-word;
+	word-break: break-word; 
+  }
+
+/* Right side (tags and members) */
+.rightSide {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.rightSide h2 {
+    font-size: 1.5rem;
+    color: #1a73e8;
+    border-bottom: 3px solid #1a73e8;
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding-bottom: 0.25rem;
+}
+
+.tagsList {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding: 0;
+    margin-bottom: 2rem;
+    list-style: none;
+}
+
+.tagsList li {
+    background-color: #e9f0fb;
+    color: #1a73e8;
+    padding: 0.4rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    text-align: center;
+    width: fit-content;
+}
+
+/* Collaborator links */
+.rightSide ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.rightSide li {
+    margin-bottom: 0.5rem;
+}
+
+.rightSide li a {
+    color: #1a73e8;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.rightSide li a:hover {
+    text-decoration: underline;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 100%) {
+    .container {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .rightSide {
+        margin-top: 2rem;
+    }
+}
+
+@keyframes fadeSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.commentItem {
+	animation: fadeSlideIn 0.4s ease-out both;
+}
+
+
+.commentForm textarea:focus {
+	outline: none;
+	border-color: #1a73e8;
+	box-shadow: 0 0 5px rgba(26, 115, 232, 0.4);
+	transition: box-shadow 0.3s ease-in-out;
+}
+
+.commentsSection {
+	animation: fadeSlideIn 0.5s ease-out;
+}

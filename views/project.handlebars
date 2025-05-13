@@ -1,7 +1,7 @@
 {{! Handlebars for page about a specific project }}
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/public/css/projectview.css">
 </head>
 {{> navbar}}
 <div class="container">
@@ -13,16 +13,23 @@
         <p>{{project.content}}</p>
         <a href="{{project.repoLink}}" target="_blank">GitHub Repository</a>
         {{!-- Likes --}}
-        <button id="likeButton" data-project-id="{{project._id}}">
-            Like
-        </button>
-        <span id="likeCount">{{project.likes.length}} Likes</span>
+        <br>
+        <div class="likeContainer">
+            <button id="likeButton" data-project-id="{{project._id}}">
+                Like
+            </button>
+            <span id="likeCount">{{project.likes.length}} Likes</span>
+        </div>
         {{!-- Comments --}}
-        {{> commentsList comments=project.comments}}
-        <form method="POST" action="/projects/{{project._id}}/comments">
-            <textarea name="comment" placeholder="Add a comment..." required></textarea><br>
-            <button type="submit">Post Comment</button>
-        </form>
+        <div class="commentsSection">
+            <h2>Comments</h2>
+            {{!-- Comments List --}}
+            {{> commentsList comments=project.comments}}
+            <form method="POST" action="/projects/{{project._id}}/comments">
+                <textarea name="comment" placeholder="Add a comment..." required></textarea><br>
+                <button type="submit">Post Comment</button>
+            </form>
+        </div>
     </div>
     <div class="rightSide">
         <h2>Topic Tags</h2>

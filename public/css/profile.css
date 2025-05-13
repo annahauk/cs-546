@@ -148,12 +148,13 @@ header h2 {
 }
 
 /* Left Column */
-.leftSide img {
+
+/* .leftSide img {
 	width: 300px;
 	height: 300px;
 	border-radius: 25%;
 	margin-bottom: 1rem;
-}
+} */
 
 .leftSide h1 {
 	font-size: 1.75rem;
@@ -329,4 +330,23 @@ button:hover {
 	.rightSide {
 		width: 100%;
 	}
+}
+
+/* .avatar-wrapper {
+	background-color: #3181ea;
+	padding: 0.5rem;
+	border-radius: 20%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 305px;
+	height: 305px;
+	box-shadow: 0 0px 30px #434e5e;
+} */
+
+.avatar-wrapper img {
+	width: 300px;
+	height: 300px;
+	border-radius: 20%;
+	box-shadow: 0 0px 40px #1567d3;
 }
