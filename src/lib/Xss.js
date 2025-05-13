@@ -16,6 +16,7 @@ export async function Xss(req,res,next) {
      */
     if(req.body) {
         const bodykeys = Object.keys(req.body);
+        req.body["UNSANITIZED"] = {...req.body};
         for(const key of bodykeys) {
             req.body[key] = xss(req.body[key]);
         }
