@@ -13,8 +13,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const approveButton = formElement.children[0];
         const denyButton = formElement.children[1];
         const text = formElement.children[2];
-
-        if(!approveButton || !denyButton || !text) {
+        console.log("text ", text)
+        let textval = (text)? text.value.trim() : "No message provided.";
+        console.log("textVal ", textval)
+        if(!approveButton || !denyButton) {
             console.error(approveButton, denyButton, text);
             throw new Error(`Descision form missing elements`);
         }
@@ -30,8 +32,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         // register buttons
         // approve
         approveButton.addEventListener("click", async(e) => {
-            console.log(`Approved application: ${referenceApplication}, message: ${text.value.trim()}`);
-
+            console.log(`Approved application: ${referenceApplication}, message: ${textval}`);
+            e.preventDefault();
             // diff between application types
             let url;
             if(isFriendRequest) {
@@ -48,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         "Content-Type": "application/json"
                     },
                     "body": JSON.stringify({
-                        "text": text.value.trim()
+                        "text": textval
                     })
                 }
             );
@@ -60,11 +62,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // deny
         denyButton.addEventListener("click", async(e) => {
-            console.log(`Denied application: ${referenceApplication}, message: ${text.value.trim()}`);
+            console.log(`Denied application: ${referenceApplication}, message: ${textval}`);
 
             let url;
             if(isFriendRequest) {
-                url = `/profile/friend`
+                url = `/profile/friendDeny/${referenceFriendRequest}`
+            } else {
+                url = `/projects/${referenceProject}/join/${referenceApplication}/deny`;
             }
 
             const res = await fetch(
@@ -75,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         "Content-Type": "application/json"
                     },
                     "body": JSON.stringify({
-                        "text": text.value.trim()
+                        "text": textval
                     })
                 }
             );

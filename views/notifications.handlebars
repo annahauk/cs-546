@@ -23,7 +23,9 @@
                                 <form method="POST" isFriendRequest="{{this.acceptedFriend}}" class="notif-application-descision" referenceFriendRequest="{{this.referenceFriendRequest}}" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" referenceNotification="{{this._id}}" action="">
                                     <button type="submit">Approve</button>
                                     <button type="submit">Deny</button>
+                                    {{#unless this.acceptedFriend}}
                                     <input type="text">
+                                    {{/unless}}
                                 </form>
                             {{/if}}
                             <p class="unresolved">Status: Unresolved</p>
