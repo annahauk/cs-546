@@ -200,11 +200,33 @@ header h2 {
 
 li {
 	list-style-type: none;
-	padding-left: 0;
+	padding: 0.5rem 1rem;
+	margin-bottom: 0.5rem;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+	color: #333;
+	text-align: left;
+	display: flex;
 	align-items: center;
-	text-align: center;
+	gap: 0.5rem;
+	transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+li:hover {
+	background-color: #e9f0fb;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	color: #0073e6;
+}
+
+li::before {
+	/* content: "•"; */
+	color: #0073e6;
+	font-size: 1.2rem;
+	margin-right: 0.5rem;
 }
 
 ul {
 	padding-inline-start: 0;
+	margin: 0;
 }
