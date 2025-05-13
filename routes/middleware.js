@@ -14,7 +14,7 @@ export const isLoggedIn = async (req, res, next) => {
 		console.error("Error in isLoggedIn:", error);
 		return res
 			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
+			.render("error", { errorMessage: "Internal server error", title: "Error" });
 	}
 };
 
@@ -32,6 +32,6 @@ export const isLoggedOut = async (req, res, next) => {
 		console.error("Error in isLoggedOut:", error);
 		return res
 			.status(500)
-			.render("error", { message: "Internal server error", error: "Error" });
+			.render("error", { errorMessage: "Internal server error", error: "Error" });
 	}
 };

@@ -833,7 +833,7 @@ router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 		} catch (e) {
 			return res
 				.status(404)
-				.render("error", { message: "Project not found", title: "Error" });
+				.render("error", { errorMessage: "Project not found", title: "Error" });
 		}
 		userId = idVal(userId, "userId", "like(route)");
 		const updatedPost = await doPostLikeAction(projectId, userId);

@@ -30,6 +30,6 @@ export function constructorMethod(app) {
 
 	app.use((req, res) => {
 		console.log(`Authorized: ${req.authorized}`);
-		return res.status(404).render("error", { message: "Not found" });
+		return res.status(404).render("error", { errorMessage: "Not found" });
 	});
 }

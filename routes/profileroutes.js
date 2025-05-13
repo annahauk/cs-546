@@ -58,14 +58,14 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			me._id = idVal(me._id.toString());
 		} catch (e) {
 			console.error(e);
-			return res.status(400).render(`error`, {error: `cant get signed in user`});
+			return res.status(400).render(`error`, {errorMessage: `cant get signed in user`});
 		}
 
 		let user = await getUserById(userId);
 		if (!user) {
 			return res
 				.status(404)
-				.render("error", { message: "User not found", title: "Error" });
+				.render("error", { errorMessage: "User not found", title: "Error" });
 		}
 		// Figure out if you're looking at your profile or not
 		let isMyProfile = false;
@@ -123,7 +123,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		console.error(error);
 		res
 			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
+			.render("error", { errorMessage: "Internal server error", title: "Error" });
 	}
 });
 router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
@@ -134,11 +134,11 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return res
 				.status(404)
-				.render("error", { message: "User not found", title: "Error" });
+				.render("error", { errorMessage: "User not found", title: "Error" });
 		}
 		if (user.user_name !== stringVal(req.cookies["username"])) {
 			return res.status(403).render("error", {
-				message: "You can only edit your own profile.",
+				errorMessage: "You can only edit your own profile.",
 				title: "Error"
 			});
 		}
@@ -187,7 +187,7 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 	} catch (error) {
 		res
 			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
+			.render("error", { errorMessage: "Internal server error", title: "Error" });
 	}
 });
 
@@ -202,7 +202,7 @@ router
 				me._id = idVal(me._id.toString());
 			} catch (e) {
 				console.error(e);
-				return res.status(400).render(`error`, {error: `cant get signed in user`});
+				return res.status(400).render(`error`, {errorMessage: `cant get signed in user`});
 			}
 
 			const userId = idVal(req.params.id);
@@ -210,18 +210,18 @@ router
 			if (!user) {
 				return res
 					.status(404)
-					.render("error", { message: "User not found", title: "Error" });
+					.render("error", { errorMessage: "User not found", title: "Error" });
 			}
 			if (user.user_name !== stringVal(req.cookies["username"])) {
 				return res.status(403).render("error", {
-					message: "You can only edit your own profile.",
+					errorMessage: "You can only edit your own profile.",
 					title: "Error"
 				});
 			}
 			if (!req.file) {
 				return res
 					.status(400)
-					.render("error", { message: "No file uploaded", title: "Error" });
+					.render("error", { errorMessage: "No file uploaded", title: "Error" });
 			}
 
 			const tags = await processUploadedResume(req.file);
@@ -249,7 +249,7 @@ router
 		} catch (error) {
 			res
 				.status(500)
-				.render("error", { message: "Internal server error", title: "Error" });
+				.render("error", { errorMessage: "Internal server error", title: "Error" });
 		}
 	});
 
@@ -285,25 +285,25 @@ router.route("/friendRequest/:id")
 			username = stringVal(req.cookies["username"]);
 		} catch (e) {
 			console.error(e);
-			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+			return res.status(400).render(`error`, {errorMessage: `Malformed id or username.`});
 		}
 
 		// get current user
 		let user = await getUserByUsername(username);
 		if(!user) {
-			return res.status(404).render(`error`, {error: `User not found.`});
+			return res.status(404).render(`error`, {errorMessage: `User not found.`});
 		}
 		user._id = idVal(user._id.toString());
 
 		// get requested user
 		let newfriend = await getUserById(id);
 		if(!newfriend) {
-			return res.status(404).render(`error`, {error: `Requested user not found. You need to find real friends pookie.`});
+			return res.status(404).render(`error`, {errorMessage: `Requested user not found. You need to find real friends pookie.`});
 		}
 
 		// make sure users are not friends already
 		if(await users_are_friends(user, newfriend)) {
-			return res.status(400).render(`error`, {error: `Y'all are friends already, chill.`});
+			return res.status(400).render(`error`, {errorMessage: `Y'all are friends already, chill.`});
 		}
 
 		// create friend request
@@ -311,7 +311,7 @@ router.route("/friendRequest/:id")
 			await create_friend_request(user, newfriend);
 		} catch (e) {
 			console.error(e);
-			return res.status(400).render(`error`, {error: `Y'all friends already`});
+			return res.status(400).render(`error`, {errorMessage: `Y'all friends already`});
 		}
 
 		return res.redirect(`/profile/${id}`);
@@ -326,19 +326,19 @@ router.route("/friendAccept/:requestId")
 			reqId = idVal(req.params.requestId);
 			username = stringVal(req.cookies["username"]);
 		} catch (e) {
-			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+			return res.status(400).render(`error`, {errorMessage: `Malformed id or username.`});
 		}
 
 		let user = await getUserByUsername(username);
 		if(!user) {
-			return res.status(500).render(`error`, {error: `User not found.`});
+			return res.status(500).render(`error`, {errorMessage: `User not found.`});
 		}
 		user._id = idVal(user._id.toString());
 
 		// get friend request in user
 		let request = await get_friend_request(user, reqId);
 		if(!request) {
-			return res.status(404).render(`error`, {error: `Friend request not found.`});
+			return res.status(404).render(`error`, {errorMessage: `Friend request not found.`});
 		}
 
 		// approve friend request
@@ -360,26 +360,26 @@ router.route("/friendDeny/:requestId")
 			reqId = idVal(req.params.requestId);
 			username = stringVal(req.cookies["username"]);
 		} catch (e) {
-			return res.status(400).render(`error`, {error: `Malformed id or username.`});
+			return res.status(400).render(`error`, {errorMessage: `Malformed id or username.`});
 		}
 
 		let user = await getUserByUsername(username);
 		if(!user) {
-			return res.status(500).render(`error`, {error: `User not found.`});
+			return res.status(500).render(`error`, {errorMessage: `User not found.`});
 		}
 		user._id = idVal(user._id.toString());
 
 		// get friend request in user
 		let request = await get_friend_request(user, reqId);
 		if(!request) {
-			return res.status(404).render(`error`, {error: `Friend request not found.`});
+			return res.status(404).render(`error`, {errorMessage: `Friend request not found.`});
 		}
 
 		try {
 			await deny_friend_request(user, reqId);
 		} catch (e) {
 			console.error(e);
-			return res.status(500).render(`error`, {error: `Failed to deny friend request.`});
+			return res.status(500).render(`error`, {errorMessage: `Failed to deny friend request.`});
 		}
 
 		res.redirect(`/notifications`);
@@ -394,7 +394,7 @@ router.route("/friendRemove/:id")
 			username = stringVal(req.cookies["username"]);
 		} catch (e) {
 			console.error(e);
-			return res.status(400).render(`error`, {error: `bad id or username`});
+			return res.status(400).render(`error`, {errorMessage: `bad id or username`});
 		}
 
 		let me = await getUserByUsername(username);
@@ -415,7 +415,7 @@ router.route("/friendRemove/:id")
 			}
 		}
 		if(!friend) {
-			return res.status(404).render(`error`, {error: `Friend not found`});
+			return res.status(404).render(`error`, {errorMessage: `Friend not found`});
 		}
 
 		try {
