@@ -276,6 +276,10 @@ async function grabfilteredPosts(tags, name, status) {
  * @returns {Promise<boolean>}
  */
 async function post_has_member(post, member_id) {
+	if(typeof post["members"] === "undefined") {
+		return false;
+	}
+
 	let post_members = post.members.map((m) => {
 		return m.toString();
 	});
