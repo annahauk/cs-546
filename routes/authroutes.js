@@ -158,6 +158,7 @@ router
 		const errors = [];
 		// Mini helper function to remove "Error in <function name>: " to make the user output much cleaner
 		const stripErrorPrefix = (errorMessage) => {
+			console.error(errorMessage);
 			return errorMessage.replace(/^Error in .*?: /, "");
 		};
 		// Validate inputs using helper functions, tracking what all the errors are in all inputs to display them all to user
