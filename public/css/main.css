@@ -10,7 +10,7 @@ body {
     min-height: 100vh;
   }
 
-  .message-container {
+.message-container {
 	display: flex;
 	justify-content: center;
 	gap: 0.5rem;
@@ -80,7 +80,7 @@ header h1 {
 
 .navbar a {
 	text-decoration: none;
-	color: #0073e6;
+	color: #1a73e8;
 	font-weight: 600;
 }
 
@@ -122,11 +122,6 @@ header h2 {
 	transition: transform 0.2s ease;
 }
 
-.leftStats:hover, .centerInfo:hover, .rightStats:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
 
 /* Main content should grow to fill available space */
 main {
@@ -143,71 +138,71 @@ footer {
 }
 
 /* Login Page Styles */
-
 h1 {
-    text-align: center;
-    color: #1a73e8;
-    margin-top: 2rem;
-    font-size: 4rem;
+	text-align: center;
+	color: #1a73e8;
+	margin-top: 3rem; /* Increase margin for more spacing */
+	font-size: 5rem; /* Increase font size */
 }
 
 form {
-    max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+	max-width: 500px; /* Increase form width */
+	margin: 3rem auto; /* Increase margin for more spacing */
+	padding: 3rem; /* Increase padding for a larger form */
+	background-color: #ffffff;
+	border-radius: 12px; /* Slightly larger border radius */
+	border: 1px solid #e0e0e0;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly larger shadow */
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem; /* Increase gap between form elements */
 }
 
 label {
-    font-weight: 500;
-    color: #333;
+	font-weight: 600; /* Make labels bolder */
+	color: #333;
+	font-size: 1.25rem; /* Increase font size */
 }
 
 input[type="text"],
 input[type="password"] {
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    width: 100%;
-    box-sizing: border-box;
+	padding: 1rem; /* Increase padding for larger input fields */
+	border: 1px solid #ccc;
+	border-radius: 8px; /* Slightly larger border radius */
+	font-size: 1.25rem; /* Increase font size */
+	width: 100%;
+	box-sizing: border-box;
 }
 
 input[type="submit"] {
-    padding: 0.75rem;
-    background-color: #1a73e8;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+	padding: 1rem; /* Increase padding for a larger button */
+	background-color: #1a73e8;
+	color: #ffffff;
+	border: none;
+	border-radius: 8px; /* Slightly larger border radius */
+	font-size: 1.25rem; /* Increase font size */
+	font-weight: 700; /* Make the button text bolder */
+	cursor: pointer;
+	transition: background-color 0.2s ease;
 }
 
 input[type="submit"]:hover {
-    background-color: #155ab6;
+	background-color: #155ab6;
 }
 
 .centered-link {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
-    color: #0073e6;
-    text-decoration: none;
-    font-weight: 500;
+	display: block;
+	text-align: center;
+	margin-top: 2rem; /* Increase margin for more spacing */
+	color: #0073e6;
+	text-decoration: none;
+	font-weight: 600; /* Make the link text bolder */
+	font-size: 1.75rem; /* Increase font size */
 }
 
 a:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
-
 .error {
     color: #d93025;
     text-align: center;
@@ -236,7 +231,7 @@ a:hover {
 .brand-text {
 	font-weight: 600;
 	font-size: 1.3rem;
-	color: #1a73e8;
+	color: hsl(214, 82%, 51%);
 	text-decoration: none;
 }
 
@@ -261,7 +256,111 @@ a:hover {
     background-color: #0073e6; /* Blue background on hover */
     color: white; /* White text on hover */
 }
+/* 
 
+
+/* THE STATS */
+
+
+.leftStats p {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+    color: #555;
+}
+
+.leftStats ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1rem;
+	margin-bottom: 1.2rem;
+}
+
+.leftStats li {
+    background: #e9f0fc;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+	margin-bottom:5%;
+    border-radius: 8px;
+    font-weight: 500;
+	font-size: 1.5rem;
+    color: #1A73E8;
+    position: relative;
+}
+
+.leftStats li::before {
+    content: '📊';
+    margin-right: 0.5rem;
+}
+
+.chart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+canvas {
+    max-width: 100%;
+}
+/* make the headerbg class the same gradient */
+/* .headerbg {
+	background: linear-gradient(180deg, #1A73E8, #a48ef4);
+}
+.headerbg h1 {
+	color: #fff;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+} */
+
+/* .messageleft, .messageright {
+	font-size: 2rem;
+	color: white;
+	font-weight: 400;
+	opacity: 0;
+	animation: slideIn 1s ease-out forwards;
+} */
+
+.centerInfo {
+    background: linear-gradient(180deg, #1A73E8, #a48ef4);
+    color: #fff;
+    padding: 50px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.centerInfo .headline {
+    font-size: 2.75rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.centerInfo p {
+    font-size: 1.5rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #f1f1f1;
+}
+
+.centerInfo .cta-button {
+    background-color: #4285F4;
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.centerInfo .cta-button:hover {
+    background-color: #0F5BDC;
+    transform: scale(1.1);
+}
+
+.centerInfo .cta-button:active {
+    background-color: #185ABC;
+}
 /* FOR ANNA - STYLING FOR PROJECT and NOTIFS*/
 .leftSide, .rightSide {
     flex: 1;
