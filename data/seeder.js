@@ -553,8 +553,8 @@ async function seedDatabase() {
   let anna_id = "6823876f2f73c915c03fc4ba";
   try{
         // lets add them as friends
-        await addFriend(zak_id,anna_id);
-        await addFriend(anna_id,zak_id);
+       //await addFriend(zak_id,anna_id);
+       //await addFriend(anna_id,zak_id);
     }catch(e){
         console.error("Error adding friends: ", e);
     }
