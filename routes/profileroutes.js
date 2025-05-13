@@ -90,7 +90,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		// Get the projects created by the user
 		let isFriendVal = await users_are_friends(user, me);
 		console.log(isFriendVal)
-		const notifs = await pendingNotifs(userId);
+		const notifs = await pendingNotifs(me._id);
 
 		// set boolean if the logged in user matches the profile user (profile is the user's profile)
 		let isProfileOwner = (me._id === user._id);
