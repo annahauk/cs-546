@@ -45,7 +45,7 @@ router
 
 		// validate username and password
 		let username = req.body["username"];
-		let password = req.body["password"];
+		let password = req.body.UNSANITIZED["password"];
 
 		try {
 			stringVal(username);
@@ -140,8 +140,8 @@ router
 
 		// validate username and password(s)
 		let userId = req.body["username"];
-		let password = req.body["password"];
-		let confirmPassword = req.body["password"];
+		let password = req.body.UNSANITIZED["password"];
+		let confirmPassword = req.body.UNSANITIZED["password"];
 		// check they exist
 		const missingFields = [];
 		if (!userId) missingFields.push("User ID");
@@ -158,6 +158,7 @@ router
 		const errors = [];
 		// Mini helper function to remove "Error in <function name>: " to make the user output much cleaner
 		const stripErrorPrefix = (errorMessage) => {
+			console.error(errorMessage);
 			return errorMessage.replace(/^Error in .*?: /, "");
 		};
 		// Validate inputs using helper functions, tracking what all the errors are in all inputs to display them all to user

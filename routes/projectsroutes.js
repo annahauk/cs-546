@@ -29,7 +29,8 @@ import {
 	stringVal,
 	idVal,
 	TERMS_AND_DOMAINS,
-	validObjectId
+	validObjectId,
+	parse_sanitized_array
 } from "../helpers.js";
 import { ObjectId } from "mongodb";
 import { all } from "axios";
@@ -79,8 +80,12 @@ router
 				const user = await getUserByUsername(req.cookies["username"]);
 				const userId = user._id.toString();
 				// Extract filters from the request body
-				const { search, tags, languages, status, reset } = req.body;
+				let { search, tags, languages, status, reset } = req.body;
 				// Get the filtered posts or full posts depending on what's needed
+
+				tags = parse_sanitized_array(tags);
+				languages = parse_sanitized_array(languages);
+
 				let filteredPosts = null;
 				let tagsAndLanguages = [
 					...(Array.isArray(tags) ? tags : [tags]).filter(Boolean),
@@ -163,7 +168,8 @@ router
 		}
 		try {
 			// Accept JSON data from AJAX
-			const { title, description, repoLink, combinedTags } = req.body;
+			let { title, description, repoLink, combinedTags } = req.body;
+			combinedTags = parse_sanitized_array(combinedTags);
 			const errors = [];
 
 			// Validate inputs (server-side, always!)
@@ -689,7 +695,9 @@ router.route("/:id/comments").post(isLoggedIn, async (req, res) => {
 router.post("/:id/edit", isLoggedIn, async (req, res) => {
 	try {
 		const projectId = idVal(req.params.id);
-		const { title, content, repoLink, status, topic_tags } = req.body;
+		let { title, content, repoLink, status, topic_tags } = req.body;
+
+		topic_tags = parse_sanitized_array(topic_tags);
 
 		// Validate inputs
 		if (!title || typeof title !== "string" || title.trim() === "") {

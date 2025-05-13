@@ -1,5 +1,5 @@
 //You can add and export any helper functions you want here. If you aren't using any, then you can just leave this file as is.
-
+import * as xss_module from "xss";
 import { ObjectId } from "mongodb";
 
 /**
@@ -282,6 +282,19 @@ const ACHIEVEMENTS = {
 	]
 };
 
+// XSS function
+/**
+ * 
+ * @param {string} str 
+ * @returns {string}
+ */
+function xss(str) {
+	return xss_module.filterXSS(str, {
+		"escapeHtml": xss_module.escapeHtml,
+		"allowCommentTag": false,
+	})
+}
+
 /**
  * Validates that the input is a non-empty string.
  * @param {string} val - The value to validate.
@@ -291,9 +304,9 @@ const ACHIEVEMENTS = {
  */
 function stringVal(val, varName = "value", funcName = "stringVal") {
 	if (typeof val !== "string" || val.trim().length === 0) {
-		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
+		throw new Error(`Error in ${funcName}: ${varName} must be a non-empty string.`);
 	}
-	return val.trim();
+	return xss(val.trim());
 }
 
 /**
@@ -311,7 +324,7 @@ function onlylettersandnumbers(
 	if (!/^[a-zA-Z0-9]+$/.test(val)) {
 		throw `Error in ${funcName}: ${varName} must contain only letters and numbers.`;
 	}
-	return val;
+	return xss(val);
 }
 
 /**
@@ -325,7 +338,7 @@ function onlyletters(val, varName = "value", funcName = "onlyletters") {
 	if (!/^[a-zA-Z]+$/.test(val)) {
 		throw `Error in ${funcName}: ${varName} must contain only letters.`;
 	}
-	return val;
+	return xss(val);
 }
 
 /**
@@ -361,7 +374,7 @@ function idVal(val, varName = "value", funcName = "idVal") {
 	if (!ObjectId.isValid(val)) {
 		throw new Error(`Error in ${funcName}: ${varName} is not a valid ObjectId.`);
 	}
-	return val.trim();
+	return xss(val.trim());
 }
 
 /**
@@ -428,7 +441,7 @@ const validateUserID = (val, varName, funcName) => {
 			" must contain only letters or positive whole numbers"
 		);
 	}
-	return val;
+	return xss(val);
 };
 
 /**
@@ -516,7 +529,7 @@ const validatePassword = (val, varName, funcName) => {
 			" must contain at least one special character"
 		);
 	}
-	return val;
+	return (val);
 };
 
 /**
@@ -558,6 +571,21 @@ function getAchievementByName(name) {
 	return achievement;
 }
 
+/**
+ * parses sanitized json array back into an array type
+ * @param {string|Array<T>} str 
+ */
+function parse_sanitized_array(str) {
+	if(Array.isArray(str)) {
+		return str;
+	}
+
+	if(typeof str !== "string") {
+		throw new Error(`Sanitize parser expected a string.`);
+	}
+	return str.split(',');
+}
+
 export {
 	arrayVal,
 	idVal,
@@ -571,5 +599,7 @@ export {
 	numberVal,
 	getAchievementByName,
 	TERMS_AND_DOMAINS,
-	ACHIEVEMENTS
+	ACHIEVEMENTS,
+	xss,
+	parse_sanitized_array
 };

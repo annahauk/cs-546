@@ -2,7 +2,7 @@
 import compromise from "compromise";
 import { Poppler } from "node-poppler";
 import path from "path";
-import { TERMS_AND_DOMAINS } from "../../helpers.js";
+import { TERMS_AND_DOMAINS, xss } from "../../helpers.js";
 // List of programming languages (there are 100s): https://en.wikipedia.org/wiki/List_of_programming_languages
 
 // For setting up our custom tags: https://observablehq.com/@spencermountain/compromise-constructor-methods
@@ -112,7 +112,17 @@ const processUploadedResume = async (file) => {
 	// console.log(pdfText)
 	// Conver the text into compromise doc to be able to do nlp
 	const doc = createAndTagDoc(pdfText);
-	const tags = tagDocument(doc);
+	let tags = tagDocument(doc);
+
+	// If you can hit this xss, hit me up cause that's awesome
+	if(Array.isArray(tags)) {
+		for(const i in tags) {
+			if(typeof tags[i] === "string") {
+				tags[i] = xss(tags[i]);
+			}
+		}
+	}
+
 	// Get the areas the user is interested in
 	return tags;
 };
