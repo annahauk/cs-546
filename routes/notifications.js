@@ -24,7 +24,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return res
 				.status(404)
-				.render("error", { message: "User not found", title: "Error" });
+				.render("error", { errorMessage: "User not found", title: "Error" });
 		}
 		const notifs = await pendingNotifs(userId);
 		res.render("notifications", { user: user, title: "My Notifications", notifs: notifs });
@@ -32,7 +32,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 		console.error(error);
 		res
 			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
+			.render("error", { errorMessage: "Internal server error", title: "Error" });
 	}
 });
 
@@ -45,7 +45,7 @@ router.route("/resolve/:id").post(isLoggedIn, async (req, res) => {
 		if (!user) {
 			return res
 				.status(404)
-				.render("error", { message: "User not found", title: "Error" });
+				.render("error", { errorMessage: "User not found", title: "Error" });
 		}
 
 		// Use the resolveNotif function to mark the notification as resolved
@@ -56,7 +56,7 @@ router.route("/resolve/:id").post(isLoggedIn, async (req, res) => {
 		console.error(error);
 		res
 			.status(500)
-			.render("error", { message: "Internal server error", title: "Error" });
+			.render("error", { errorMessage: "Internal server error", title: "Error" });
 	}
 });
 export default router;

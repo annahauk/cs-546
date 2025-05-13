@@ -27,7 +27,7 @@ router
 		} catch (e) {
 			return res
 				.status(500)
-				.render("error", { message: `Internal Server Error.`, title: "Error" });
+				.render("error", { errorMessage: `Internal Server Error.`, title: "Error" });
 		}
 	})
 	.post(async (req, res) => {
@@ -123,7 +123,7 @@ router
 		} catch (e) {
 			return res
 				.status(500)
-				.render("error", { message: `Internal Server Error.`, title: "Error" });
+				.render("error", { errorMessage: `Internal Server Error.`, title: "Error" });
 		}
 	})
 	.post(async (req, res) => {
