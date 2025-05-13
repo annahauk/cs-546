@@ -7,7 +7,7 @@
 <div class="container">
     <div class="leftSide">
         <h1>{{project.title}}</h1>
-        <h2>Creator: {{creatorUsername}}</h2>
+        <h2>Creator: <a href="/profile/{{project.ownerId}}" target="_blank" rel="noopener noreferrer">{{creatorUsername}}</a></h2>
         <h3>Created at {{project.createdAt}}</h3>
         <h3>Description</h3>
         <p>{{project.content}}</p>
@@ -31,7 +31,22 @@
                 <li>{{this}}</li>
             {{/each}}
         </ol>
-
+        <!-- Collaborators Section -->
+        <h2>Collaborators</h2>
+        {{#if project.memberInfo.length}}
+            <ul>
+                {{#each project.memberInfo}}
+                    <li>
+                        <a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a>
+                        {{!-- {{#if ../isOwner}} <!-- Only show the remove button if the user is the project owner -->
+                            <button type="button" class="memberRemoveButton" referenceProject="{{../project._id}}" referenceMember="{{this.id}}" formaction="/projects/{{../project._id}}/removeMember/{{this.id}}" formmethod="POST">Remove</button>
+                        {{/if}} --}}
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <p>No collaborators yet.</p>
+        {{/if}}
         <!-- project join/leave button -->
         {{#if isMember}}
         <!-- leave button -->
