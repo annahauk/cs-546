@@ -49,12 +49,20 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				.render("error", { message: "User not found", title: "Error" });
 		}
 		// Get the projects created by the user
-		const userPosts = await getPostsByUserId(userId);
-		res.render("profile", {
-			user: user,
-			title: user.user_name,
-			userProjects: userPosts
-		});
+		try {
+			const userPosts = await getPostsByUserId(userId);
+			res.render("profile", {
+				user: user,
+				title: user.user_name,
+				userProjects: userPosts
+			});
+		} catch (e) {
+			res.render("profile", {
+				user: user,
+				title: user.user_name,
+				userProjects: []
+			});
+		}
 	} catch (error) {
 		console.error(error);
 		res
