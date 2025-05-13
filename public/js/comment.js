@@ -20,9 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 				errorElement.textContent = "Comment cannot be empty.";
 				return;
 			}
-			if (commentText.length > 500) {
+			if (commentText.length > 100) {
 				errorElement.hidden = false;
-				errorElement.textContent = "Comment cannot exceed 500 characters.";
+				errorElement.textContent = "Comment cannot exceed 100 characters.";
 				return;
 			}
 
