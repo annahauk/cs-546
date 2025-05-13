@@ -270,6 +270,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
+	// edge case fix (Firefox), select first item of project selector for browsers which maintain selection across reloads
+	projectSelector.selectedIndex = 0;
+
 	/* Now, for the actual form submission LOL */
 	// First, user tags update form
 	const tagsForm = document.getElementById("updateTags-form");
