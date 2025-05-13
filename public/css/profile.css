@@ -9,7 +9,9 @@ body {
 	flex-direction: column;
 	min-height: 100vh;
 }
-
+main {
+	flex: 1;
+}
 footer {
 	text-align: center;
 	padding: 1.5rem;
