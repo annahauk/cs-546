@@ -16,7 +16,7 @@ import {
 	remove_friend,
 	pendingNotifs
 } from "../data/users.js";
-import { idVal, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
+import { idVal, parse_sanitized_array, stringVal, TERMS_AND_DOMAINS } from "../helpers.js";
 import { isLoggedIn } from "./middleware.js";
 import { processUploadedResume } from "../src/lib/resume-parse.js";
 import { getPostsByUserId } from "../data/posts.js";
@@ -256,7 +256,10 @@ router
 router.route("/:id/updateTags").post(isLoggedIn, async (req, res) => {
 	try {
 		const userId = idVal(req.params.id);
-		const { tags } = req.body;
+		let { tags } = req.body;
+
+		// parse sanitized tags
+		tags = parse_sanitized_array(tags);
 
 		if (!Array.isArray(tags)) {
 			return res.status(400).json({ message: "Invalid tags format." });

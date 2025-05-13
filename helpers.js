@@ -304,7 +304,7 @@ function xss(str) {
  */
 function stringVal(val, varName = "value", funcName = "stringVal") {
 	if (typeof val !== "string" || val.trim().length === 0) {
-		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
+		throw new Error(`Error in ${funcName}: ${varName} must be a non-empty string.`);
 	}
 	return xss(val.trim());
 }
@@ -571,6 +571,21 @@ function getAchievementByName(name) {
 	return achievement;
 }
 
+/**
+ * parses sanitized json array back into an array type
+ * @param {string|Array<T>} str 
+ */
+function parse_sanitized_array(str) {
+	if(Array.isArray(str)) {
+		return str;
+	}
+
+	if(typeof str !== "string") {
+		throw new Error(`Sanitize parser expected a string.`);
+	}
+	return str.split(',');
+}
+
 export {
 	arrayVal,
 	idVal,
@@ -585,5 +600,6 @@ export {
 	getAchievementByName,
 	TERMS_AND_DOMAINS,
 	ACHIEVEMENTS,
-	xss
+	xss,
+	parse_sanitized_array
 };
