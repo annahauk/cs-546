@@ -12,7 +12,8 @@ import {
 	create_project_application,
 	remove_project_member,
 	getPostsByUserId,
-	updatePost
+	updatePost,
+	doPostLikeAction
 } from "../data/posts.js";
 import {
 	getUserByUsername,
@@ -22,7 +23,12 @@ import {
 } from "../data/users.js";
 import { createComment, getAllCommentsByUserId } from "../data/comments.js";
 import { isLoggedIn } from "./middleware.js";
-import { stringVal, idVal, TERMS_AND_DOMAINS } from "../helpers.js";
+import {
+	stringVal,
+	idVal,
+	TERMS_AND_DOMAINS,
+	validObjectId
+} from "../helpers.js";
 import { ObjectId } from "mongodb";
 import { all } from "axios";
 import { createNotif } from "../data/notifications.js";
@@ -727,5 +733,25 @@ router.route("/:id/removeMember/:memberId")
 
 		res.redirect(`/profile/${user._id.toString()}/edit`);
 	})
+
+router.route("/:id/like").post(isLoggedIn, async (req, res) => {
+	try {
+		let projectId = req.params.id;
+		let username = req.cookies["username"];
+		let user = await getUserByUsername(username);
+		let userId = user._id.toString();
+		if (!userId) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+		projectId = idVal(projectId, "projectId", "like(route)");
+		userId = idVal(userId, "userId", "like(route)");
+		const updatedPost = await doPostLikeAction(projectId, userId);
+		// Return updated like count
+		res.json({ likes: updatedPost.likes.length });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+});
 
 export default router;

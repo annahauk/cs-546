@@ -8,7 +8,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         let data = [{
             values: chartData.counts,
             labels: chartData.tags,
-            type: 'pie'
+            type: 'pie',
+            marker: {
+                colors: [
+                    '#a0e7f2',
+                    '#f2a5a0',
+                    '#a0f2af',
+                    '#f2a0ed'
+                ]
+            }
         }];
 
         const layout = {

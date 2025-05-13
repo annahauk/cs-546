@@ -1,4 +1,8 @@
 {{! Handlebars for page about a specific project }}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/main.css">
+</head>
 {{> navbar}}
 <div class="container">
     <div class="leftSide">
@@ -9,10 +13,10 @@
         <p>{{project.content}}</p>
         <a href="{{project.repoLink}}" target="_blank">GitHub Repository</a>
         {{!-- Likes --}}
-        <form method="POST" action="/projects/{{project._id}}/like">
-            <button type="submit">Like</button>
-        </form>
-        <span>{{project.likes}} Likes</span>
+        <button id="likeButton" data-project-id="{{project._id}}">
+            Like
+        </button>
+        <span id="likeCount">{{project.likes.length}} Likes</span>
         {{!-- Comments --}}
         {{> commentsList comments=project.comments}}
         <form method="POST" action="/projects/{{project._id}}/comments">
@@ -44,3 +48,4 @@
     </div>
 </div>
 <script src="/public/js/comment.js"></script>
+<script src="/public/js/like.js"></script>
