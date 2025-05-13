@@ -216,4 +216,15 @@ router.route("/:id/updateTags").post(isLoggedIn, async (req, res) => {
 	}
 });
 
+/**
+ * friend request routes
+ */
+router.route("/friendRequest/:id")
+	// send friend request to user with id :id
+	// add friend request object to their document
+	// check if they already have a friend request pending
+	.post(async(req,res) => {
+			
+	})
+
 export default router;
