@@ -304,6 +304,7 @@ async function addFriend(id, friendId) {
 	);
 	if (updateInfo.modifiedCount === 0)
 		throw `Could not add friend with id of ${friendId}`;
+	await addAchievement(id, "friends", updatedUser.friends.length);
 
 	return await getUserById(id);
 }
@@ -451,18 +452,32 @@ async function addAchievement(id, category, val) {
 		throw new Error(`Invalid category: ${category}`);
 	}
 
-	let pushed = false;
 	for (let achievement of ACHIEVEMENTS[category]) {
 		if (
 			!user.achievements.includes(achievement.name) &&
 			val >= achievement.value
 		) {
-			user.achievements.push(achievement.name);
-			pushed = true;
+			await updateUser(id, { achievements: user.achievements.push(achievement.name) });
+			await createNotif(
+				id,
+				`Achievement Unlocked: ${achievement.name}`,
+				`${achievement.description}`,
+				undefined,
+				undefined,
+				"GitMatches"
+			);
+			for (let friend of user.friends) {
+				await createNotif(
+					friend.toString(),
+					`${user.user_name} unlocked an achievement: ${achievement.name}`,
+					`${achievement.description}`,
+					undefined,
+					undefined,
+					"GitMatches"
+				);
+			}
 		}
 	}
-
-	if (pushed) await updateUser(id, { achievements: user.achievements });
 
 	return id;
 }
