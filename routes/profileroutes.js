@@ -95,6 +95,26 @@ router.route("/:id/edit").get(isLoggedIn, async (req, res) => {
 		];
 		// Get the projects created by the user
 		const userProjects = await getPostsByUserId(userId);
+
+		// add user id/combination to user projects... mein gott
+		// fuckass algorithm #2!!!
+		// for each of user's projects
+		for(const i in userProjects) {
+			userProjects[i]["memberInfo"] = new Array(userProjects[i].members.length);
+
+			// for each member of project
+			for(const ii in userProjects[i].members) {
+				// get user from member id
+				let user = await getUserById(userProjects[i].members[ii].toString());
+
+				// assign member id/name combination to project member info position
+				userProjects[i]["memberInfo"][ii] = {
+					id: userProjects[i].members[ii].toString(),
+					name: user.user_name,
+				};
+			};
+		}
+
 		res.render("editProfile", {
 			user: user,
 			title: "Edit Profile",

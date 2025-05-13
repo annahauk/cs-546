@@ -57,12 +57,12 @@
                             </select>
 
                             <h3>Project Members</h3>
-                            {{#if this.members.length}}
+                            {{#if this.memberInfo.length}}
                                 <ul>
-                                    {{#each this.members}}
+                                    {{#each this.memberInfo}}
                                         <li>
-                                            {{this}}
-                                            <button type="submit" formaction="/projects/{{../this._id}}/removeMember/{{this}}" formmethod="POST">Remove</button>
+                                            {{this.name}}
+                                            <button type="button" class="memberRemoveButton" referenceProject="{{../this._id}}" referenceMember="{{this.id}}" formaction="/projects/{{../this._id}}/removeMember/{{this.id}}" formmethod="POST">Remove</button>
                                         </li>
                                     {{/each}}
                                 </ul>

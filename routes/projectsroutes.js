@@ -665,6 +665,75 @@ router.post("/:id/edit", isLoggedIn, async (req, res) => {
 	}
 });
 
+// Route for removing user from project
+router.route("/:id/removeMember/:memberId")
+	.post(async (req,res) => {
+		let project;
+		let user;
+		let memberId;
+
+		try {
+			memberId = idVal(req.params.memberId);
+		} catch (e) {
+			console.error(e);
+			return await res.status(400).render("error", {error: `Bad member id`});
+		}
+
+		try {
+			let projId = idVal(req.params.id, "projId", "removeMember_route");
+			project = await getPostById(projId);
+		} catch (e) {
+			console.error(e);
+			console.log(`404 project`);
+			return await res.status(404).render("error", {error: `No project with Id: ${req.params.id}`});
+		}
+
+		try {
+			let usrname = stringVal(req.cookies["username"]);
+			user = await getUserByUsername(usrname);
+		} catch (e) {
+			console.error(e);
+			return await res.status(500).render("error", {error: `No user found.`});
+		}
+
+		// make sure user is owner of project
+		if(user._id.toString() !== project.ownerId) {
+			res.status(401).render("error", {error: `Only project owners can remove members.`});
+		}
+
+		// check if member of project
+		if(!await project.members.map((id) => {return id.toString()}).includes(memberId)) {
+			console.log("404 user not in project");
+			return await res.status(404).render("error", {error: `Member not found in project.`});
+		}
+
+		// remove user and send them a notif
+		try {
+			await remove_project_member(project, new ObjectId(memberId));
+		} catch (e) {
+			console.error(e);
+			return await res.status(500).render("error", {error: `Failed to remove member from project,`});
+		}
+
+		// send user notification
+		await createNotif(
+			memberId,
+			`You have been removed from ${project.title}.`,
+			`The owner of ${project.title} has removed you from the project.`,
+			project._id,
+			null,
+			`GitMatches System`,
+			false,
+			false,
+			project.ownerId,
+			project._id,
+			false,
+			null
+		);
+
+		res.redirect(`/profile/${user._id.toString()}/edit`);
+	})
+
 router.route("/:id/like").post(isLoggedIn, async (req, res) => {
 	try {
 		let projectId = req.params.id;

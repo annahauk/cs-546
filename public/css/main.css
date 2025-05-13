@@ -213,13 +213,14 @@ a:hover {
     text-align: center;
     font-weight: 500;
 }
- 
+
 .not-found {
     text-align: center;
     color: #888;
     font-style: italic;
     margin-top: 2rem;
 }
+
 /* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
 .nav-left {
 	display: flex;
