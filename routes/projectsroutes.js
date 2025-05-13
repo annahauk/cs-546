@@ -239,8 +239,6 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			};
 		}
 
-		console.log(post, user._id, await user_has_application(post, user._id.toString()));
-
 		res.render("project", {
 			project: post,
 			creatorUsername: username,
