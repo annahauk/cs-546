@@ -408,6 +408,28 @@ async function remove_project_member(post, member_id) {
 }
 
 /**
+ * 
+ * @param {Post} project 
+ * @param {string} userId 
+ * @return {boolean}
+ */
+async function user_has_application(project, userId) {
+	userId = idVal(userId);
+
+	// project has no pending applications
+	if(project.members.length < 1) {
+		return false;
+	}
+	for(const app of project.members) {
+		if(app.applicant_id.toString() === userId) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Gets the number of entries in the projects collection
  * @returns {number} The total number of projects in the collection
  */
@@ -534,5 +556,6 @@ export {
 	getTopPostTags,
 	doPostLikeAction,
 	getOldestActivePost,
-	getNewestActivePost
+	getNewestActivePost,
+	user_has_application
 };
