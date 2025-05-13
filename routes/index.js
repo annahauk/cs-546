@@ -9,6 +9,7 @@ import OAuthRoutes from "./oauth.js";
 import ProfileRoutes from "./profileroutes.js";
 import ProjectsRoutes from "./projectsroutes.js";
 import NotificationRoutes from "./notifications.js";
+import { Xss } from "../src/lib/Xss.js";
 
 export function constructorMethod(app) {
 	if (typeof app === "undefined") {
@@ -18,6 +19,7 @@ export function constructorMethod(app) {
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: true }));
 	app.use(cookieParser());
+	app.use(Xss);
 	app.use(Auth);
 
 	app.use("/", HomeRoutes);
