@@ -356,10 +356,10 @@ function arrayVal(val, varName = "value", funcName = "arrayVal") {
  */
 function idVal(val, varName = "value", funcName = "idVal") {
 	if (typeof val !== "string" || val.trim().length === 0) {
-		throw `Error in ${funcName}: ${varName} must be a non-empty string.`;
+		throw new Error(`Error in ${funcName}: ${varName} must be a non-empty string.`);
 	}
 	if (!ObjectId.isValid(val)) {
-		throw `Error in ${funcName}: ${varName} is not a valid ObjectId.`;
+		throw new Error(`Error in ${funcName}: ${varName} is not a valid ObjectId.`);
 	}
 	return val.trim();
 }
