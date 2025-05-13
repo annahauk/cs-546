@@ -20,19 +20,6 @@ footer {
 	color: #888;
 }
 
-.container {
-	display: grid;
-	grid-template-columns: 1fr 2fr;
-	gap: 1rem;
-	padding: 1rem;
-}
-
-.container h1 {
-	grid-column: 1 / -1;
-	text-align: center;
-	margin-bottom: 1rem;
-}
-
 .leftSide,
 .rightSide {
 	background-color: #f9f9f9;
@@ -66,7 +53,7 @@ footer {
 	flex-direction: column;
 	align-items: center;
 	gap: 1rem;
-	margin-top: 1rem;
+	margin-top: 0.5rem;
 }
 
 #updateTags-form label {
@@ -189,20 +176,15 @@ footer {
 
 .navbar a {
 	text-decoration: none;
-	color: #0073e6;
+	color: #1a73e8;
 	font-weight: 600;
 }
 
+/* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
 .nav-left {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-}
-
-.nav-right {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
 }
 
 .logo {
@@ -213,22 +195,214 @@ footer {
 .brand-text {
 	font-weight: 600;
 	font-size: 1.3rem;
-	color: #1a73e8;
+	color: hsl(214, 82%, 51%);
 	text-decoration: none;
 }
 
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between links */
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
 .logout,
 .joinlogin {
-	display: inline-block;
-	padding: 10px 20px;
-	color: black;
-	text-decoration: none;
-	border-radius: 25px;
-	transition: all 0.3s ease;
+	display: inline-block; /* Makes the link behave like a button */
+	padding: 10px 20px; /* Adds space inside the button */
+	color: black; /* Default text color */
+	text-decoration: none; /* Removes underline */
+	border-radius: 25px; /* Rounds the corners */
+	transition: all 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .logout:hover,
 .joinlogin:hover {
 	background-color: #0073e6; /* Blue background on hover */
 	color: white; /* White text on hover */
+}
+a:hover {
+	text-decoration: underline;
+}
+
+/* LAYOUT */
+
+
+
+/* Layout */
+.container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+	padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	animation: fadeInBody 0.5s ease-in;
+  }
+  
+  .container h1 {
+	grid-column: 1 / -1;
+	color: #1a73e8;
+	text-align: center;
+	margin-bottom: 2rem;
+	font-size: 2rem;
+	animation: fadeInBody 0.5s ease-in;
+  }
+  
+  /* Panel Styles */
+  .leftSide,
+  .rightSide {
+	background-color: #fff;
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+  }
+  
+  .leftSide h2,
+  .rightSide h2 {
+	font-size: 1.5rem;
+	color: #0073e6;
+	margin-bottom: 1rem;
+  }
+  
+  /* Forms */
+  form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+  }
+  
+  form label {
+	font-weight: 600;
+  }
+  
+  form select,
+  form input,
+  form textarea {
+	font-size: 1rem;
+	padding: 0.75rem;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	width: 100%;
+	box-sizing: border-box;
+  }
+  
+  form select[multiple] {
+	height: auto;
+	min-height: 100px;
+  }
+  
+  /* Buttons */
+  button {
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 25px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+  }
+  
+  button[type="submit"],
+  .projectForm button[type="submit"] {
+	background-color: #0073e6;
+	color: white;
+  }
+  
+  button[type="submit"]:hover,
+  .projectForm button[type="submit"]:hover {
+	background-color: #005bb5;
+  }
+  
+  button[type="button"] {
+	background-color: #f0f0f0;
+	color: #333;
+  }
+  
+  button[type="button"]:hover {
+	background-color: #e0e0e0;
+  }
+  
+  /* Project Forms */
+  .projectForm {
+	background-color: #fdfdfd;
+	padding: 1.5rem;
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	margin-top: 1rem;
+	display: none;
+  }
+  
+  .projectForm h3 {
+	font-size: 1.2rem;
+	margin-top: 1rem;
+	color: #0073e6;
+  }
+  
+  .projectForm ul {
+	list-style: none;
+	padding: 0;
+	margin: 1rem 0;
+  }
+  
+  .projectForm ul li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.75rem;
+  }
+  
+  .projectForm ul li button {
+	background-color: #ff4d4d;
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 25px;
+	font-size: 0.9rem;
+  }
+  
+  .projectForm ul li button:hover {
+	background-color: #cc0000;
+  }
+  
+  /* Warnings */
+  #unsavedChangesWarning,
+  #unsavedTagsWarning {
+	color: #e53935;
+	font-weight: bold;
+  }
+  
+  /* Select dropdown (Choices.js override) */
+  .choices__inner {
+	border-radius: 6px !important;
+	padding: 0.5rem !important;
+	font-size: 0.95rem !important;
+  }
+  
+  .choices__list--multiple .choices__item {
+	background-color: #0073e6 !important;
+	border-radius: 15px !important;
+	padding: 0.25rem 0.75rem !important;
+	color: white !important;
+	margin-right: 0.5rem;
+  }
+  
+  /* Links */
+  a:hover {
+	text-decoration: underline;
+  }
+
+
+  @keyframes fadeInBody {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
