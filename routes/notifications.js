@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { isLoggedIn } from "./middleware.js";
-import { getUserById, getUserByUsername } from "../data/users.js";
+import { getUserById, getUserByUsername, pendingNotifs } from "../data/users.js";
 import { idVal, stringVal } from "../helpers.js";
 import { resolveNotif } from "../data/notifications.js";
 
@@ -26,7 +26,8 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 				.status(404)
 				.render("error", { message: "User not found", title: "Error" });
 		}
-		res.render("notifications", { user: user, title: "My Notifications" });
+		const notifs = await pendingNotifs(userId);
+		res.render("notifications", { user: user, title: "My Notifications", notifs: notifs });
 	} catch (error) {
 		console.error(error);
 		res
