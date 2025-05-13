@@ -246,7 +246,7 @@ export async function Auth(req, res, next) {
     // make sure token not expired
     if(await token_expired(token)) {
         // drop token from auth collection and return
-        console.log(`token expired!`);
+        //console.log(`token expired!`);
         let auth = await get_auth_by_username(USER);
         await remove_token(auth._id, token);
         return next();

@@ -365,7 +365,7 @@ router
 
 			// owner notification, requires approval, include reference application and post
 			let message = req.body["text"] ? text : "";
-			console.log(`join message: ${message}`, req.body);
+			//console.log(`join message: ${message}`, req.body);
 			await createNotif(
 				project.ownerId,
 				`${application.applicant} as applied to join ${project.title}`,
@@ -488,7 +488,7 @@ router
 		try {
 			// anonymous
 			let message = req.body["text"] ? req.body["text"] : "";
-			console.log(`approve message: ${message}`, req.body);
+			//console.log(`approve message: ${message}`, req.body);
 			await createNotif(
 				application.applicant_id.toString(),
 				`You have been accepted to ${project.title}!`,
@@ -560,7 +560,7 @@ router
 		try {
 			// anonymous
 			let message = req.body["text"] ? req.body["text"] : "";
-			console.log(`deny additional message: ${message}`, req.body);
+			//console.log(`deny additional message: ${message}`, req.body);
 			await createNotif(
 				application.applicant_id.toString(),
 				`Application ${project.title} was denied.`,

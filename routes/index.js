@@ -29,7 +29,7 @@ export function constructorMethod(app) {
 	app.use("/notifications", NotificationRoutes);
 
 	app.use((req, res) => {
-		console.log(`Authorized: ${req.authorized}`);
+		//console.log(`Authorized: ${req.authorized}`);
 		return res.status(404).render("error", { errorMessage: "Not found" });
 	});
 }

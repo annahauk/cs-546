@@ -96,7 +96,7 @@ const testMain = async () => {
 	// Conver the text into compromise doc to be able to do nlp
 	const doc = createAndTagDoc(pdfText);
 	const tags = tagDocument(doc);
-	console.log("Tags: ", tags);
+	//console.log("Tags: ", tags);
 };
 
 // Use this for actually getting the user's tags
