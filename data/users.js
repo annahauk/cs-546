@@ -593,7 +593,8 @@ async function create_friend_request(requester, requestee) {
 		requester._id,
 		null,
 		true,
-		null
+		null,
+		request._id.toString()
 	);
 
 	return request;
@@ -609,6 +610,9 @@ async function users_are_friends(u1, u2) {
 	let u1friendu2 = false;
 	let u2friendu1 = false;
 
+	idVal(u1._id);
+	idVal(u2._id);
+
 	for(const friend of u1.friends) {
 		if(friend.id === u2._id) {
 			u1friendu2 = true;
@@ -616,7 +620,7 @@ async function users_are_friends(u1, u2) {
 	}
 
 	for(const friend of u2.friends) {
-		if(friend.id === u2._id) {
+		if(friend.id === u1._id) {
 			u2friendu1 = true;
 		}
 	}
@@ -670,7 +674,7 @@ async function approve_friend_request(user, request_id) {
 	}
 
 	// remove friend request object from user
-	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": new ObjectId(request_id)}});
+	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": {"_id": new ObjectId(request_id)}}});
 	if(!remove_request) {
 		throw new Error(`Failed to remove friend request from user.`);
 	}
@@ -687,7 +691,8 @@ async function approve_friend_request(user, request_id) {
 		user._id,
 		null,
 		false,
-		null
+		null,
+		request_id
 	);
 
 	return;
@@ -735,7 +740,8 @@ async function deny_friend_request(user, request_id) {
 		user._id,
 		null,
 		false,
-		null
+		null,
+		request_id
 	);
 
 	return;
@@ -759,7 +765,7 @@ async function remove_friend(user, friend_id) {
 	// get friend object
 	let ex;
 	for(const friend of user.friends) {
-		if(friend._id.toString() === friend_id) {
+		if(friend.id === friend_id) {
 			ex = friend; // </3
 		}
 	}
@@ -774,7 +780,7 @@ async function remove_friend(user, friend_id) {
 	}
 
 	// remove user from ex's friends
-	let remove_ex = await usersc.updateOne({_id: new ObjectId(ex.requester)}, {$pull: {"friends": {"id": user._id}}});
+	let remove_ex = await usersc.updateOne({_id: new ObjectId(ex.id)}, {$pull: {"friends": {"id": user._id}}});
 	if(!remove_ex.acknowledged) {
 		throw new Error(`Failed to remove user from friend friends`);
 	}
@@ -794,6 +800,22 @@ async function remove_friend(user, friend_id) {
 		false,
 		null
 	);
+}
+
+/**
+ * 
+ * @param {User} user 
+ * @param {string} request_id 
+ * @returns {(null|FriendRequest)}
+ */
+async function get_friend_request(user, request_id) {
+	for(const req of user.friendRequests) {
+		if(req._id.toString() === request_id) {
+			return req;
+		}
+	}
+
+	return null;
 }
 
 export {
@@ -820,5 +842,6 @@ export {
 	approve_friend_request,
 	deny_friend_request,
 	remove_friend,
-	user_has_friend_request
+	user_has_friend_request,
+	get_friend_request
 };
