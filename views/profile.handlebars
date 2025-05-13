@@ -82,15 +82,21 @@
             {{/if}}
         </ul>
         {{!-- https://stackoverflow.com/questions/10540176/how-to-implement-not-with-if-statement-in-ember-handlebars --}}
-        {{#if hasApplication}}
-            <p>Friend Request pending...</p>
+        {{#if isFriend}}
+            <form method="POST" action="/profile/TODO">
+                <button type="submit">Remove Friend</button>
+            </form>
         {{else}}
-            {{#unless isMyProfile}}
-                <form method="POST" action="/profile/TODO">
-                    <button type="submit">Send Friend Request</button><br>
-                    <textarea name="text" placeholder="Add an additional message..."></textarea>
-                </form>
-            {{/unless}}
+            {{#if hasApplication}}
+                <p>Friend Request pending...</p>
+            {{else}}
+                {{#unless isMyProfile}}
+                    <form method="POST" action="/profile/TODO">
+                        <button type="submit">Send Friend Request</button><br>
+                        <textarea name="text" placeholder="Add an additional message..."></textarea>
+                    </form>
+                {{/unless}}
+            {{/if}}
         {{/if}}
     </div>
 </div>
