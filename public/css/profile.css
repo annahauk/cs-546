@@ -23,56 +23,19 @@ footer {
 	color: #888;
 }
 
-.nav-left {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
+/* STUFF FOR NAV BAR */
+
+.navbar .profilenav {
+	font-weight: 600; /* Bold text */
+	color: white; /* White text */
+	background-color: #0073e6; /* Blue background */
+	padding: 0.5rem 1rem; /* Add padding for button-like appearance */
+	border-radius: 25px; /* Rounded corners */
+	text-decoration: none; /* Remove underline */
+	display: inline-block; /* Ensure it behaves like a button */
+	transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
-.logo {
-	height: 32px;
-	width: auto;
-}
-
-.brand-text {
-	font-weight: 600;
-	font-size: 1.3rem;
-	color: #1a73e8;
-	text-decoration: none;
-}
-
-.nav-right {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-}
-
-/* This adds a button over the logout and join/login buttons when hovered */
-
-.logout,
-.joinlogin {
-	display: inline-block;
-	padding: 10px 20px;
-	color: black;
-	text-decoration: none;
-	border-radius: 25px;
-	transition: all 0.3s ease;
-}
-
-.logout:hover,
-.joinlogin:hover {
-	background-color: #0073e6; /* Blue background on hover */
-	color: white; /* White text on hover */
-}
-
-.centered-link {
-	display: block;
-	text-align: center;
-	margin-top: 1rem;
-	color: #0073e6;
-	text-decoration: none;
-	font-weight: 500;
-}
 
 .navbar {
 	background-color: #ffffff;
@@ -87,8 +50,54 @@ footer {
 
 .navbar a {
 	text-decoration: none;
-	color: #0073e6;
+	color: #1a73e8;
 	font-weight: 600;
+}
+
+/* THIS IS FOR THE NAVBAR SO THE LOGO AND STUFF STAYS LEFT, PAGES + LOGOUT STAY RIGHT */
+.nav-left {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.logo {
+	height: 32px;
+	width: auto;
+}
+
+.brand-text {
+	font-weight: 600;
+	font-size: 1.3rem;
+	color: hsl(214, 82%, 51%);
+	text-decoration: none;
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between links */
+}
+
+/* This adds a button over the logout and join/login buttons when hovered */
+
+.logout,
+.joinlogin {
+	display: inline-block; /* Makes the link behave like a button */
+	padding: 10px 20px; /* Adds space inside the button */
+	color: black; /* Default text color */
+	text-decoration: none; /* Removes underline */
+	border-radius: 25px; /* Rounds the corners */
+	transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.logout:hover,
+.joinlogin:hover {
+	background-color: #0073e6; /* Blue background on hover */
+	color: white; /* White text on hover */
+}
+a:hover {
+	text-decoration: underline;
 }
 
 header {
@@ -111,64 +120,73 @@ header h2 {
 	font-weight: 400;
 }
 
-/* Specific to the profile page */
+/* ACTUAL PROFILE PAGE STUFF */
+/* Base Styles */
+
+/* Container Layout */
 .container {
 	display: grid;
 	grid-template-columns: 1fr 2fr 1fr;
-	gap: 1rem;
-	padding: 1rem;
+	gap: 2rem;
+	padding: 2rem;
+	max-width: 100%;
+	margin: 0 auto;
 }
 
-.leftSide,
-.centerArea,
+/* Card Base */
+.leftSide, .centerArea, 
 .rightSide {
-	background-color: #f9f9f9;
-	padding: 1rem;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background-color: white;
+	padding: 1.5rem;
+	font-size: 1.1rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 1rem;
-	margin-top: 1rem;
 }
 
+/* Left Column */
 .leftSide img {
-	width: 100px;
-	height: 100px;
-	border-radius: 50%;
-	object-fit: cover;
-	align-self: center;
+	width: 300px;
+	height: 300px;
+	border-radius: 25%;
+	margin-bottom: 1rem;
+}
+
+.leftSide h1 {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #1a73e8;
+	text-align: center;
 }
 
 #resume-form {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
 	gap: 1rem;
-	margin-top: 1rem;
+	align-items: center;
+	width: 75%;
 }
 
-#resume-form label {
-	font-size: 1rem;
-	color: #333;
-	margin-bottom: 0.5rem;
-}
 
 #resume-form input[type="file"] {
 	font-size: 0.9rem;
+	font-family: "Helvetica Neue", sans-serif; ;
 	padding: 0.5rem;
 	border: 1px solid #ccc;
-	border-radius: 4px;
+	border-radius: 6px;
+	width: 100%;
 }
 
 #resume-form button {
 	background-color: #0073e6;
+	font-size: 1.2rem;
 	color: white;
-	padding: 0.7rem 1.5rem;
+	padding: 0.6rem 1.2rem;
 	border: none;
 	border-radius: 25px;
-	font-size: 1rem;
 	cursor: pointer;
 	transition: background-color 0.3s ease;
 }
@@ -177,77 +195,138 @@ header h2 {
 	background-color: #005bb5;
 }
 
-.achievementsList,
+/* Typography and Lists */
+ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
 .tagsList {
-	list-style-type: disc;
-	margin-top: 1rem;
-	color: #333;
-	font-size: 1rem;
+	display: grid;
+	grid-template-columns: repeat(4, auto); /* 3 auto-sized columns */
+	gap: 0.5rem;
+	font-size: 1.5rem;
+	justify-content: start;
+	padding: 0;
+	list-style-type: none;
 }
 
 .achievementsList li,
-.tagsList li {
+.tagsList li,
+.friendsList li {
+	padding: 0.5rem 1rem;
+	font-size: 1.25rem;
+	background-color: #e5eef7;
+	border-radius: 8px;
 	margin-bottom: 0.5rem;
+	transition: background-color 0.3s ease;
+}
+.leftSide p, 
+.centerArea p,
+.rightSide p {
+	font-weight: 700;
+	font-size: 1.4rem;
+	color: #1a73e8;
+	margin-bottom: 0.5rem;
+	border-bottom: 2px solid #e0e0e0;
+	padding-bottom: 0.3rem;
+	width: 100%;
+	text-align: center;
+}
+
+.achievementsList li:hover,
+.tagsList li:hover,
+.friendsList li:hover {
+	background-color: #a6caf0;
 }
 
 .projectItem {
-	background-color: #f9f9f9;
-	padding: 1rem;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 1rem;
-	font-size: 1rem;
-	color: #333;
-	text-decoration: none;
-	display: block;
-}
-
-li {
-	list-style-type: none;
-	padding: 0.5rem 1rem;
-	margin-bottom: 0.5rem;
+	background-color: #f9fafb;
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
-	background-color: #f9f9f9;
-	color: #333;
-	text-align: left;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: background-color 0.3s ease, box-shadow 0.3s ease;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	transition: box-shadow 0.3s ease;
 }
 
-li:hover {
-	background-color: #e9f0fb;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.projectItem:hover {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.projectItem h3 {
+	margin: 0 0 0.5rem;
 	color: #0073e6;
 }
 
-li::before {
-	/* content: "•"; */
-	color: #0073e6;
-	font-size: 1.2rem;
-	margin-right: 0.5rem;
-	padding-left: 0;
-	align-items: center;
-	gap: 0.5rem;
-	transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-li:hover {
-	background-color: #e9f0fb;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.projectItem a {
+	text-decoration: none;
 	color: #0073e6;
 }
 
-li::before {
-	/* content: "•"; */
-	color: #0073e6;
-	font-size: 1.2rem;
-	margin-right: 0.5rem;
+.projectItem a:hover {
+	text-decoration: underline;
 }
 
-ul {
-	padding-inline-start: 0;
-	margin: 0;
+/* Right Side */
+
+
+.friendsList a {
+	display: block;
+	padding: 0.5rem 1rem;
+	background-color: #f1f5f9;
+	border-radius: 8px;
+	margin-bottom: 0.5rem;
+	color: #0073e6;
+	text-decoration: none;
+	transition: background-color 0.3s ease;
+}
+
+.friendsList a:hover {
+	background-color: #e0efff;
+}
+
+button {
+	background-color: #0073e6;
+	color: white;
+	padding: 0.5rem 1.2rem;
+	border: none;
+	border-radius: 25px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #005bb5;
+}
+
+.manageLinks {
+	text-align: center;
+	margin-top: 2rem;
+}
+
+.manageLinks a {
+	display: inline-block;
+	padding: 0.5rem 1.2rem;
+	background-color: #0073e6;
+	color: white;
+	border-radius: 25px;
+	text-decoration: none;
+	transition: background-color 0.3s ease;
+}
+
+.manageLinks a:hover {
+	background-color: #005bb5;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 992px) {
+	.container {
+		grid-template-columns: 1fr;
+	}
+	.leftSide,
+	.centerArea,
+	.rightSide {
+		width: 100%;
+	}
 }
