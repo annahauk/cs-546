@@ -698,7 +698,10 @@ async function approve_friend_request(user, request_id) {
 	await addAchievement(request.requester, "friends", updatedRequesterDoc.friends.length);
 
 	// remove friend request object from user
-	let remove_request = await usersc.updateOne({_id: new ObjectId(user._id)}, {$pull: {"friendRequests": {"_id": new ObjectId(request_id)}}});
+	let remove_request = await usersc.updateOne(
+		{ _id: new ObjectId(user._id) },
+		{ $pull: { friendRequests: { _id: new ObjectId(request_id) } } }
+	);
 	if(!remove_request) {
 		throw new Error(`Failed to remove friend request from user.`);
 	}
