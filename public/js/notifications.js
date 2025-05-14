@@ -5,11 +5,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     for(const formElement of descisionForms) {
         // register events for each form
         // layout: first child ==> approve button, 2nd child ==> deny button, 3rd child ==> text field
-        const referenceNotification = formElement.getAttribute("referenceNotification");
-        const referenceProject = formElement.getAttribute("referenceProject");
-        const referenceApplication = formElement.getAttribute("referenceApplication");
-        const referenceFriendRequest = formElement.getAttribute("referenceFriendRequest");
-        const isFriendRequest = formElement.getAttribute("isFriendRequest");
+        const referenceNotification = formElement.getAttribute  ("data-referenceNotification");
+        const referenceProject = formElement.getAttribute       ("data-referenceProject");
+        const referenceApplication = formElement.getAttribute   ("data-referenceApplication");
+        const referenceFriendRequest = formElement.getAttribute ("data-referenceFriendRequest");
+        const isFriendRequest = formElement.getAttribute        ("data-isFriendRequest");
         const approveButton = formElement.children[0];
         const denyButton = formElement.children[1];
         const text = formElement.children[2];

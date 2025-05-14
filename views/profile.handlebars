@@ -1,6 +1,5 @@
 {{! Handlebars for the user profile page }}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/public/css/profile.css">
 </head>
 {{> navbar}}
@@ -79,7 +78,7 @@
         <ul class="friendsList">
             {{#if user.Friends.length}}
                 {{#each user.Friends}}
-                    <a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a>
+                    <li><a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a></li>
                 {{/each}}
             {{else}}
                 <li>It's a little lonely... no friends :(</li>

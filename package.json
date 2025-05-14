@@ -31,7 +31,8 @@
 		"start": "node app.js",
 		"dev": "npx nodemon --signal SIGINT",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"seed": "node ./data/db_seed.js"
+		"seed": "node ./data/db_seed.js",
+		"validate": "npx w3c-html-validator --ignore-config=./.w3c-ignore"
 	},
 	"dependencies": {
 		"axios": "^1.8.4",

@@ -1,12 +1,11 @@
 {{! Handlebars specifically for the landing page for new users }}
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="/public/css/main.css">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <div class="navbar">
 	<div class="nav-left">
-		<a href="/"><img src="../public/LogoB.png" class="logo" /></a>
+		<a href="/"><img src="../public/LogoB.png" class="logo" alt="GitMatches Logo"/></a>
 		<a href="/" class="brand-text">GitMatches</a>
 	</div>
 	<a href="/auth/login" class="joinlogin" >Join or Login</a>
@@ -27,9 +26,9 @@
 			<li>{{stats.numUsers}} users</li>
 			<li>Oldest active post: {{stats.oldestPost}}</li>
 			<li>Newest active post: {{stats.newestPost}}</li>
-			<div class="chart">
+			<li class="chart">
   			<canvas id="projectChart"></canvas>
-			</div>
+			</li>
 		</ul>
 	</div>
 	<div class="centerInfo">
