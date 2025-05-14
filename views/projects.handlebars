@@ -2,7 +2,6 @@
 {{!-- https://handlebarsjs.com/guide/partials.html#basic-partials --}}
 {{!-- projects.handlebars --}}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/public/css/projects.css">
 </head>
 
@@ -82,5 +81,15 @@
             placeholder: true,
             placeholderValue: 'Select languages'
         });
+
+        // Fuckass algorithm #3!!!
+        let culprits = [].slice.call(document.getElementsByClassName("choices__list--dropdown"));
+        console.log("Culprits");
+        console.log(culprits);
+
+        // apply role to each generated element
+        for(const i in culprits) {
+            culprits[i].setAttribute("role", "list");
+        }
     });
 </script>
