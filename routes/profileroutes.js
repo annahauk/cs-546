@@ -266,7 +266,7 @@ router.route("/:id/updateTags").post(isLoggedIn, async (req, res) => {
 		}
 
 		await setUserTags(userId, tags);
-		res.json({ message: "Tags updated successfully." });
+		res.status(200).json({ message: "Tags updated successfully." });
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Internal server error." });
