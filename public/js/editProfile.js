@@ -169,6 +169,16 @@ document.addEventListener("DOMContentLoaded", function () {
 		};
 	});
 
+	// Fuckass algorithm #3!!!
+	let culprits = [].slice.call(document.getElementsByClassName("choices__list--dropdown"));
+	console.log("Culprits");
+	console.log(culprits);
+
+	// apply role to each generated element
+	for(const i in culprits) {
+		culprits[i].setAttribute("role", "list");
+	}
+
 	// Store the original values of each project form
 	projectForms.forEach((form) => {
 		const projectId = form.id;
