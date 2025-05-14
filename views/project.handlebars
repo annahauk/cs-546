@@ -56,9 +56,11 @@
         <!-- project join/leave button -->
         {{#if isMember}}
         <!-- leave button -->
-            <form method="POST" action="/projects/{{project._id}}/leave">
-                <button type="submit">Leave {{project.title}}</button>
-            </form>
+            {{#unless isOwner}}
+                <form method="POST" action="/projects/{{project._id}}/leave">
+                    <button type="submit">Leave {{project.title}}</button>
+                </form>
+            {{/unless}}
         {{else}}
             <!-- join button -->
             {{#if hasApplication}}

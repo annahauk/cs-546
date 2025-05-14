@@ -14,7 +14,8 @@ import {
 	getPostsByUserId,
 	updatePost,
 	doPostLikeAction,
-	user_has_application
+	user_has_application,
+	user_owns_post
 } from "../data/posts.js";
 import {
 	getUserByUsername,
@@ -272,6 +273,7 @@ router.route("/:id").get(isLoggedIn, async (req, res) => {
 			creatorUsername: username,
 			title: post.title,
 			isMember: await post_has_member(post, user._id),
+			isOwner: await user_owns_post(post, user._id),
 			hasApplication: await user_has_application(post, user._id.toString()),
 			notifs: notifs
 });

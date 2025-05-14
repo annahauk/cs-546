@@ -297,6 +297,16 @@ async function post_has_member(post, member_id) {
 }
 
 /**
+ * 
+ * @param {Post} post 
+ * @param {ObjectId} member_id 
+ * @returns 
+ */
+async function user_owns_post(post, member_id) {
+	return (post.ownerId === member_id.toString());
+}
+
+/**
  * Create application for project
  * @param {Post} post
  * @param {User} user
@@ -564,5 +574,6 @@ export {
 	doPostLikeAction,
 	getOldestActivePost,
 	getNewestActivePost,
-	user_has_application
+	user_has_application,
+	user_owns_post
 };

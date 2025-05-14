@@ -17,6 +17,9 @@ You can install this with the following command(s) depending on your platform:
 - Linux (Ubuntu/Debian): `sudo apt-get install poppler-data poppler-utils`
 - MacOS (Homebrew): `brew install poppler`
 
+## Running the project
+Once all of the project dependencies are set up (and mongodb is running), you can start the project with `npm start`
+
 ## 🚀 Key Features
 
 - **🔍 GitHub & Resume Matching:**  
