@@ -255,27 +255,31 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	// Handle project selection and form display
-	projectSelector.addEventListener("change", function () {
-		const selectedProjectId = this.value;
-
-		// Hide all project forms
-		projectForms.forEach((form) => {
-			form.style.display = "none";
+	// project selector will not be defined if no projects exist
+	if(projectSelector) {
+		projectSelector.addEventListener("change", function () {
+			const selectedProjectId = this.value;
+	
+			// Hide all project forms
+			projectForms.forEach((form) => {
+				form.style.display = "none";
+			});
+	
+			// Show the selected project form
+			const selectedForm = document.getElementById(selectedProjectId);
+			if (selectedForm) {
+				selectedForm.style.display = "block";
+			}
 		});
 
-		// Show the selected project form
-		const selectedForm = document.getElementById(selectedProjectId);
-		if (selectedForm) {
-			selectedForm.style.display = "block";
-		}
-	});
-
-	// edge case fix (Firefox), select first item of project selector for browsers which maintain selection across reloads
-	projectSelector.selectedIndex = 0;
+		// edge case fix (Firefox), select first item of project selector for browsers which maintain selection across reloads
+		projectSelector.selectedIndex = 0;
+	}
 
 	/* Now, for the actual form submission LOL */
 	// First, user tags update form
 	const tagsForm = document.getElementById("updateTags-form");
+	console.log(tagsForm);
 
 	tagsForm.addEventListener("submit", async (event) => {
 		event.preventDefault(); // Prevent the default form submission
