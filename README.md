@@ -17,6 +17,11 @@ You can install this with the following command(s) depending on your platform:
 - Linux (Ubuntu/Debian): `sudo apt-get install poppler-data poppler-utils`
 - MacOS (Homebrew): `brew install poppler`
 
+## Seeding the database
+This will allow you to populate your database with realistic data to emulate real-world use of this website.
+Once your mongodb database is up and running, create a database with the name `CS546_Group1_gitMatches` and initial collection `users`.
+After this is done, you can run `npm run seed`, which will populate the database.
+
 ## Running the project
 Once all of the project dependencies are set up (and mongodb is running), you can start the project with `npm start`
 
