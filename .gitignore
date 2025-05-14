@@ -6,6 +6,5 @@ node_modules/
 .env.bat
 notes/
 .prettierignore
-
+validation
 .DS_Store
-
