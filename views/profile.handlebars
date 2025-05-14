@@ -78,7 +78,7 @@
         <ul class="friendsList">
             {{#if user.Friends.length}}
                 {{#each user.Friends}}
-                    <a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a>
+                    <li><a href="/profile/{{this.id}}" target="_blank" >{{this.name}}</a></li>
                 {{/each}}
             {{else}}
                 <li>It's a little lonely... no friends :(</li>
