@@ -62,14 +62,14 @@
             placeholderValue: 'Select languages'
         });
 
-        // Fuckass algorithm #3!!!
-        let culprits = [].slice.call(document.getElementsByClassName("choices__list--dropdown"));
-        console.log("Culprits");
-        console.log(culprits);
+	    // Fuckass algorithm #3!!!
+	    let culprits1 = [].slice.call(document.getElementsByClassName("choices__list--dropdown"));
+	    console.log("Culprits");
+	    console.log(culprits1);
 
-        // apply role to each generated element
-        for(const i in culprits) {
-            culprits[i].setAttribute("role", "list");
-        }
+	    // apply role to each generated element
+	    for(const i in culprits1) {
+	    	culprits1[i].setAttribute("role", "list");
+	    }
     });
 </script>
