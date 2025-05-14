@@ -1,6 +1,5 @@
 {{! Handlebars for the notifications page }}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/public/css/notifications.css">
 </head>
 {{> navbar}}
@@ -20,7 +19,7 @@
                             {{#if this.requiresApproval}}
                                 <p>Approve or Deny this application</p>
                                 <!-- approve | posts to /projects/:id/join/:appId/approve -->
-                                <form method="POST" isFriendRequest="{{this.acceptedFriend}}" class="notif-application-descision" referenceFriendRequest="{{this.referenceFriendRequest}}" referenceProject="{{this.projectId}}" referenceApplication="{{this.referenceApplication}}" referenceNotification="{{this._id}}" action="">
+                                <form method="POST" data-isFriendRequest="{{this.acceptedFriend}}" class="notif-application-descision" data-referenceFriendRequest="{{this.referenceFriendRequest}}" data-referenceProject="{{this.projectId}}" data-referenceApplication="{{this.referenceApplication}}" data-referenceNotification="{{this._id}}">
                                     <button type="submit">Approve</button>
                                     <button type="submit">Deny</button>
                                     {{#unless this.acceptedFriend}}
